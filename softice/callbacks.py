@@ -1,0 +1,284 @@
+import logging
+
+from datetime import datetime
+
+
+from nio import (
+    AsyncClient,
+    InviteMemberEvent,
+    JoinError,
+    MatrixRoom,
+    MegolmEvent,
+    RoomGetEventError,
+    RoomMessageText,
+    UnknownEvent,
+)
+
+# from softice.bot_commands import Command
+from softice.chat_functions import make_pill, react_to_event, send_text_to_room
+from softice.config import Config
+# from softice.message_responses import Message
+from softice.storage import Storage
+from softice.babbler import CBabbler
+from softice.barman import CBarman
+
+logger = logging.getLogger(__name__)
+
+MINIMUM_USER_QUANTITY: int = 2
+OBSOLETE_PERIOD: int = 93000 # 3000 
+
+class Callbacks:
+    def __init__(self, client: AsyncClient, store: Storage, config: Config):
+        """
+        Args:
+            client: nio client used to interact with matrix.
+
+            store: Bot storage.
+
+            config: Bot configuration parameters.
+        """
+        self.client = client
+        self.store = store
+        self.config = config
+        self.command_prefix = config.command_prefix
+        self.babbler: CBabbler = CBabbler(self.config)
+        self.barman: CBarman = CBarman(self.config)
+        self.first_run: Bool = True
+
+
+    async def run_once(self):
+        """Функция выполняется один раз в начале работы."""
+
+        if self.first_run:
+
+            self.first_run = False
+            print("*** Run once.")
+            await self.babbler.reload()
+            await self.barman.load_assortment()
+
+
+    async def is_obsolete(self, pevent: RoomMessageText) -> bool:
+        """Возвращает True, если разница между временем события и текущим равна OBSOLETE_PERIOD и больше. """
+        now_time: int = int(datetime.now().timestamp()*1000)
+        delta: int = now_time - pevent.server_timestamp
+        return delta >= OBSOLETE_PERIOD
+
+    # *** Основная процедура вызывается при каждом пришедшем сообщении
+    async def message(self, room: MatrixRoom, event: RoomMessageText) -> None:
+        """Callback for when a message event is received
+        Args:
+            room: The room the event came from.
+            event: The event defining the message.
+        """
+        #print(f"!!!!! {room=}")
+        # print(f"!!!!! {event.body=}")
+        await self.run_once()
+        answer: str = ""
+        # *** Если это наше сообщение - игнорим его.
+        if event.sender == self.client.user:
+            
+            return
+
+        # *** В приватах мы работать не будем
+        if room.member_count <= self.config.minimum_quantity:
+            
+            await send_text_to_room(self.client, room.room_id, 
+                "Извините, в привате не работаю.")
+            return
+
+        if not await self.is_obsolete(event):
+
+            # *** Получим текст сообщения
+            message: str = event.body
+
+            # *** Выведем в лог отладочное сообщение
+            logger.debug(
+                f"Bot message received for room {room.display_name} | "
+                f"{room.user_name(event.sender)}: {message}"
+            )
+            
+            # Process as message if in a public room without command prefix
+            # room.is_group is often a DM, but not always.
+            # room.is_group does not allow room aliases
+            # room.member_count > 2 ... we assume a public room
+            # room.member_count <= 2 ... we assume a DM
+                # General message listener
+            # message = Message(self.client, self.store, self.config, msg, room, event)
+            # await message.process()
+            has_command_prefix = message.startswith(self.command_prefix)
+            # *** Что у нас в сообщении?
+            # print(f"!!!!! {room=}") 
+            # print(f"!!!!! {event.sender=}")
+            # print(f"!!!!! {message=}")
+            if has_command_prefix:
+                
+                # print("!!!!! Babbler.babbler")
+                # *** Команда
+                # def babbler(self, proom: int, psender: str, pmessage: str) -> str:
+                answer = self.babbler.babbler(room.name, event.sender, message).strip()
+                # print(f"Болтун отвечает \"{answer}\"")
+                if not answer:
+                    
+                    #def barman(self, pchat_title: str, puser_name: str, puser_title: str, pmessage_text: str) -> str:
+                    # print("!!!!! Barman.barman")
+                    answer = self.barman.barman(room.name, event.sender, message)
+                    # print(f"Бармен отвечает \"{answer}\"")
+            else:
+
+                # print("*** Babbler.talk")
+                # *** Просто сообщение    
+                # def talk(self, proom: str, pmessage: str) -> str:
+                answer, file_name = await self.babbler.talk(room.name, message)
+            # print(f"!!!!! {answer=}")
+            if answer:
+                
+                await send_text_to_room(self.client, room.room_id, answer)
+            return
+
+        # Otherwise if this is in a 1-1 with the bot or features a command prefix,
+        # treat it as a command
+        # print(f"*** {self.command_prefix=}")
+
+        #if has_command_prefix:
+        #    Remove the command prefix
+        #    print("Таки это команда!")
+        #    msg = msg[len(self.command_prefix) :]
+
+        # print(f"*** {msg=}")
+        # print(f"*** {room=}")
+        # print(f"*** {event=}")
+        # command = Command(self.client, self.store, self.config, msg, room, event)
+        # await command.process() 
+
+    async def invite(self, room: MatrixRoom, event: InviteMemberEvent) -> None:
+        """Callback for when an invite is received. Join the room specified in the invite.
+
+        Args:
+            room: The room that we are invited to.
+
+            event: The invite event.
+        """
+        logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
+
+        # Attempt to join 3 times before giving up
+        for attempt in range(3):
+            result = await self.client.join(room.room_id)
+            if type(result) == JoinError:
+                logger.error(
+                    f"Error joining room {room.room_id} (attempt %d): %s",
+                    attempt,
+                    result.message,
+                )
+            else:
+                break
+        else:
+            logger.error("Unable to join room: %s", room.room_id)
+
+        # Successfully joined room
+        logger.info(f"Joined {room.room_id}")
+
+    async def invite_event_filtered_callback(
+        self, room: MatrixRoom, event: InviteMemberEvent
+    ) -> None:
+        """
+        Since the InviteMemberEvent is fired for every m.room.member state received
+        in a sync response's `rooms.invite` section, we will receive some that are
+        not actually our own invite event (such as the inviter's membership).
+        This makes sure we only call `callbacks.invite` with our own invite events.
+        """
+        if event.state_key == self.client.user_id:
+            # This is our own membership (invite) event
+            await self.invite(room, event)
+
+    async def _reaction(
+        self, room: MatrixRoom, event: UnknownEvent, reacted_to_id: str
+    ) -> None:
+        """A reaction was sent to one of our messages. Let's send a reply acknowledging it.
+
+        Args:
+            room: The room the reaction was sent in.
+
+            event: The reaction event.
+
+            reacted_to_id: The event ID that the reaction points to.
+        """
+        logger.debug(f"Got reaction to {room.room_id} from {event.sender}.")
+
+        # Get the original event that was reacted to
+        event_response = await self.client.room_get_event(room.room_id, reacted_to_id)
+        if isinstance(event_response, RoomGetEventError):
+            logger.warning(
+                "Error getting event that was reacted to (%s)", reacted_to_id
+            )
+            return
+        reacted_to_event = event_response.event
+
+        # Only acknowledge reactions to events that we sent
+        if reacted_to_event.sender != self.config.user_id:
+            return
+
+        # Send a message acknowledging the reaction
+        reaction_sender_pill = make_pill(event.sender)
+        reaction_content = (
+            event.source.get("content", {}).get("m.relates_to", {}).get("key")
+        )
+        message = (
+            f"{reaction_sender_pill} reacted to this event with `{reaction_content}`!"
+        )
+        await send_text_to_room(
+            self.client,
+            room.room_id,
+            message,
+            reply_to_event_id=reacted_to_id,
+        )
+
+    async def decryption_failure(self, room: MatrixRoom, event: MegolmEvent) -> None:
+        """Callback for when an event fails to decrypt. Inform the user.
+
+        Args:
+            room: The room that the event that we were unable to decrypt is in.
+
+            event: The encrypted event that we were unable to decrypt.
+        """
+        logger.error(
+            f"Failed to decrypt event '{event.event_id}' in room '{room.room_id}'!"
+            f"\n\n"
+            f"Tip: try using a different device ID in your config file and restart."
+            f"\n\n"
+            f"If all else fails, delete your store directory and let the bot recreate "
+            f"it (your reminders will NOT be deleted, but the bot may respond to existing "
+            f"commands a second time)."
+        )
+
+        red_x_and_lock_emoji = "❌ 🔐"
+
+        # React to the undecryptable event with some emoji
+        await react_to_event(
+            self.client,
+            room.room_id,
+            event.event_id,
+            red_x_and_lock_emoji,
+        )
+
+    async def unknown(self, room: MatrixRoom, event: UnknownEvent) -> None:
+        """Callback for when an event with a type that is unknown to matrix-nio is received.
+        Currently this is used for reaction events, which are not yet part of a released
+        matrix spec (and are thus unknown to nio).
+
+        Args:
+            room: The room the reaction was sent in.
+
+            event: The event itself.
+        """
+        if event.type == "m.reaction":
+            # Get the ID of the event this was a reaction to
+            relation_dict = event.source.get("content", {}).get("m.relates_to", {})
+
+            reacted_to = relation_dict.get("event_id")
+            if reacted_to and relation_dict.get("rel_type") == "m.annotation":
+                await self._reaction(room, event, reacted_to)
+                return
+
+        logger.debug(
+            f"Got unknown event with type to {event.type} from {event.sender} in {room.room_id}."
+        )

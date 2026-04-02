@@ -1,0 +1,1 @@
+/home/app/bin/python/matrix/bin/python3 softice-mx.py config_home.yaml

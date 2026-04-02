@@ -1,0 +1,12 @@
+data/*
+logs/*
+__pycache__/*
+tests/__pycache__/*
+alembic/__pycache__/*
+alembic/versions/__pycache__/*
+config_home.yaml
+config_job.yaml
+test_config.yaml
+softice/__pycache__/*
+tests/__pycache__/*
+*.db

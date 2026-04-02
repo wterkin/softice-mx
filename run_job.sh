@@ -1,0 +1,1 @@
+/home/user/bin/env/matrix/bin/python softice-mx.py config_job.yaml
