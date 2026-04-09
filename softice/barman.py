@@ -293,6 +293,7 @@ class CBarman(basis.CBasis):
         assert pcommand is not None, \
             "Assert: [barman.serve_client] Пропущен параметр <pcommand> !"
 
+        print(f"===== 1 {puser_name=}")
         answer: str = ""
         for item in ASSORTMENT:
             
@@ -306,6 +307,8 @@ class CBarman(basis.CBasis):
 
                     arguments.append(random.choice(self.bar_content[item[ID_KEY]][prop]))
                 # *** Предпоследний аргумент - имя пользователя
+                nick = self.parse_nick(puser_name)
+                print(f"===== 2 {nick=}")
                 arguments.append(self.parse_nick(puser_name))
                 # *** Последний аргумент - это эмоджи
                 arguments.append(item[EMODJI_KEY])

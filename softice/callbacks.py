@@ -21,6 +21,8 @@ from softice.config import Config
 from softice.storage import Storage
 from softice.babbler import CBabbler
 from softice.barman import CBarman
+from softice.gambler import CGambler
+from softice.haijin import CHaijin
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,8 @@ class Callbacks:
         self.command_prefix = config.command_prefix
         self.babbler: CBabbler = CBabbler(self.config)
         self.barman: CBarman = CBarman(self.config)
+        self.gambler: CGambler = CGambler(self.config)
+        self.haijin: CHaijin = CHaijin(self.config)
         self.first_run: Bool = True
 
 
@@ -55,6 +59,7 @@ class Callbacks:
             print("*** Run once.")
             await self.babbler.reload()
             await self.barman.load_assortment()
+            await self.haijin.reload()
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
@@ -112,17 +117,16 @@ class Callbacks:
             # print(f"!!!!! {message=}")
             if has_command_prefix:
                 
-                # print("!!!!! Babbler.babbler")
-                # *** Команда
-                # def babbler(self, proom: int, psender: str, pmessage: str) -> str:
                 answer = self.babbler.babbler(room.name, event.sender, message).strip()
-                # print(f"Болтун отвечает \"{answer}\"")
                 if not answer:
                     
-                    #def barman(self, pchat_title: str, puser_name: str, puser_title: str, pmessage_text: str) -> str:
-                    # print("!!!!! Barman.barman")
                     answer = self.barman.barman(room.name, event.sender, message)
-                    # print(f"Бармен отвечает \"{answer}\"")
+                if not answer:
+                
+                    answer = self.gambler.gambler(room.name, message)
+                if not answer:
+                    
+                    answer = self.haijin.haijin(room.name, event.sender, message)    
             else:
 
                 # print("*** Babbler.talk")

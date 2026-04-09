@@ -4,11 +4,14 @@
 """Модуль прототипа классов модулей бота."""
 
 import asyncio
-
+import os
+from datetime import datetime as dtime
 from softice import prototype
 
 BACKSLASH: str = "\\"
 OUT_MSG_LOG_LEN = 60
+MESSAGE_NOT_FOUND: str = "Извините, по вашему запросу ничего не найдено"
+
 
 class CBasis(prototype.CPrototype):
     """Базовый класс для классов модулей бота.. """
@@ -52,6 +55,7 @@ class CBasis(prototype.CPrototype):
         return ""
 
 
+
     def identify_command(self, pword: str, pcommands : list) -> int:  # noqa
         """Распознает команду и возвращает её код, в случае неудачи  -1."""
 
@@ -63,10 +67,14 @@ class CBasis(prototype.CPrototype):
             "No <pcommands> parameter specified!"
             
         result: int = -1
+        print(f"..... {pword=}")
+        print(f"..... {pcommands=}")
         for command_idx, command in enumerate(pcommands):
 
-            if pword == command:
+            print(f"..... {command=}")
+            if pword in command:
 
+                print(f"..... Success!")
                 result = command_idx
                 break
 
@@ -93,7 +101,7 @@ class CBasis(prototype.CPrototype):
         assert puser_name is not None, \
             "Assert: [CBasis.is_master] Пропущен параметр <puser_name> !"
 
-        return puser_name == self.config["master"]
+        return puser_name == self.config.master
 
     """
     def load_from_file(self, pfile_name):
@@ -140,10 +148,12 @@ class CBasis(prototype.CPrototype):
     def parse_nick(self, pnick: str) -> str:
         """Вытаскивает из полного адреса имя пользователя и капитализирует его."""
         nick: str = pnick.split(":")[0]
-        return nick[1:].capitalize()
+        if nick[0] == "@":
+            nick = nick[1:]
+        return nick.capitalize()
         
         
-    def save_to_file(self, plist: list, pfile_name: str): # noqa
+    async def save_to_file(self, plist: list, pfile_name: str): # noqa
         """Сохраняет список строк в текстовый файл, если файл с таким именем уже есть - переименовывает его."""
 
         assert plist is not None, \

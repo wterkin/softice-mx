@@ -102,8 +102,8 @@ class Config:
         self.device_name = self._get_cfg(
             ["matrix", "device_name"], default="nio-template"
         )
+        self.master = self._get_cfg(["matrix", "master"], required=True)
         self.homeserver_url = self._get_cfg(["matrix", "homeserver_url"], required=True)
-
         self.command_prefix = self._get_cfg(["command_prefix"], default="!c")
         self.minimum_quantity = self._get_cfg(["matrix","minimum_quantity"])
         self.chats = self._get_cfg(["matrix", "chats"], required=True)
@@ -112,7 +112,7 @@ class Config:
         #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.meteorolog=}")
         self.babbler = self._get_cfg(["matrix", "babbler"], required=True)
         #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
-        
+        self.test_chat = self._get_cfg(["matrix", "test_chat"], required=True)
         """
         !!!!!!!!!!!!!!!!!!!!!!!!! self.chats={'Арда': 'babbler', 'Ботовка': 'babbler'}
         !!!!!!!!!!!!!!!!!!!!!!!!! self.meteorolog={'api_key': '3c15fe44d0d0d93e28fd81b00a8e46bf'}

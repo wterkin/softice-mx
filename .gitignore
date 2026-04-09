@@ -10,3 +10,4 @@ test_config.yaml
 softice/__pycache__/*
 tests/__pycache__/*
 *.db
+*.log
