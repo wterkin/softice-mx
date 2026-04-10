@@ -130,8 +130,9 @@ class CHaijin(basis.CBasis):
                 #              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
                 #              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
                 result_text = f"{result_text[:-1]}{LF}" \
-                              f"{author}" + \
-                              f"{number} {len(self.hokku)}"
+                              f"{author} " + \
+                              f"{number} / {len(self.hokku)}"
+                print(f"======== {result_text=}")
             return result_text
         return ptext
 
@@ -193,7 +194,7 @@ class CHaijin(basis.CBasis):
                 can_reload = self.is_master(puser_name)
                 if can_reload:
 
-                    await self.save_to_file(self.hokku, self.data_path + HAIJIN_FILE_NAME)
+                    await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
             elif word_list[0] in HINT:
 
@@ -239,7 +240,7 @@ class CHaijin(basis.CBasis):
         return False, f"У вас нет на это прав, {puser_title}."
     """
 
-    def process_command(self, pcommand: list, puser_name: str):
+    async def process_command(self, pcommand: list, puser_name: str):
         """Обрабатывает пользовательские команды."""
 
         # *** Получим код команды
@@ -276,7 +277,7 @@ class CHaijin(basis.CBasis):
             elif command == DEL_HOKKU_CMD:
 
                 # *** Пользователь хочет удалить хокку из книги...
-                if puser_name == self.config["master"]:
+                if puser_name == self.config.master:
 
                     del self.hokku[int(pcommand[1]) - 1]
                     answer = f"Хокку {pcommand[1]} удалена."

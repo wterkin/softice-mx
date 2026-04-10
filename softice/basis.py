@@ -152,8 +152,14 @@ class CBasis(prototype.CPrototype):
             nick = nick[1:]
         return nick.capitalize()
         
+    async def save_to_file_async(self, plist: list, pfile_name: str):
+        """Асинхронное сохранение списка в файл."""
+
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.save_to_file, plist, pfile_name)
         
-    async def save_to_file(self, plist: list, pfile_name: str): # noqa
+        
+    def save_to_file(self, plist: list, pfile_name: str): # noqa
         """Сохраняет список строк в текстовый файл, если файл с таким именем уже есть - переименовывает его."""
 
         assert plist is not None, \

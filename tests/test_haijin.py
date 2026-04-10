@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 import logging
 import asyncio
+
 from softice import haijin
 from softice import config
 
@@ -13,9 +14,7 @@ class CTestHaijin(TestCase):
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
-        # self.data_path: str = self.config.data_folder + haijin.HAIJIN_FOLDER        
         self.haijin: haijin.CHaijin = haijin.CHaijin(self.config)
-        # await self.haijin.reload()
 
 
     def test_can_process(self):
@@ -30,20 +29,22 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.can_process(self.config.test_chat, "!hokku"))
         self.assertFalse(self.haijin.can_process(self.config.test_chat, "!кукабарра"))
 
-    """
     def test_format_hokku(self):
 
-        text: str = "[1] Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...  (Исса) "
-        # screened_text = self.haijin.screen_text(text[4:-8])
-        #first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{screened_text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}" 
-        #second_text: str = f"{haijin.AUTHOR_INDENT}{func.screen_text('Исса')} {haijin.SPOILER}"
-        first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}" 
-        second_text: str = f"{haijin.AUTHOR_INDENT} (Исса') {haijin.SPOILER}"
-        third_text: str = f"{haijin.DELIMITER} 1 {haijin.DELIMITER} 1 {haijin.SPOILER}"
+        #text: str = "[1] Печальный мир. \n Даже когда расцветают вишни.. \n Даже тогда...  (Исса) "
+        asyncio.run(self.haijin.reload())
+        text: str = "Печальный мир.\nДаже когда расцветают вишни..\nДаже тогда...\nИсса 1 / 1"
+        #first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}" 
+        first_text: str = f"{text[:-1]}" 
+        second_text: str = f"{haijin.AUTHOR_INDENT} (Исса')"
+        third_text: str = f" 1 / 1 "
         result_text: str = first_text + second_text + third_text
         formatted_text: str = self.haijin.format_hokku(text)
+        print(f"!!!!{result_text=}")
+        print(f"!!!!{formatted_text=}")
         self.assertEqual(formatted_text, result_text)
-    """
+        
+        
     def test_get_help(self):
 
         self.assertIn("хк, hk : получить случайное хокку, \n", self.haijin.get_help(self.config.test_chat))
@@ -86,7 +87,7 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.is_master(self.config.master)) #, self.config["master_name"]))
 
 
-    async def test_process_command(self):
+    def test_process_command(self):
 
         #print(f"{self.haijin.hokku=}")
         asyncio.run(self.haijin.reload())
@@ -96,14 +97,14 @@ class CTestHaijin(TestCase):
         self.assertIn(answer, result)
         
         hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
-        result = asyncio.run(self.haijin.process_command(["hk+", hokku],                                                     self.config["master"], self.config["master_name"]))
-        self.assertIn("Спасибо, Петрович, хокку добавлено под номером 2", result)
+        result = asyncio.run(self.haijin.process_command(["hk+", hokku],                                                     self.config.master))
+        self.assertIn("Спасибо, Namo, хокку добавлено под номером 2", result)
         
-        result = asyncio.run(self.haijin.process_command(["hk-", "2"],self.config["master"], self.config["master_name"]))
+        result = asyncio.run(self.haijin.process_command(["hk-", "2"],self.config.master))
         self.assertIn("Хокку 2 удалена.", result)
         
         # Запрос на удаление от нелегитимного лица
-        answer = "Извини, User, только Петрович может удалять хокку"
-        result = result = asyncio.run(self.haijin.process_command(["hk-", "1"], "user", "User"))
+        answer = "Извини, User, только @namo:sibnsk.net может удалять хокку"
+        result = result = asyncio.run(self.haijin.process_command(["hk-", "1"], "user"))
         self.assertIn(answer, result)
         
