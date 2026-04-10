@@ -126,7 +126,7 @@ class Callbacks:
                     answer = self.gambler.gambler(room.name, message)
                 if not answer:
                     
-                    answer = self.haijin.haijin(room.name, event.sender, message)    
+                    answer = await self.haijin.haijin(room.name, event.sender, message)    
             else:
 
                 # print("*** Babbler.talk")

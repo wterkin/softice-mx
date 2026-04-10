@@ -31,16 +31,19 @@ class CTestHaijin(TestCase):
 
     def test_format_hokku(self):
 
-        #text: str = "[1] Печальный мир. \n Даже когда расцветают вишни.. \n Даже тогда...  (Исса) "
         asyncio.run(self.haijin.reload())
-        text: str = "Печальный мир.\nДаже когда расцветают вишни..\nДаже тогда...\nИсса 1 / 1"
+        # *** Текст хокку в том виде,в каком он хранится в базе, без автора
+        text: str = "[1] Печальный мир.\nДаже когда расцветают вишни..\nДаже тогда...\n"
         #first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}" 
-        first_text: str = f"{text[:-1]}" 
-        second_text: str = f"{haijin.AUTHOR_INDENT} (Исса')"
-        third_text: str = f" 1 / 1 "
+        first_text: str = text[4:]
+        print(f"!!!!{first_text=}")
+        
+        second_text: str = f"{haijin.AUTHOR_INDENT} (Исса)"
+        print(f"!!!!{second_text=}")
+        third_text: str = " 1 / 1 "
         result_text: str = first_text + second_text + third_text
-        formatted_text: str = self.haijin.format_hokku(text)
         print(f"!!!!{result_text=}")
+        formatted_text: str = self.haijin.format_hokku(text+second_text)
         print(f"!!!!{formatted_text=}")
         self.assertEqual(formatted_text, result_text)
         

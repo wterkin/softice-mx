@@ -77,7 +77,7 @@ class CBasis(prototype.CPrototype):
                 print(f"..... Success!")
                 result = command_idx
                 break
-
+        print(f"..... {result=}")
         return result
 
 

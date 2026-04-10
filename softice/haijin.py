@@ -107,6 +107,7 @@ class CHaijin(basis.CBasis):
 
         # *** Вырежем номер
         result_text: str = ""
+        # print(f"++++ {ptext=}")
         if "???" not in ptext:
 
             if LEFT_BRACKET in ptext and RIGHT_BRACKET in ptext:
@@ -129,10 +130,8 @@ class CHaijin(basis.CBasis):
                 #result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
                 #              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
                 #              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
-                result_text = f"{result_text[:-1]}{LF}" \
-                              f"{author} " + \
-                              f"{number} / {len(self.hokku)}"
-                print(f"======== {result_text=}")
+                result_text = f"{result_text[:-1]}{LF} {author} {number} / {len(self.hokku)}"
+            print(f"+++++ {result_text=}")
             return result_text
         return ptext
 
@@ -201,14 +200,16 @@ class CHaijin(basis.CBasis):
                 answer = self.get_help(pchat_title)
             else:
 
-                answer, unformatted_answer = self.identify_command(word_list,
-                                                                  puser_name,
-                                                                  HAIJIN_COMMANDS)
+                print(f"+++++ {word_list[0]=}")
+                print(f"+++++ {type(word_list[0])=}")
+                print(f"+++++ {type(HAIJIN_COMMANDS)=}")
+
+                answer, unformatted_answer = await self.process_command(word_list, HAIJIN_COMMANDS)
             if answer:
 
                 if unformatted_answer:
 
-                    print("> Haijin отвечает: ", unformatted_answer[:func.OUT_MSG_LOG_LEN])
+                    print("> Haijin отвечает: ", unformatted_answer[:basis.OUT_MSG_LOG_LEN])
                 else:
 
                     print("> Haijin отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
@@ -253,7 +254,7 @@ class CHaijin(basis.CBasis):
             if command == ASK_HOKKU_CMD:
 
                 # *** Пользователь хочет хокку....
-                print(f"{self.hokku=}")
+                print(f"+++++ {self.hokku=}")
                 
                 answer = librarian.quote(self.hokku, pcommand)
                 if answer:
@@ -295,5 +296,5 @@ class CHaijin(basis.CBasis):
         """Перезагружает библиотеку."""
 
         self.hokku = await self.load_from_file_async(self.data_path + HAIJIN_FILE_NAME)
-        print("+++ Reload: ",self.hokku)
+        print("+++++ Reload: ",self.hokku)
         print(f"> Haijin успешно (пере)загрузил {len(self.hokku)} хокку.")
