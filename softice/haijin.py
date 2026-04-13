@@ -28,9 +28,11 @@ HAIJIN_COMMANDS: list = [["хк", "hk"],
 
 HINT = ["хокку", "hokku"]
 UNIT_ID = "haijin"
-BOLD: str = "*"
-ITALIC: str = "_"
-SPOILER: str = "||"
+
+BOLD: str = "**"  # "*"
+ITALIC: str = "*"  # "_"
+SPOILER: str = ""
+
 SLASH: str = "/"
 LF: str = "\n"
 SPACE: str = " "
@@ -107,7 +109,6 @@ class CHaijin(basis.CBasis):
 
         # *** Вырежем номер
         result_text: str = ""
-        # print(f"++++ {ptext=}")
         if "???" not in ptext:
 
             if LEFT_BRACKET in ptext and RIGHT_BRACKET in ptext:
@@ -126,14 +127,13 @@ class CHaijin(basis.CBasis):
                 for line in text_list:
 
                     result_text += line.strip() + LF
-                # result_text = func.screen_text(result_text)
-                #result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
-                #              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
-                #              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
-                result_text = f"{result_text[:-1]}{LF} {author} {number} / {len(self.hokku)}"
-            print(f"+++++ {result_text=}")
+                #result_text = self.screen_text(result_text)
+                result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
+                              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
+                              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
             return result_text
         return ptext
+
 
 
     def get_help(self, pchat_title: str) -> str:

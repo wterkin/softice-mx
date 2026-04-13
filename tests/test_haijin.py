@@ -29,24 +29,23 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.can_process(self.config.test_chat, "!hokku"))
         self.assertFalse(self.haijin.can_process(self.config.test_chat, "!кукабарра"))
 
+       
     def test_format_hokku(self):
 
         asyncio.run(self.haijin.reload())
-        # *** Текст хокку в том виде,в каком он хранится в базе, без автора
-        text: str = "[1] Печальный мир.\nДаже когда расцветают вишни..\nДаже тогда...\n"
-        #first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}" 
-        first_text: str = text[4:]
-        print(f"!!!!{first_text=}")
-        
-        second_text: str = f"{haijin.AUTHOR_INDENT} (Исса)"
-        print(f"!!!!{second_text=}")
-        third_text: str = " 1 / 1 "
+        text: str = "[1] Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...  (Исса) "
+        #screened_text = self.haijin.screen_text(text[4:-8])
+        screened_text = text[4:-8]
+        first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{screened_text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}"
+        # second_text: str = f"{haijin.AUTHOR_INDENT}{func.screen_text('Исса')} {haijin.SPOILER}"
+        second_text: str = f"{haijin.AUTHOR_INDENT}Исса {haijin.SPOILER}"
+        third_text: str = f"{haijin.DELIMITER} 1 {haijin.DELIMITER} 1 {haijin.SPOILER}"
         result_text: str = first_text + second_text + third_text
-        print(f"!!!!{result_text=}")
-        formatted_text: str = self.haijin.format_hokku(text+second_text)
-        print(f"!!!!{formatted_text=}")
+        formatted_text: str = self.haijin.format_hokku(text)
+        print(f"!!! {result_text=}")
+        print(f"!!! {formatted_text=}")
         self.assertEqual(formatted_text, result_text)
-        
+  
         
     def test_get_help(self):
 
