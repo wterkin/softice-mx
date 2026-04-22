@@ -159,7 +159,7 @@ class CBarman(basis.CBasis):
         self.bar_content: dict = {}
 
 
-    def barman(self, pchat_title: str, puser_name: str, pmessage_text: str) -> str:
+    async def barman(self, pchat_title: str, puser_name: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
         assert pchat_title is not None, \
             "Assert: [barman.barman] Пропущен параметр <pchat_title> !"
@@ -181,7 +181,7 @@ class CBarman(basis.CBasis):
 
                 if self.is_master(puser_name):
 
-                    self.reload()
+                    await self.reload()
                     answer = "Ассортимент бара обновлён."
                 else:
 
@@ -237,7 +237,7 @@ class CBarman(basis.CBasis):
             "Пропущен параметр <pchat_title> !"
 
         command_list: str = ""
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             for command in COMMANDS:
 
@@ -251,7 +251,7 @@ class CBarman(basis.CBasis):
             "Assert: [barman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             return ", ".join(BAR_HINT)
         return ""
@@ -259,9 +259,11 @@ class CBarman(basis.CBasis):
 
     async def load_assortment(self):
         """Загружает ассортимент бара."""
-
+        
+        print(f"===== {ASSORTMENT=}")
         for item in ASSORTMENT:
-
+            
+            print(f"===== {item=}")
             await self.load_item(item)
         print(f"> Barman успешно (пере)загрузил {len(ASSORTMENT)} типов товаров.")
 
@@ -280,10 +282,10 @@ class CBarman(basis.CBasis):
         self.bar_content[pitem[ID_KEY]] = storage
 
 
-    def reload(self):  # , pchat_id: int, puser_name: str, puser_title):
+    async def reload(self):  # , pchat_id: int, puser_name: str, puser_title):
         """Перегружает все содержимое бара."""
 
-        self.load_assortment()
+        await self.load_assortment()
 
 
     def serve_client(self, puser_name: str, pcommand: str):
@@ -303,8 +305,14 @@ class CBarman(basis.CBasis):
             if pcommand.strip().lower() in item[COMMAND_KEY]:
 
                 arguments: list = []
+                print(f"===== {ID_KEY=}")
+                print(f"===== {item[ID_KEY]=}")
+                print(f"===== {self.bar_content=}")
+                print(f"===== {self.bar_content[item[ID_KEY]]=}")
                 for prop in item[PROPERTIES_KEY]:
-
+                    
+                    print(f"===== {prop=}")
+                    print(f"===== {self.bar_content[item[ID_KEY]][prop]=}")
                     arguments.append(random.choice(self.bar_content[item[ID_KEY]][prop]))
                 # *** Предпоследний аргумент - имя пользователя
                 nick = self.parse_nick(puser_name)

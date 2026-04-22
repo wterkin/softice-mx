@@ -29,37 +29,26 @@ HAIJIN_COMMANDS: list = [["хк", "hk"],
 HINT = ["хокку", "hokku"]
 UNIT_ID = "haijin"
 
-BOLD: str = "**"  # "*"
-ITALIC: str = "*"  # "_"
+#BOLD: str = "**"  # "*"
+#ITALIC: str = "*"  # "_"
+BOLD: str = ""  # "*"
+ITALIC: str = ""  # "_"
 SPOILER: str = ""
+QUOTE: str = ">"
+HEADING_1: str = "#"
+HEADING_2: str = "##"
+LIST_ENTRY: str = "* "
 
 SLASH: str = "/"
-LF: str = "\n"
+LF: str = " / " # "\n"
 SPACE: str = " "
 LEFT_PARENTHESIS: str = "("
 RIGHT_PARENTHESIS: str = ")"
 LEFT_BRACKET: str = "["
 RIGHT_BRACKET: str = "]"
 AUTHOR_INDENT: str = "     "
-DELIMITER: str = f"{basis.BACKSLASH}|"
+DELIMITER: str = f"|"
 
-"""
-def get_command(pword: str) -> int:
-    ""Распознает команду и возвращает её код, в случае неудачи - None.""
-
-    assert pword is not None, \
-        "Assert: [haijin.get_command] " \
-        "Пропущен параметр <pword> !"
-    result: int = -1
-
-    for command_idx, command in enumerate(HAIJIN_COMMANDS):
-
-        if pword in command:
-
-            result = command_idx
-            break
-    return result
-"""
 
 class CHaijin(basis.CBasis):
     """Класс хайдзина."""
@@ -126,8 +115,8 @@ class CHaijin(basis.CBasis):
                 text_list: list = text.split(SLASH)
                 for line in text_list:
 
-                    result_text += line.strip() + LF
-                #result_text = self.screen_text(result_text)
+                    result_text += QUOTE+line.strip()
+                    # result_text += line.strip() + LF
                 result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
                               f"{AUTHOR_INDENT}{author} {SPOILER}" + \
                               f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
@@ -150,7 +139,6 @@ class CHaijin(basis.CBasis):
                 command_list += ", ".join(command) + HAIJIN_DESC[idx]
                 command_list += "\n"
 
-        #return func.screen_text(command_list)
         return command_list
 
 
@@ -200,10 +188,6 @@ class CHaijin(basis.CBasis):
                 answer = self.get_help(pchat_title)
             else:
 
-                print(f"+++++ {word_list[0]=}")
-                print(f"+++++ {type(word_list[0])=}")
-                print(f"+++++ {type(HAIJIN_COMMANDS)=}")
-
                 answer, unformatted_answer = await self.process_command(word_list, HAIJIN_COMMANDS)
             if answer:
 
@@ -218,28 +202,6 @@ class CHaijin(basis.CBasis):
             answer = f"{cn.SCREENED}{answer}"
         return answer
 
-    """
-    def is_enabled(self, pchat_title: str) -> bool:
-        ""Возвращает True, если библиотекарь разрешен на этом канале.""
-
-        assert pchat_title is not None, \
-            "Assert: [haijin.is_enabled] " \
-            "Пропущен параметр <pchat_title> !"
-        if pchat_title in self.config["chats"]:
-
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False
-
-
-    def is_master(self, puser_name, puser_title):
-        ""Проверяет, является ли пользователь хозяином бота.""
-
-        if puser_name == self.config["master"]:
-
-            return True, ""
-        # *** Низзя
-        return False, f"У вас нет на это прав, {puser_title}."
-    """
 
     async def process_command(self, pcommand: list, puser_name: str):
         """Обрабатывает пользовательские команды."""
@@ -296,5 +258,4 @@ class CHaijin(basis.CBasis):
         """Перезагружает библиотеку."""
 
         self.hokku = await self.load_from_file_async(self.data_path + HAIJIN_FILE_NAME)
-        print("+++++ Reload: ",self.hokku)
         print(f"> Haijin успешно (пере)загрузил {len(self.hokku)} хокку.")

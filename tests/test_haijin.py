@@ -42,7 +42,7 @@ class CTestHaijin(TestCase):
         third_text: str = f"{haijin.DELIMITER} 1 {haijin.DELIMITER} 1 {haijin.SPOILER}"
         result_text: str = first_text + second_text + third_text
         formatted_text: str = self.haijin.format_hokku(text)
-        print(f"!!! {result_text=}")
+        print(f"!!!  {result_text=}")
         print(f"!!! {formatted_text=}")
         self.assertEqual(formatted_text, result_text)
   
