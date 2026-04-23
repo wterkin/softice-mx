@@ -10,57 +10,50 @@ sys.path.insert(0, "tests/")
 import softice
 from softice.config import Config
 from softice import babbler
-# import test_softice
+import asyncio
+
 UNIT_CONFIG: str = "unittest_config.json"
 
 class CTestBabbler(TestCase):
 
     def setUp(self) -> None:
 
-        self.config = Config("/home/app/Projects/softice-mx/test_config.yaml")
+        self.config = Config("test_config.yaml")
         self.babbler = babbler.CBabbler(self.config)
 
 
     def test_babbler(self):
 
-        event: dict = {}
-        event[cn.MTEXT] = "!blreload"
-        event[cn.MCHAT_TITLE] = test_softice.TESTPLACE_CHAT_NAME
-        event[cn.MUSER_NAME] = self.config["master"]
-        event[cn.MUSER_TITLE] = self.config["master_name"]
-        self.assertEqual(self.babbler.babbler(event), "База болтуна обновлена")
-        event[cn.MCHAT_TITLE] = "superchat"
-        event[cn.MUSER_NAME] = "username"
-        event[cn.MUSER_TITLE] = "usertitle"
-        self.assertNotEqual(self.babbler.babbler(event), "База болтуна обновлена")
+        result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!blreload"))
+        self.assertEqual(result, "База болтуна обновлена")
+        result = asyncio.run(self.babbler.babbler("superchat", "username", "!blreload"))
+        self.assertNotEqual(result, "База болтуна обновлена")
 
 
     def test_reload(self):
 
-        self.assertTrue(self.babbler.reload())
+        result = asyncio.run(self.babbler.reload())
+        self.assertTrue(result)
 
 
     def test_talk(self):
 
-        sleep(int(self.babbler.config[babbler.BABBLER_PERIOD_KEY]))
-        event: dict = {}
-        event[cn.MCHAT_TITLE] = test_softice.TESTPLACE_CHAT_NAME
-        event[cn.MTEXT] = 'Привет'
-        self.assertEqual(self.babbler.talk(event), ("Здорово!", ""))
-        event[cn.MTEXT] = 'Хай'
-        self.assertEqual(self.babbler.talk(event), ("", ""))
+        result = asyncio.run(self.babbler.reload())
+        sleep(int(self.config.babbler["period"]))
+        result = asyncio.run(self.babbler.talk(self.config.test_chat, "Привет"))
+        self.assertEqual(result, ("Здорово!", ""))
+        result = asyncio.run(self.babbler.talk(self.config.test_chat, "Хай"))
+        self.assertEqual(result, ("", ""))
 
 
     def test_think(self):
 
-        event: dict = {}
-        event[cn.MCHAT_TITLE] = test_softice.TESTPLACE_CHAT_NAME
-        event[cn.MTEXT] = "Спасибо, бот"
-        self.assertEqual(self.babbler.think(event), ("Пожалуйста.", ""))
-        event[cn.MTEXT] = "Спасибо"
-        self.assertEqual(self.babbler.think(event), ("", ""))
-        event[cn.MTEXT] = "чаю"
-        self.assertEqual(self.babbler.think(event), ("Обязательно!", "test_data/babbler/reactions/images/tea.jpg"))
-        event[cn.MTEXT] = 'Привет'
-        self.assertEqual(self.babbler.talk(event), ("Здорово!", ""))
-
+        result = asyncio.run(self.babbler.reload())
+        result = asyncio.run(self.babbler.think("Спасибо, бот")) 
+        self.assertEqual(result, ("Пожалуйста.", ""))
+        result = asyncio.run(self.babbler.think("Спасибо")) 
+        self.assertEqual(result, ("", ""))
+        result = asyncio.run(self.babbler.think("чаю")) 
+        self.assertEqual(result[0], "Обязательно!")
+        self.assertIn("test_data/babbler/reactions/images/tea.jpg", result[1])        
+                             

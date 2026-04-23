@@ -155,12 +155,13 @@ class CBarman(basis.CBasis):
 
         super().__init__()
         self.config = pconfig
-        self.data_path: str = self.config.data_folder + BARMAN_FOLDER  # pdata_path + BABBLER_PATH
+        self.data_path: str = self.config.data_folder + BARMAN_FOLDER
         self.bar_content: dict = {}
 
 
     async def barman(self, pchat_title: str, puser_name: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
+        
         assert pchat_title is not None, \
             "Assert: [barman.barman] Пропущен параметр <pchat_title> !"
         assert pmessage_text is not None, \
@@ -168,11 +169,9 @@ class CBarman(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # print(f"===== {word_list=}")
         if self.can_process(pchat_title, pmessage_text):
 
             # *** Возможно, запросили меню.
-            # print(f"===== {word_list[0]=}")
             if word_list[0] in BAR_HINT:
 
                 answer = "Сегодня в баре имеется следующий ассортимент: \n" + \
@@ -204,6 +203,7 @@ class CBarman(basis.CBasis):
 
     def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если бармен может обработать эту команду"""
+
         assert pchat_title is not None, \
             "Assert: [barman.can_process] " \
             "Пропущен параметр <pchat_title> !"
@@ -232,6 +232,7 @@ class CBarman(basis.CBasis):
 
     def get_help(self, pchat_title: str) -> str:  # noqa
         """Пользователь запросил список команд."""
+       
         assert pchat_title is not None, \
             "Assert: [barman.get_help] " \
             "Пропущен параметр <pchat_title> !"
@@ -247,6 +248,7 @@ class CBarman(basis.CBasis):
 
     def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
         """Возвращает список команд, поддерживаемых модулем.  """
+        
         assert pchat_title is not None, \
             "Assert: [barman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
@@ -260,16 +262,15 @@ class CBarman(basis.CBasis):
     async def load_assortment(self):
         """Загружает ассортимент бара."""
         
-        print(f"===== {ASSORTMENT=}")
         for item in ASSORTMENT:
             
-            print(f"===== {item=}")
             await self.load_item(item)
         print(f"> Barman успешно (пере)загрузил {len(ASSORTMENT)} типов товаров.")
 
 
     async def load_item(self, pitem: dict):
         """Загружает одно наименование ассортимента бара."""
+        
         assert pitem is not None, \
             "Assert: [barman.load_item] " \
             "Пропущен параметр <pitem> !"
@@ -290,33 +291,23 @@ class CBarman(basis.CBasis):
 
     def serve_client(self, puser_name: str, pcommand: str):
         """Обслуживает клиентов."""
+        
         assert puser_name is not None, \
             "Assert: [barman.serve_client] Пропущен параметр <puser_name> !"
         assert pcommand is not None, \
             "Assert: [barman.serve_client] Пропущен параметр <pcommand> !"
 
-        print(f"===== 1 {puser_name=}")
         answer: str = ""
         for item in ASSORTMENT:
             
-            # print(f"===== {pcommand=}")
-            # print(f"===== {item[COMMAND_KEY]=}")
-           
             if pcommand.strip().lower() in item[COMMAND_KEY]:
 
                 arguments: list = []
-                print(f"===== {ID_KEY=}")
-                print(f"===== {item[ID_KEY]=}")
-                print(f"===== {self.bar_content=}")
-                print(f"===== {self.bar_content[item[ID_KEY]]=}")
                 for prop in item[PROPERTIES_KEY]:
                     
-                    print(f"===== {prop=}")
-                    print(f"===== {self.bar_content[item[ID_KEY]][prop]=}")
                     arguments.append(random.choice(self.bar_content[item[ID_KEY]][prop]))
                 # *** Предпоследний аргумент - имя пользователя
                 nick = self.parse_nick(puser_name)
-                print(f"===== 2 {nick=}")
                 arguments.append(self.parse_nick(puser_name))
                 # *** Последний аргумент - это эмоджи
                 arguments.append(item[EMODJI_KEY])

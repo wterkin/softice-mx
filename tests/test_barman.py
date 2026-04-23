@@ -16,8 +16,6 @@ class CTestBarman(TestCase):
 
     def test_barman(self):
 
-        # def barman(self, pchat_title: str, puser_name: str, puser_title: str,
-        #       pmessage_text: str) -> str:
         asyncio.run(self.barman.reload())
         result = asyncio.run(self.barman.barman(self.config.test_chat, self.config.master, "!пиво"))
         self.assertNotEqual(result, "")

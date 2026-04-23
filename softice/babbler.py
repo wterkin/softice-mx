@@ -44,8 +44,8 @@ class CBabbler(basis.CBasis):
         self.last_phrase_time: datetime = datetime.now()
 
 
-    def babbler(self, proom: int, psender: str, pmessage: str) -> str:
-        """Обработчик команд болтуна."""
+    async def babbler(self, proom: str, psender: str, pmessage: str) -> str:
+        """Обработчик команд болтуна"""
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage)
@@ -58,7 +58,7 @@ class CBabbler(basis.CBasis):
                 if self.is_master(psender):
                     
                     print("*** RELOAD!!! ")
-                    self.reload()
+                    await self.reload()
                     answer = "База болтуна обновлена"
                 else:
 
@@ -74,7 +74,6 @@ class CBabbler(basis.CBasis):
         result: bool = False
         # *** Собираем пути
         triggers_path = Path(self.data_path) / TRIGGERS_FOLDER
-        print(f"*** {triggers_path=}")
         assert triggers_path.is_dir(), f"{TRIGGERS_FOLDER} must be folder"
         reactions_path = Path(self.data_path) / REACTIONS_FOLDER
         assert reactions_path.is_dir(), f"{REACTIONS_FOLDER} must be folder"
@@ -121,7 +120,6 @@ class CBabbler(basis.CBasis):
 
         answer: str = ""
         file_name: str = ""
-        # print(f"::::: {proom=}")
         if self.is_enabled(proom, UNIT_ID):
             
             #:: Babbler is enabled here")
@@ -141,7 +139,7 @@ class CBabbler(basis.CBasis):
     async def think(self, pmessage: str):
         """Процесс принятия решений =)"""
         
-        # print("::::: Babbler.Think! ")
+        print("::::: Babbler.Think! ")
         reactions_path: Path = Path(self.data_path) / REACTIONS_FOLDER
         word_list: list = pmessage.split(" ")
         answer: str = ""
@@ -149,27 +147,29 @@ class CBabbler(basis.CBasis):
         # *** Если в сообщении указано имя бота..
         personal_appeal: bool = self.is_personal(pmessage.lower().split(" "))
         # *** Перебираем сообщение по словам
-        # print(f"::::: {word_list=}")
+        print(f"::::: {word_list=}")
         for word in word_list:
 
             # *** Убираем из слова знаки пунктуации и пробелы,
             #     переводим в нижний регистр
-            # print(f"::::: {word=}")
+            print(f"::::: {word=}")
             clean_word: str = word.rstrip(string.punctuation).lower().strip()
-            # print(f"::::: {clean_word=}")
+            print(f"::::: {clean_word=}")
+            print(f"::::: {len(clean_word)=}")
             # *** Если что-то осталось, двигаемся дальше.
             if len(clean_word) > 1:
-                
+               
+                print(f"::::: {self.mind=}")
                 # *** Перебираем блоки памяти бота
                 for block in self.mind:
 
                     # *** Получим список триггеров текущего блока
                     triggers: list = block[TRIGGERS_INDEX]
                     # *** Если в списке триггеров есть такое слово
-                    # print(f"::::: {triggers=}")
+                    print(f"::::: {triggers=}")
                     if (clean_word in triggers) or ((AT_CHAR + clean_word) in triggers):
 
-                        # print(f"::::: Match!!!")
+                        print(f"::::: Match!!!")
                         # *** Если в триггере указано запрошенное слово с
                         #     собачкой "@" впереди...
                         if AT_CHAR in "".join(triggers):
