@@ -82,7 +82,7 @@ class CGambler(basis.CBasis):
             "Assert: [gambler.get_help] " \
             "No <pchat_title> parameter specified!"
         command_list: str = ""
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             command_list += ", ".join(ROCKSCIPAPLIZSPOCK_COMMANDS)+"\n"
             command_list += ", ".join(THROW_COIN_COMMANDS)
@@ -95,7 +95,7 @@ class CGambler(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [gambler.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             return ", ".join(HINT)
         return ""
