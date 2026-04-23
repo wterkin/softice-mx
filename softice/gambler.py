@@ -36,10 +36,10 @@ class CGambler(basis.CBasis):
         """Возвращает True, если игрок может обработать эту команду."""
 
         assert pchat_title is not None, \
-            "Assert: [librarian.can_process] " \
+            "Assert: [gambler.can_process] " \
             "Пропущен параметр <pchat_title> !"
         assert pmessage_text is not None, \
-            "Assert: [librarian.can_process] " \
+            "Assert: [gambler.can_process] " \
             "Пропущен параметр <pmessage_text> !"
         found: bool = False
         if self.is_enabled(pchat_title, UNIT_ID):
@@ -79,7 +79,7 @@ class CGambler(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [librarian.get_help] " \
+            "Assert: [gambler.get_help] " \
             "No <pchat_title> parameter specified!"
         command_list: str = ""
         if self.is_enabled(pchat_title):
@@ -93,7 +93,7 @@ class CGambler(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
-            "Assert: [librarian.get_hint] " \
+            "Assert: [gambler.get_hint] " \
             "Пропущен параметр <pchat_title> !"
         if self.is_enabled(pchat_title):
 
@@ -105,7 +105,7 @@ class CGambler(basis.CBasis):
         ""Возвращает True, если библиотекарь разрешен на этом канале.""
 
         assert pchat_title is not None, \
-            "Assert: [librarian.is_enabled] " \
+            "Assert: [brarian.is_enabled] " \
             "Пропущен параметр <pchat_title> !"
         if pchat_title in self.config["chats"]:
 

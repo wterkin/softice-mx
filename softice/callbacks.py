@@ -23,6 +23,7 @@ from softice.babbler import CBabbler
 from softice.barman import CBarman
 from softice.gambler import CGambler
 from softice.haijin import CHaijin
+from softice.manager import CManager
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,7 @@ class Callbacks:
         self.barman: CBarman = CBarman(self.config)
         self.gambler: CGambler = CGambler(self.config)
         self.haijin: CHaijin = CHaijin(self.config)
+        self.manager: CManager = CManager(self.config, self.client)
         self.first_run: Bool = True
 
 
@@ -81,13 +83,13 @@ class Callbacks:
         answer: str = ""
         # *** Если это наше сообщение - игнорим его.
         if event.sender == self.client.user:
-            
+
             return
 
         # *** В приватах мы работать не будем
         if room.member_count <= self.config.minimum_quantity:
-            
-            await send_text_to_room(self.client, room.room_id, 
+
+            await send_text_to_room(self.client, room.room_id,
                 "Извините, в привате не работаю.")
             return
 
@@ -101,7 +103,7 @@ class Callbacks:
                 f"Bot message received for room {room.display_name} | "
                 f"{room.user_name(event.sender)}: {message}"
             )
-            
+
             # Process as message if in a public room without command prefix
             # room.is_group is often a DM, but not always.
             # room.is_group does not allow room aliases
@@ -112,30 +114,34 @@ class Callbacks:
             # await message.process()
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
-            # print(f"!!!!! {room=}") 
+            # print(f"!!!!! {room=}")
             # print(f"!!!!! {event.sender=}")
             # print(f"!!!!! {message=}")
             if has_command_prefix:
-                
-                answer = self.babbler.babbler(room.name, event.sender, message).strip()
+
+                answer = await self.babbler.babbler(room.name, event.sender, message)
+                answer = answer.strip()
                 if not answer:
-                    
-                    answer = self.barman.barman(room.name, event.sender, message)
+
+                    answer = await self.barman.barman(room.name, event.sender, message)
                 if not answer:
-                
+
                     answer = self.gambler.gambler(room.name, message)
                 if not answer:
-                    
-                    answer = await self.haijin.haijin(room.name, event.sender, message)    
+
+                    answer = await self.haijin.haijin(room.name, event.sender, message)
+                if not answer:
+
+                    answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
             else:
 
                 # print("*** Babbler.talk")
-                # *** Просто сообщение    
+                # *** Просто сообщение
                 # def talk(self, proom: str, pmessage: str) -> str:
                 answer, file_name = await self.babbler.talk(room.name, message)
             # print(f"!!!!! {answer=}")
             if answer:
-                
+
                 await send_text_to_room(self.client, room.room_id, answer)
             return
 
@@ -152,7 +158,7 @@ class Callbacks:
         # print(f"*** {room=}")
         # print(f"*** {event=}")
         # command = Command(self.client, self.store, self.config, msg, room, event)
-        # await command.process() 
+        # await command.process()
 
     async def invite(self, room: MatrixRoom, event: InviteMemberEvent) -> None:
         """Callback for when an invite is received. Join the room specified in the invite.
