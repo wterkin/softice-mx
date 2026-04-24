@@ -52,11 +52,11 @@ def find_in_book(pbook: list, pword_list: list) -> str:
             if search_line.upper() in line.upper():
 
                 found_list.append(f"[{idx+1}]{line}")
-                
+
         if len(found_list) > 0:
 
             answer = random.choice(found_list)
-            
+
     if not answer:
 
         answer = messages.MESSAGE_NOT_FOUND
@@ -161,8 +161,7 @@ class CLibrarian(basis.CBasis):
         return found
 
 
-    def execute_quotes_commands(self, puser_name: str, puser_title: str,
-                                pword_list: list, pcommand: int) -> str:
+    def execute_quotes_commands(self, puser_name: str, pword_list: list, pcommand: int) -> str:
         """Выполняет команды, касающиеся базы цитат."""
 
         assert pword_list is not None, \
@@ -181,7 +180,7 @@ class CLibrarian(basis.CBasis):
 
             # *** Пользователь хочет добавить цитату в книгу
             self.quotes.append(" ".join(pword_list[1:]))
-            answer = f"Спасибо, {puser_title}, цитата добавлена под номером {len(self.quotes)}."
+            answer = f"Спасибо, {puser_name}, цитата добавлена под номером {len(self.quotes)}."
         elif pcommand == DEL_QUOTE_CMD:
 
             # *** Пользователь хочет удалить цитату из книги...
@@ -210,9 +209,10 @@ class CLibrarian(basis.CBasis):
             "No <pchat_title> parameter specified!"
 
         command_list: str = ""
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             for command in QUOTES_COMMANDS:
+
                 command_list += ", ".join(command)
                 command_list += "\n"
         return command_list
@@ -225,34 +225,22 @@ class CLibrarian(basis.CBasis):
             "Assert: [librarian.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             return ", ".join(HINT)
         return ""
 
-    """
-    def is_enabled(self, pchat_title: str) -> bool:
-        ""Возвращает True, если библиотекарь разрешен на этом канале.""
 
-        assert pchat_title is not None, \
-            "Assert: [librarian.is_enabled] " \
-            "Пропущен параметр <pchat_title> !"
-        if pchat_title in self.config.chats:
+    def is_master(self, puser_name):
+        """Проверяет, является ли пользователь хозяином бота."""
 
-            return UNIT_ID in self.config.chats.[pchat_title]
-        return False
-
-
-    def is_master(self, puser_name, puser_title):
-        ""Проверяет, является ли пользователь хозяином бота.""
-
-        if puser_name == self.config["master"]:
+        if puser_name == self.config.master:
 
             return True, ""
         # *** Низзя
-        print(f"> Librarian: Запрос на удаление цитаты от нелегитимного лица {puser_title}.")
-        return False, f"У вас нет на это прав, {puser_title}."
-    """
+        print(f"> Librarian: Запрос на удаление цитаты от нелегитимного лица {puser_name}.")
+        return False, f"У вас нет на это прав, {puser_name}."
+
 
     async def librarian(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
@@ -289,7 +277,7 @@ class CLibrarian(basis.CBasis):
                 can_reload, answer = self.is_master(puser_name)
                 if can_reload:
 
-                    await self.save_list(self.quotes, self.data_path + QUOTES_FILE_NAME)
+                    await self.save_to_file_async(self.quotes, self.data_path + QUOTES_FILE_NAME)
                     answer = "Книга сохранена"
                 else:
 
