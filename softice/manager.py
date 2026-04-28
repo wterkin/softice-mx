@@ -77,7 +77,7 @@ class CManager(basis.CBasis):
 
                 # *** Получим код команды
                 if word_list[0] in COMMANDS[:RESTART_COMMANDS]:
-                    
+
                     # print("******** Command detected. ")
                     if self.is_enabled(room_name, UNIT_ID):
 
@@ -87,7 +87,7 @@ class CManager(basis.CBasis):
                             # *** Запрошено отключение бота
                             # print("******** Master - Quit!!!!!!!!!!!!!!")
                             self.create_flag(QUIT_FLAG)
-                            await send_text_to_room(room_id, "Добби свободен!!")
+                            await send_text_to_room(self.client, room_id, "Добби свободен!!")
                             await self.suicide()
                         else:
                 
@@ -100,7 +100,7 @@ class CManager(basis.CBasis):
 
                             # *** Запрошен рестарт бота
                             self.create_flag(RESTART_FLAG)
-                            await end_text_to_room(room_id, "Щасвирнус.")
+                            await end_text_to_room(self.client, room_id, "Щасвирнус.")
                             await self.suicide()
                         else:
         
