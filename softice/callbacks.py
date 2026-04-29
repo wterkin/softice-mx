@@ -21,6 +21,7 @@ from softice.config import Config
 from softice.storage import Storage
 from softice.babbler import CBabbler
 from softice.barman import CBarman
+from softice.collector import CCollector
 from softice.gambler import CGambler
 from softice.haijin import CHaijin
 from softice.manager import CManager
@@ -46,6 +47,7 @@ class Callbacks:
         self.command_prefix = config.command_prefix
         self.babbler: CBabbler = CBabbler(self.config)
         self.barman: CBarman = CBarman(self.config)
+        self.collector: CCollector = CCollector()
         self.gambler: CGambler = CGambler(self.config)
         self.haijin: CHaijin = CHaijin(self.config)
         self.manager: CManager = CManager(self.config, self.client)
@@ -114,9 +116,6 @@ class Callbacks:
             # await message.process()
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
-            # print(f"!!!!! {room=}")
-            # print(f"!!!!! {event.sender=}")
-            # print(f"!!!!! {message=}")
             if has_command_prefix:
 
                 answer = await self.babbler.babbler(room.name, event.sender, message)
@@ -133,6 +132,10 @@ class Callbacks:
                 if not answer:
 
                     answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
+                # *** Коллектор вызывается последним.                    
+                if not answer:
+        
+                    answer = self.collector.collector()
             else:
 
                 # print("*** Babbler.talk")

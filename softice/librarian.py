@@ -5,7 +5,6 @@
 import random
 
 from softice import basis
-import asyncio
 
 # *** Команды для цитатника высказываний
 ASK_QUOTE_CMD: int = 0
@@ -59,7 +58,7 @@ def find_in_book(pbook: list, pword_list: list) -> str:
 
     if not answer:
 
-        answer = messages.MESSAGE_NOT_FOUND
+        answer = basis.MESSAGE_NOT_FOUND
     return answer
 
 
@@ -121,22 +120,21 @@ def quote(pbook: list, pword_list: list) -> str:
 class CLibrarian(basis.CBasis):
     """Класс библиотекаря."""
 
-    def __init__(self, pconfig: dict, pdata_path: str):
+    def __init__(self, pconfig, pdata_path: str):
 
-        super().__init__()
-        self.config = pconfig
+        super().__init__(pconfig)
         self.data_path = pdata_path + LIBRARIAN_FOLDER
         self.quotes: list = []
 
 
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
+    def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если библиотекарь может обработать эту команду."""
 
         assert pchat_title is not None, \
-            "Assert: [librarian.can_process] " \
+            "Assert: [librarian.can_class_process] " \
             "Пропущен параметр <pchat_title> !"
         assert pmessage_text is not None, \
-            "Assert: [librarian.can_process] " \
+            "Assert: [librarian.can_class_process] " \
             "Пропущен параметр <pmessage_text> !"
 
         found: bool = False
@@ -253,7 +251,7 @@ class CLibrarian(basis.CBasis):
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
 
-        if self.can_process(pchat_title, pmessage_text):
+        if self.can_class_process(pchat_title, pmessage_text):
 
             # *** Возможно, запросили перезагрузку.
             if word_list[0] in RELOAD_LIBRARY:

@@ -27,19 +27,14 @@ THUMBS_DOWN: str = "👎🏻"
 class CGambler(basis.CBasis):
     """Класс игрока."""
 
-    def __init__(self, pconfig: dict):
-
-        super().__init__()
-        self.config = pconfig
-
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
+    def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если игрок может обработать эту команду."""
 
         assert pchat_title is not None, \
-            "Assert: [gambler.can_process] " \
+            "Assert: [gambler.can_class_process] " \
             "Пропущен параметр <pchat_title> !"
         assert pmessage_text is not None, \
-            "Assert: [gambler.can_process] " \
+            "Assert: [gambler.can_class_process] " \
             "Пропущен параметр <pmessage_text> !"
         found: bool = False
         if self.is_enabled(pchat_title, UNIT_ID):
@@ -100,24 +95,8 @@ class CGambler(basis.CBasis):
             return ", ".join(HINT)
         return ""
 
-    """
-    def is_enabled(self, pchat_title: str) -> bool:
-        ""Возвращает True, если библиотекарь разрешен на этом канале.""
 
-        assert pchat_title is not None, \
-            "Assert: [brarian.is_enabled] " \
-            "Пропущен параметр <pchat_title> !"
-        if pchat_title in self.config["chats"]:
-
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False
-
-
-    def is_master(self, puser_name, puser_title):
-        ""Пустая заглушка."""
-
-
-    def reload(self):
+    async def reload(self):
         """Пустая заглушка."""
 
     def rock_scissors_paper(self, pcommand: int):
@@ -256,7 +235,7 @@ class CGambler(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_process(pchat_title, pmessage_text):
+        if self.can_class_process(pchat_title, pmessage_text):
 
             if word_list[0] in HINT:
 

@@ -9,11 +9,7 @@ from pathlib import Path
 import asyncio
 
 from softice.config import Config
-#from softice import functions as func
-from softice import constants as cn
-from softice import prototype
 from softice import basis
-# import debug as dbg
 
 # *** Команда перегрузки текстов
 COMMANDS: list = ["blreload", "blrl"]
@@ -37,8 +33,8 @@ class CBabbler(basis.CBasis):
     def __init__(self, pconfig: Config):
         """"Конструктор."""
 
-        super().__init__()
-        self.config: Config = pconfig
+        super().__init__(pconfig)
+        # self.config: Config = pconfig
         self.data_path: str = self.config.data_folder + BABBLER_PATH  # pdata_path + BABBLER_PATH
         self.mind: list = []
         self.last_phrase_time: datetime = datetime.now()
@@ -53,9 +49,9 @@ class CBabbler(basis.CBasis):
 
             # *** Возможно, запросили перезагрузку базы.
             if word_list[0] in COMMANDS:
-                
+
                 if self.is_master(psender):
-                    
+
                     await self.reload()
                     answer = "База болтуна обновлена"
                 else:
@@ -64,7 +60,42 @@ class CBabbler(basis.CBasis):
                           f"нелегитимного лица {psender}.")
                     answer = f"У вас нет на это прав, {psender}."
         return answer
-    
+
+
+    def is_personal(self, pword_list: list) -> bool:
+        """Определяет, есть ли во входном сообщении имя бота."""
+
+        personal: bool = False
+        for nick in NICKNAMES:
+
+
+            personal = nick in pword_list
+            if personal:
+
+                break
+        return personal
+
+
+    async def talk(self, proom: str, pmessage: str) -> str:
+        """Улучшенная версия болтуна."""
+
+        answer: str = ""
+        file_name: str = ""
+        if self.is_enabled(proom, UNIT_ID):
+
+            #:: Babbler is enabled here")
+	        # *** Заданный период времени с последней фразы прошел?
+            minutes: float = (datetime.now() - self.last_phrase_time).total_seconds() / \
+                             int(self.config.babbler[BABBLER_PERIOD_KEY])
+            if minutes > 1:
+
+                answer, file_name = await self.think(pmessage)
+            if answer:
+
+                print(f"> Babbler отвечает: {answer[:basis.OUT_MSG_LOG_LEN]}...")
+                self.last_phrase_time = datetime.now()
+        return answer, file_name
+
 
     async def reload(self):
         """Загружает тексты болтуна."""
@@ -75,7 +106,7 @@ class CBabbler(basis.CBasis):
         assert triggers_path.is_dir(), f"{TRIGGERS_FOLDER} must be folder"
         reactions_path = Path(self.data_path) / REACTIONS_FOLDER
         assert reactions_path.is_dir(), f"{REACTIONS_FOLDER} must be folder"
-        
+
         # *** Очищаем список блоков
         self.mind.clear()
         # *** Заполняем список блоков триггеров/реакций
@@ -99,44 +130,9 @@ class CBabbler(basis.CBasis):
         return result
 
 
-    def is_personal(self, pword_list: list) -> bool:
-        """Определяет, есть ли во входном сообщении имя бота."""
-
-        personal: bool = False
-        for nick in NICKNAMES:
-
-
-            personal = nick in pword_list
-            if personal:
-
-                break
-        return personal
-
-
-    async def talk(self, proom: str, pmessage: str) -> str:
-        """Улучшенная версия болтуна."""
-
-        answer: str = ""
-        file_name: str = ""
-        if self.is_enabled(proom, UNIT_ID):
-            
-            #:: Babbler is enabled here")
-	        # *** Заданный период времени с последней фразы прошел?
-            minutes: float = (datetime.now() - self.last_phrase_time).total_seconds() / \
-                             int(self.config.babbler[BABBLER_PERIOD_KEY])
-            if minutes > 1:
-
-                answer, file_name = await self.think(pmessage)
-            if answer:
-
-                print(f"> Babbler отвечает: {answer[:basis.OUT_MSG_LOG_LEN]}...")
-                self.last_phrase_time = datetime.now()
-        return answer, file_name
-
-
     async def think(self, pmessage: str):
         """Процесс принятия решений =)"""
-        
+
         reactions_path: Path = Path(self.data_path) / REACTIONS_FOLDER
         word_list: list = pmessage.split(" ")
         answer: str = ""
@@ -151,7 +147,7 @@ class CBabbler(basis.CBasis):
             clean_word: str = word.rstrip(string.punctuation).lower().strip()
             # *** Если что-то осталось, двигаемся дальше.
             if len(clean_word) > 1:
-               
+
                 # *** Перебираем блоки памяти бота
                 for block in self.mind:
 

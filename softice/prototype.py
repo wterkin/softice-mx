@@ -10,12 +10,13 @@ class CPrototype:
     """Прототип классов модулей бота.. """
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, pconfig):
         pass
 
 
     @abstractmethod
-    def can_process(self, pchat_title: str, punit_id: str, pmessage_text: str, pcommands: list) -> bool:
+    def can_process(self, pchat_title: str, punit_id: str,
+                    pmessage_text: str, pcommands: list) -> bool:
         """Возвращает True, если модуль может обработать команду."""
 
 
@@ -31,7 +32,7 @@ class CPrototype:
 
 
     @abstractmethod
-    def identify_command(pword: str, pcommands : list) -> int:  # noqa
+    def identify_command(self, pword: str, pcommands : list) -> int:  # noqa
         """Распознает команду и возвращает её код, в случае неудачи  -1."""
 
 
@@ -46,19 +47,20 @@ class CPrototype:
 
 
     @abstractmethod
-    def load_from_file(pfile_name: str) -> list:
+    def load_from_file(self, pfile_name: str) -> list:
         """Загружает текстовый файл в список строк."""
 
 
     @abstractmethod
-    def save_to_file(plist: list, pfile_name: str): # noqa
-        """Сохраняет список строк в текстовый файл, если файл с таким именем уже есть - переименовывает его."""
+    def save_to_file(self, plist: list, pfile_name: str): # noqa
+        """Сохраняет список строк в текстовый файл, """\
+        """если файл с таким именем уже есть - переименовывает его."""
 
 
     @abstractmethod
-    def reload(self):
+    async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
 
     @abstractmethod
-    def parse_input(pmessage_text: str) -> list:
+    def parse_input(self, pmessage_text: str) -> list:
         """Разбивает введённую строку на отдельные слова."""
