@@ -20,12 +20,11 @@ class CManager(basis.CBasis):
 
     def __init__(self, pconfig: dict, pclient: AsyncClient):
 
-        super().__init__()
-        self.config = pconfig
+        super().__init__(pconfig)
         self.client: AsyncClient = pclient
 
 
-    def create_flag(self, pflag_name: str):   
+    def create_flag(self, pflag_name: str):
         """Функция создает флаг выхода или рестарта по запросу."""
 
         with open(f"./flags/{pflag_name}", 'tw', encoding='utf-8'):
@@ -87,7 +86,7 @@ class CManager(basis.CBasis):
                             # *** Запрошено отключение бота
                             # print("******** Master - Quit!!!!!!!!!!!!!!")
                             self.create_flag(QUIT_FLAG)
-                            await send_text_to_room(self.client, room_id, "Добби свободен!!")
+                            # await send_text_to_room(self.client, room_id, "Добби свободен!!")
                             await self.suicide()
                         else:
                 
@@ -100,7 +99,7 @@ class CManager(basis.CBasis):
 
                             # *** Запрошен рестарт бота
                             self.create_flag(RESTART_FLAG)
-                            await end_text_to_room(self.client, room_id, "Щасвирнус.")
+                            #c await end_text_to_room(self.client, room_id, "Щасвирнус.")
                             await self.suicide()
                         else:
         

@@ -47,7 +47,7 @@ class Callbacks:
         self.command_prefix = config.command_prefix
         self.babbler: CBabbler = CBabbler(self.config)
         self.barman: CBarman = CBarman(self.config)
-        self.collector: CCollector = CCollector()
+        self.collector: CCollector = CCollector(self.config)
         self.gambler: CGambler = CGambler(self.config)
         self.haijin: CHaijin = CHaijin(self.config)
         self.manager: CManager = CManager(self.config, self.client)

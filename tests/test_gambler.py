@@ -21,7 +21,7 @@ class CTestGambler(TestCase):
         self.assertFalse(self.gambler.can_class_process("emptychat", "!coin"))
         self.assertTrue(self.gambler.can_class_process(self.config.test_chat, "!камень"))
         self.assertFalse(self.gambler.can_class_process(self.config.test_chat, "!кукабарра"))
-        self.assertTrue(self.gambler.can_class_process(self.config.test_chat, "!монета"))
+        self.assertTrue(self.gambler.can_class_ process(self.config.test_chat, "!монета"))
 
 
     def test_get_help(self):
