@@ -31,14 +31,14 @@ class CTestBarman(TestCase):
         self.assertIn("У вас нет на это прав", result) 
 
 
-    def test_can_process(self):
+    def test_can_class_process(self):
 
-        self.assertFalse(self.barman.can_process("fakechat", "!пиво"))
-        self.assertFalse(self.barman.can_process("emptychat", "!beer"))
-        self.assertTrue(self.barman.can_process(self.config.test_chat, "!beer"))
-        self.assertFalse(self.barman.can_process(self.config.test_chat, "!кукабарра"))
-        self.assertTrue(self.barman.can_process(self.config.test_chat,  "!bar"))
-        self.assertTrue(self.barman.can_process(self.config.test_chat,  "!brreload"))
+        self.assertFalse(self.barman.can_class_process("fakechat", "!пиво"))
+        self.assertFalse(self.barman.can_class_process("emptychat", "!beer"))
+        self.assertTrue(self.barman.can_class_process(self.config.test_chat, "!beer"))
+        self.assertFalse(self.barman.can_class_process(self.config.test_chat, "!кукабарра"))
+        self.assertTrue(self.barman.can_class_process(self.config.test_chat,  "!bar"))
+        self.assertTrue(self.barman.can_class_process(self.config.test_chat,  "!brreload"))
 
 
     def test_get_help(self):

@@ -15,13 +15,13 @@ class CTestGambler(TestCase):
         self.gambler: gambler.CGambler = gambler.CGambler(self.config)
 
 
-    def test_can_process(self):
+    def test_can_class_process(self):
 
-        self.assertFalse(self.gambler.can_process("fakechat", "!спок"))
-        self.assertFalse(self.gambler.can_process("emptychat", "!coin"))
-        self.assertTrue(self.gambler.can_process(self.config.test_chat, "!камень"))
-        self.assertFalse(self.gambler.can_process(self.config.test_chat, "!кукабарра"))
-        self.assertTrue(self.gambler.can_process(self.config.test_chat, "!монета"))
+        self.assertFalse(self.gambler.can_class_process("fakechat", "!спок"))
+        self.assertFalse(self.gambler.can_class_process("emptychat", "!coin"))
+        self.assertTrue(self.gambler.can_class_process(self.config.test_chat, "!камень"))
+        self.assertFalse(self.gambler.can_class_process(self.config.test_chat, "!кукабарра"))
+        self.assertTrue(self.gambler.can_class_process(self.config.test_chat, "!монета"))
 
 
     def test_get_help(self):

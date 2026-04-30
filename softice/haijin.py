@@ -4,7 +4,6 @@
 
 from softice import librarian
 from softice import basis
-from softice import constants as cn
 
 # *** Команды для цитатника хокку
 ASK_HOKKU_CMD: int = 0
@@ -29,7 +28,7 @@ HAIJIN_COMMANDS: list = [["хк", "hk"],
 HINT = ["хокку", "hokku"]
 UNIT_ID = "haijin"
 
-#BOLD: str = "**"  # "*"
+    #BOLD: str = "**"  # "*"
 #ITALIC: str = "*"  # "_"
 BOLD: str = ""  # "*"
 ITALIC: str = ""  # "_"
@@ -47,28 +46,27 @@ RIGHT_PARENTHESIS: str = ")"
 LEFT_BRACKET: str = "["
 RIGHT_BRACKET: str = "]"
 AUTHOR_INDENT: str = "     "
-DELIMITER: str = f"|"
-
+DELIMITER: str = "|"
+SCREENED: str = "#"
 
 class CHaijin(basis.CBasis):
     """Класс хайдзина."""
 
     def __init__(self, pconfig: dict):
 
-        super().__init__()
-        self.config = pconfig
+        super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + HAIJIN_FOLDER
         self.hokku: list = []
-        
-    
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
+
+
+    def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""
 
         assert pchat_title is not None, \
-            "Assert: [haijin.can_process] " \
+            "Assert: [haijin.can_class_process] " \
             "Пропущен параметр <pchat_title> !"
         assert pmessage_text is not None, \
-            "Assert: [haijin.can_process] " \
+            "Assert: [haijin.can_class_process] " \
             "Пропущен параметр <pmessage_text> !"
         found: bool = False
         if self.is_enabled(pchat_title, UNIT_ID):
@@ -91,8 +89,8 @@ class CHaijin(basis.CBasis):
 
                         found = word_list[0] in SAVE_BOOK
         return found
-    
-    
+
+
     def format_hokku(self, ptext: str) -> str:
         """Форматирует хокку так, как нам хочется."""
 
@@ -151,7 +149,7 @@ class CHaijin(basis.CBasis):
         if self.is_enabled(pchat_title, UNIT_ID):
 
             # return cn.SCREENED + func.screen_text(", ".join(HINT))
-            return cn.SCREENED + ", ".join(HINT)
+            return SCREENED + ", ".join(HINT)
         return ""
 
 
@@ -164,7 +162,7 @@ class CHaijin(basis.CBasis):
         answer: str = ""
         unformatted_answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_process(pchat_title, pmessage_text):
+        if self.can_class_process(pchat_title, pmessage_text):
 
             # *** Возможно, запросили перезагрузку.
             if word_list[0] in RELOAD_BOOK:
@@ -199,7 +197,7 @@ class CHaijin(basis.CBasis):
                     print("> Haijin отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
         if answer:
 
-            answer = f"{cn.SCREENED}{answer}"
+            answer = f"{SCREENED}{answer}"
         return answer
 
 
@@ -217,7 +215,7 @@ class CHaijin(basis.CBasis):
 
                 # *** Пользователь хочет хокку....
                 print(f"+++++ {self.hokku=}")
-                
+
                 answer = librarian.quote(self.hokku, pcommand)
                 if answer:
 

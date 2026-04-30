@@ -41,11 +41,11 @@ class CTestLibrarian(TestCase):
         self.assertEqual(librarian.quote(["No fate.",], ["1"],), "[1] No fate.")
 
 
-    def test_can_process(self):
+    def test_can_class_process(self):
 
-        self.assertTrue(self.librarian.can_process(self.config.test_chat, '!цт'))
-        self.assertFalse(self.librarian.can_process('fakechat', '!цт'))
-        self.assertFalse(self.librarian.can_process('empttychat', '!хквс'))
+        self.assertTrue(self.librarian.can_class_process(self.config.test_chat, '!цт'))
+        self.assertFalse(self.librarian.can_class_process('fakechat', '!цт'))
+        self.assertFalse(self.librarian.can_class_process('empttychat', '!хквс'))
 
 
     def test_execute_quotes_commands(self):

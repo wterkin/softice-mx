@@ -24,7 +24,7 @@ REACTIONS_INDEX: int = 1
 BABBLER_EMODJI: list = ["😎", "😊", "☺", "😊", "😋"]
 NICKNAMES: list = ["softicebot","softice", "софтик", "софтайсик", "ботик", "бот"]
 AT_CHAR: str = "@"
-DELIMIGHTER: str = "//"
+DELIMITER: str = "//"
 
 
 class CBabbler(basis.CBasis):
@@ -171,9 +171,9 @@ class CBabbler(basis.CBasis):
 
                             answer = f"{random.choice(block[REACTIONS_INDEX])}"
                         # *** Если в ответе есть разделитель...
-                        if DELIMIGHTER in answer:
+                        if DELIMITER in answer:
 
-                            file_name, answer = answer.split(DELIMIGHTER)
+                            file_name, answer = answer.split(DELIMITER)
                             file_name = f"{str(reactions_path)}/{file_name}"
                         await asyncio.sleep(1)
                         break

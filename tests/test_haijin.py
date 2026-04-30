@@ -17,17 +17,17 @@ class CTestHaijin(TestCase):
         self.haijin: haijin.CHaijin = haijin.CHaijin(self.config)
 
 
-    def test_can_process(self):
+    def test_can_class_process(self):
 
-        self.assertFalse(self.haijin.can_process("fakechat", "!hk"))
-        self.assertFalse(self.haijin.can_process("emptychat", "!хк+"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!хк"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!хк+"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!хк-"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!hksv"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!hkrl"))
-        self.assertTrue(self.haijin.can_process(self.config.test_chat, "!hokku"))
-        self.assertFalse(self.haijin.can_process(self.config.test_chat, "!кукабарра"))
+        self.assertFalse(self.haijin.can_class_process("fakechat", "!hk"))
+        self.assertFalse(self.haijin.can_class_process("emptychat", "!хк+"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк+"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк-"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hksv"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hkrl"))
+        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hokku"))
+        self.assertFalse(self.haijin.can_class_process(self.config.test_chat, "!кукабарра"))
 
        
     def test_format_hokku(self):
