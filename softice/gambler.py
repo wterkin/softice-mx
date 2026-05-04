@@ -27,6 +27,11 @@ THUMBS_DOWN: str = "👎🏻"
 class CGambler(basis.CBasis):
     """Класс игрока."""
 
+    def __init__(self, pconfig):
+
+        super().__init__(pconfig)
+        print("Игрун стартовал.")
+
     def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если игрок может обработать эту команду."""
 

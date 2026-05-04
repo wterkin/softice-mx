@@ -31,13 +31,14 @@ class CBabbler(basis.CBasis):
     """Класс болтуна."""
 
     def __init__(self, pconfig: Config):
-        """"Конструктор."""
+        """Конструктор."""
 
         super().__init__(pconfig)
         # self.config: Config = pconfig
         self.data_path: str = self.config.data_folder + BABBLER_PATH  # pdata_path + BABBLER_PATH
         self.mind: list = []
         self.last_phrase_time: datetime = datetime.now()
+        print("Болтун стартовал.")
 
 
     async def babbler(self, proom: str, psender: str, pmessage: str) -> str:

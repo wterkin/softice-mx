@@ -22,15 +22,16 @@ class CManager(basis.CBasis):
 
         super().__init__(pconfig)
         self.client: AsyncClient = pclient
+        print("Менеджер стартовал.")
 
 
     def create_flag(self, pflag_name: str):
         """Функция создает флаг выхода или рестарта по запросу."""
 
         with open(f"./flags/{pflag_name}", 'tw', encoding='utf-8'):
-        
+
             pass
- 
+
 
     def get_help(self, pchat_title: str) -> str:
         """Пользователь запросил список команд."""

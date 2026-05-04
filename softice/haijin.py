@@ -57,7 +57,7 @@ class CHaijin(basis.CBasis):
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + HAIJIN_FOLDER
         self.hokku: list = []
-
+        print("Хайдзин стартовал.")
 
     def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""

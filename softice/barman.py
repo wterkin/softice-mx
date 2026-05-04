@@ -156,6 +156,7 @@ class CBarman(basis.CBasis):
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + BARMAN_FOLDER
         self.bar_content: dict = {}
+        print("Бармен стартовал.")
 
 
     async def barman(self, pchat_title: str, puser_name: str, pmessage_text: str) -> str:

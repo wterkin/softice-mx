@@ -125,6 +125,7 @@ class CLibrarian(basis.CBasis):
         super().__init__(pconfig)
         self.data_path = pdata_path + LIBRARIAN_FOLDER
         self.quotes: list = []
+        print("Библиотекарь стартовал.")
 
 
     def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
