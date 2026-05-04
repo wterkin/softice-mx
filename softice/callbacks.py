@@ -120,22 +120,29 @@ class Callbacks:
 
                 answer = await self.babbler.babbler(room.name, event.sender, message)
                 answer = answer.strip()
+                # print(f"!babbler! {answer=}")
                 if not answer:
 
                     answer = await self.barman.barman(room.name, event.sender, message)
+                    # print(f"!barman! {answer=}")
                 if not answer:
 
                     answer = self.gambler.gambler(room.name, message)
+                    # print(f"!gambler! {answer=}")
                 if not answer:
 
                     answer = await self.haijin.haijin(room.name, event.sender, message)
+                    # print(f"!haijin! {answer=}")
                 if not answer:
 
                     answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
+                    # print(f"!manager! {answer=}")
                 # *** Коллектор вызывается последним.                    
                 if not answer:
         
-                    answer = self.collector.collector()
+                    answer = self.collector.collector(answer)
+                    # print(f"!collector!  {answer=}")
+
             else:
 
                 # print("*** Babbler.talk")
@@ -145,7 +152,7 @@ class Callbacks:
             # print(f"!!!!! {answer=}")
             if answer:
 
-                await send_text_to_room(self.client, room.room_id, answer)
+                await send_text_to_room(self.client, room.room_id, answer, False, False)
             return
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,

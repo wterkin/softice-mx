@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Игровой модуль."""
-
+import asyncio
 from softice import basis
 from nio import AsyncClient
 from softice.chat_functions import send_text_to_room
@@ -68,6 +68,7 @@ class CManager(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
+        print(f"!!! 1 {room_name=} {UNIT_ID=} {pmessage_text=} {COMMANDS=}")
         if self.can_process(room_name, UNIT_ID, pmessage_text, COMMANDS):
 
             if word_list[0] in HINT:
@@ -75,7 +76,9 @@ class CManager(basis.CBasis):
                 answer = self.get_help(room_name)
             else:
 
+                print("!!! 1")
                 # *** Получим код команды
+                print("!"*10, COMMANDS[:RESTART_COMMANDS])
                 if word_list[0] in COMMANDS[:RESTART_COMMANDS]:
 
                     # print("******** Command detected. ")
@@ -85,9 +88,9 @@ class CManager(basis.CBasis):
                         if self.is_master(puser_name):
 
                             # *** Запрошено отключение бота
-                            # print("******** Master - Quit!!!!!!!!!!!!!!")
                             self.create_flag(QUIT_FLAG)
                             # await send_text_to_room(self.client, room_id, "Добби свободен!!")
+                            print("*** Quit by demand. ")
                             await self.suicide()
                         else:
                 
@@ -101,6 +104,7 @@ class CManager(basis.CBasis):
                             # *** Запрошен рестарт бота
                             self.create_flag(RESTART_FLAG)
                             #c await end_text_to_room(self.client, room_id, "Щасвирнус.")
+                            print("*** Reset by demand. ")
                             await self.suicide()
                         else:
         
