@@ -98,10 +98,6 @@ class CHaijin(basis.CBasis):
         result_text: str = ""
         if "???" not in ptext:
     
-            # "#>белая луна>пропах грибами>Петровский двори / Ин Фа | 498 | 518"
-            # "#>Встрепенулся ночью ->с тихим шорохом наземь упал>цветок вьюнка.. /      Масаока Сики | 409 | 518 "
-            # #>Желтый лист плывет.>У какого берега, цикада,>Вдруг проснешься ты? 
-            #      Мацуо Басё| 55 | 518
             if LEFT_BRACKET in ptext and RIGHT_BRACKET in ptext:
 
                 left_par: int = ptext.index(LEFT_BRACKET)
@@ -115,16 +111,8 @@ class CHaijin(basis.CBasis):
                 text = text[:left_par]
                 # *** Разобьём текст на строки
                 text_list: list = text.split(SLASH)
-                for line in text_list:
-
-                    result_text += "\n"+line.strip()
-                    # result_text += line.strip() + LF
-                # result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
-                #              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
-                #              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
-                # result_text = f"{result_text[:-1]}" \
-                result_text = f"<i> {result_text} </i> \n {AUTHOR_INDENT}<b>{author}</b> {DELIMITER} {number} {DELIMITER} {len(self.hokku)}"
-            print(f"===== {result_text}")
+                result_text = text.replace("/", "\n")
+                result_text = f"<i> {result_text[1:]} </i> \n {AUTHOR_INDENT}<b>{author}</b> {DELIMITER} {number} {DELIMITER} {len(self.hokku)}"
             return result_text
         return ptext
 
@@ -219,7 +207,6 @@ class CHaijin(basis.CBasis):
             if command == ASK_HOKKU_CMD:
 
                 # *** Пользователь хочет хокку....
-                # print(f"+++++ {self.hokku=}")
 
                 answer = librarian.quote(self.hokku, pcommand)
                 if answer:

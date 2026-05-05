@@ -34,16 +34,9 @@ class CTestHaijin(TestCase):
 
         asyncio.run(self.haijin.reload())
         text: str = "[1] Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...  (Исса) "
-        #screened_text = self.haijin.screen_text(text[4:-8])
-        screened_text = text[4:-8]
-        first_text: str = f"{haijin.BOLD}{haijin.ITALIC}{screened_text[:-1]}{haijin.ITALIC}{haijin.BOLD}{haijin.LF}"
-        # second_text: str = f"{haijin.AUTHOR_INDENT}{func.screen_text('Исса')} {haijin.SPOILER}"
-        second_text: str = f"{haijin.AUTHOR_INDENT}Исса {haijin.SPOILER}"
-        third_text: str = f"{haijin.DELIMITER} 1 {haijin.DELIMITER} 1 {haijin.SPOILER}"
-        result_text: str = first_text + second_text + third_text
+        result_text: str = (f"<i> Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...   </i> \n"
+                            f"{haijin.AUTHOR_INDENT} <b>Исса</b> {haijin.DELIMITER} 1 {haijin.DELIMITER} 1")
         formatted_text: str = self.haijin.format_hokku(text)
-        print(f"!!!  {result_text=}")
-        print(f"!!! {formatted_text=}")
         self.assertEqual(formatted_text, result_text)
   
         
@@ -67,9 +60,9 @@ class CTestHaijin(TestCase):
     def test_haijin(self):
     
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hkrl"))
-        self.assertEqual(result, "#Книга загружена")
+        self.assertEqual(result, "Книга загружена")
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master,"!hksv"))
-        self.assertEqual(result, "#Книга сохранена")
+        self.assertEqual(result, "Книга сохранена")
         for file in Path(self.haijin.data_path).glob("hokku.txt_*"):
 
             file.unlink()
@@ -91,7 +84,6 @@ class CTestHaijin(TestCase):
 
     def test_process_command(self):
 
-        #print(f"{self.haijin.hokku=}")
         asyncio.run(self.haijin.reload())
         
         answer = "[1] Печальный мир. / Даже когда расцветают вишни.. / Даже тогда... (Исса)"
