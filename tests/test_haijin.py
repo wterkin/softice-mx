@@ -35,7 +35,7 @@ class CTestHaijin(TestCase):
         asyncio.run(self.haijin.reload())
         text: str = "[1] Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...  (Исса) "
         result_text: str = (f"<i> Печальный мир. \n Даже когда расцветают вишни..  Даже тогда...   </i> \n"
-                            f"{haijin.AUTHOR_INDENT} <b>Исса</b> {haijin.DELIMITER} 1 {haijin.DELIMITER} 1")
+                            f"{haijin.AUTHOR_INDENT} <b>Исса</b> {haijin.LEFT_BRACKET}1{haijin.DELIMITER}1{haijin.RIGHT_BRACKET}")
         formatted_text: str = self.haijin.format_hokku(text)
         self.assertEqual(formatted_text, result_text)
   

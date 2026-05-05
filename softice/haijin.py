@@ -46,7 +46,7 @@ RIGHT_PARENTHESIS: str = ")"
 LEFT_BRACKET: str = "["
 RIGHT_BRACKET: str = "]"
 AUTHOR_INDENT: str = "     "
-DELIMITER: str = "|"
+DELIMITER: str = "/"
 SCREENED: str = "#"
 
 class CHaijin(basis.CBasis):
@@ -112,7 +112,7 @@ class CHaijin(basis.CBasis):
                 # *** Разобьём текст на строки
                 text_list: list = text.split(SLASH)
                 result_text = text.replace("/", "\n")
-                result_text = f"<i> {result_text[1:]} </i> \n {AUTHOR_INDENT}<b>{author}</b> {DELIMITER} {number} {DELIMITER} {len(self.hokku)}"
+                result_text = f"<i> {result_text[1:]} </i> \n {AUTHOR_INDENT}<b>{author}</b> {LEFT_BRACKET}{number}{DELIMITER}{len(self.hokku)}{RIGHT_BRACKET}"
             return result_text
         return ptext
 
