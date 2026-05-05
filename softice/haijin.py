@@ -117,14 +117,15 @@ class CHaijin(basis.CBasis):
                 text_list: list = text.split(SLASH)
                 for line in text_list:
 
-                    result_text += QUOTE+line.strip()
+                    result_text += "\n"+line.strip()
                     # result_text += line.strip() + LF
                 # result_text = f"{BOLD}{ITALIC}{result_text[:-1]}{ITALIC}{BOLD}{LF}" \
                 #              f"{AUTHOR_INDENT}{author} {SPOILER}" + \
                 #              f"{DELIMITER} {number} {DELIMITER} {len(self.hokku)} {SPOILER}"
                 # result_text = f"{result_text[:-1]}" \
-                result_text = f"{result_text} \n {AUTHOR_INDENT}{author}{DELIMITER} {number} {DELIMITER} {len(self.hokku)}"
-            return result_text.replace(">", "\n")
+                result_text = f"<i> {result_text} </i> \n {AUTHOR_INDENT}<b>{author}</b> {DELIMITER} {number} {DELIMITER} {len(self.hokku)}"
+            print(f"===== {result_text}")
+            return result_text
         return ptext
 
 

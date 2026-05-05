@@ -29,7 +29,7 @@ from softice.manager import CManager
 logger = logging.getLogger(__name__)
 
 MINIMUM_USER_QUANTITY: int = 2
-OBSOLETE_PERIOD: int = 93000 # 3000 
+OBSOLETE_PERIOD: int = 3000
 
 class Callbacks:
     def __init__(self, client: AsyncClient, store: Storage, config: Config):
