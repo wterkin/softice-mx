@@ -1,3 +1,6 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+"""Основной модуль управления ботом."""
 import logging
 
 from datetime import datetime
@@ -30,12 +33,15 @@ from softice.majordomo import CMajordomo
 
 logger = logging.getLogger(__name__)
 
+# pylint: disable=logging-fstring-interpolation
+
 MINIMUM_USER_QUANTITY: int = 2
 OBSOLETE_PERIOD: int = 3000
 HELP_MESSAGE: str = "В настоящий момент я понимаю только следующие группы команд: \n"
 
 
 class Callbacks:
+    """Класс обратных вызовов."""
     def __init__(self, client: AsyncClient, store: Storage, config: Config):
         """
         Args:
@@ -49,6 +55,7 @@ class Callbacks:
         self.store = store
         self.config = config
         self.command_prefix = config.command_prefix
+
         self.babbler: CBabbler = CBabbler(self.config)
         self.barman: CBarman = CBarman(self.config)
         self.collector: CCollector = CCollector(self.config)
@@ -71,6 +78,8 @@ class Callbacks:
             await self.babbler.reload()
             await self.barman.load_assortment()
             await self.haijin.reload()
+            await self.librarian.reload()
+            await self.majordomo.reload()
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
@@ -80,6 +89,7 @@ class Callbacks:
         delta: int = now_time - pevent.server_timestamp
         return delta >= OBSOLETE_PERIOD
 
+
     # *** Основная процедура вызывается при каждом пришедшем сообщении
     async def message(self, room: MatrixRoom, event: RoomMessageText) -> None:
         """Callback for when a message event is received
@@ -87,8 +97,7 @@ class Callbacks:
             room: The room the event came from.
             event: The event defining the message.
         """
-        #print(f"!!!!! {room=}")
-        # print(f"!!!!! {event.body=}")
+        # *** Вызываем процедуру, которая выполняется один раз.
         await self.run_once()
         answer: str = ""
         # *** Если это наше сообщение - игнорим его.
@@ -103,6 +112,7 @@ class Callbacks:
                 "Извините, в привате не работаю.")
             return
 
+        # *** Если сообщение не просрочено...
         if not await self.is_obsolete(event):
 
             # *** Получим текст сообщения
@@ -129,45 +139,45 @@ class Callbacks:
                 # *** Может, запросили помощь?
                 if "help" in message:
 
-                    self.send_hints(room_name)
-
+                    self.send_hints(room.name)
+                # *** Болтуну есть что сказать?
                 answer = await self.babbler.babbler(room.name, event.sender, message)
-                answer = answer.strip()
-                # print(f"!babbler! {answer=}")
                 if not answer:
 
+                    # *** Бармену есть что сказать?
                     answer = await self.barman.barman(room.name, event.sender, message)
-                    # print(f"!barman! {answer=}")
                 if not answer:
 
+                    # *** Игруну есть что сказать?
                     answer = self.gambler.gambler(room.name, message)
-                    # print(f"!gambler! {answer=}")
                 if not answer:
 
+                    # *** Хайдзину есть что сказать?
                     answer = await self.haijin.haijin(room.name, event.sender, message)
-                    # print(f"!haijin! {answer=}")
                 if not answer:
 
+                    # *** Мажордому есть что сказать?
+                    answer = self.majordomo.majordomo(room.name, message)
+                if not answer:
+
+                    # *** Менеджеру есть что сказать?
                     answer = await self.manager.manager(room.name, room.room_id,
                                                         event.sender, message)
-                    # print(f"!manager! {answer=}")
                 # *** Коллектор вызывается последним.
                 if not answer:
 
+                    # *** Коллектору есть что сказать?
                     answer = self.collector.collector(answer)
-                    # print(f"!collector!  {answer=}")
 
             else:
 
-                # print("*** Babbler.talk")
                 # *** Просто сообщение
                 # def talk(self, proom: str, pmessage: str) -> str:
                 # ToDo: Вот тут вывести картинку, если есть
                 answer, file_name = await self.babbler.talk(room.name, message)
-            # print(f"!!!!! {answer=}")
             if answer:
 
-                await send_text_to_room(self.client, room.room_id, answer, False, False)
+                await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,
@@ -269,7 +279,7 @@ class Callbacks:
 
             reacted_to_id: The event ID that the reaction points to.
         """
-        logger.debug(f"Got reaction to {room.room_id} from {event.sender}.")
+        logger.debug(f"Got reaction to {room.room_id} from {event.sender}.") # noqa
 
         # Get the original event that was reacted to
         event_response = await self.client.room_get_event(room.room_id, reacted_to_id)
@@ -315,7 +325,7 @@ class Callbacks:
             f"If all else fails, delete your store directory and let the bot recreate "
             f"it (your reminders will NOT be deleted, but the bot may respond to existing "
             f"commands a second time)."
-        )
+        ) # noqa
 
         red_x_and_lock_emoji = "❌ 🔐"
 
@@ -348,4 +358,4 @@ class Callbacks:
 
         logger.debug(
             f"Got unknown event with type to {event.type} from {event.sender} in {room.room_id}."
-        )
+        ) # noqa
