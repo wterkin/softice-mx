@@ -12,7 +12,7 @@ class CTestLibrarian(TestCase):
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
-        self.librarian: librarian.CLibrarian = librarian.CLibrarian(self.config, self.config.data_folder)
+        self.librarian: librarian.CLibrarian = librarian.CLibrarian(self.config)
 
 
     def test_find_in_book(self):

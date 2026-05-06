@@ -7,7 +7,7 @@ from softice import basis
 
 
 UNIT_ID: str = "gambler"
-HINT: tuple = ("игра", "game")
+HINT: tuple = ("игры", "games")
 ROCKSCIPAP_COMMANDS: tuple = ("камень", "ножницы", "бумага")
 ROCKSCIPAP_SHORT_COMMANDS: tuple = ("кам", "нож", "бум")
 ROCKSCIPAPLIZSPOCK_COMMANDS: tuple = ("камень", "ножницы", "бумага", "ящерица", "спок")

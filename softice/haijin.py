@@ -15,11 +15,11 @@ SAVE_BOOK: list = ["hokkusave", "hksv"]
 HAIJIN_FOLDER: str = "haijin/"
 HAIJIN_FILE_NAME: str = "hokku.txt"
 
-HAIJIN_DESC: list = ["хк, hk : получить случайное хокку, \n"
-                     "хк, hk номер : с заданным номером \n"
-                     "хк, hk строка : содержащее заданную строку",
-                     "hk+ : добавить хокку в базу",
-                     "hk- : удалить хокку из базы"]
+HAIJIN_DESC: list = ["хк,  hk : получить случайное хокку, \n"
+                     "хк,  hk номер : с заданным номером \n"
+                     "хк,  hk строка : содержащее заданную строку",
+                     "хк+, hk+ : добавить хокку в базу",
+                     "хк-, hk- : удалить хокку из базы"]
 
 HAIJIN_COMMANDS: list = [["хк", "hk"],
                          ["хк+", "hk+"],
@@ -47,7 +47,7 @@ LEFT_BRACKET: str = "["
 RIGHT_BRACKET: str = "]"
 AUTHOR_INDENT: str = "     "
 DELIMITER: str = "/"
-SCREENED: str = "#"
+SCREENED: str = ""
 
 class CHaijin(basis.CBasis):
     """Класс хайдзина."""
@@ -129,9 +129,10 @@ class CHaijin(basis.CBasis):
 
             for idx, command in enumerate(HAIJIN_COMMANDS):
 
-                command_list += ", ".join(command) + HAIJIN_DESC[idx]
-                command_list += "\n"
-
+                #command_list += ", ".join(command) + HAIJIN_DESC[idx]
+                command_list += HAIJIN_DESC[idx] + "\n"
+                #command_list += "\n"
+        print(f"========== {command_list}")
         return command_list
 
 

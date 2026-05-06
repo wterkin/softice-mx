@@ -33,8 +33,11 @@ class CBabbler(basis.CBasis):
     def __init__(self, pconfig: Config):
         """Конструктор."""
 
+        assert pconfig is not None, \
+        "Assert: [babbler.__init__] " \
+        "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
-        # self.config: Config = pconfig
         self.data_path: str = self.config.data_folder + BABBLER_PATH  # pdata_path + BABBLER_PATH
         self.mind: list = []
         self.last_phrase_time: datetime = datetime.now()
@@ -43,6 +46,13 @@ class CBabbler(basis.CBasis):
 
     async def babbler(self, proom: str, psender: str, pmessage: str) -> str:
         """Обработчик команд болтуна"""
+
+        assert proom is not None, \
+        "Assert: [babbler.babbler] " \
+        "Пропущен параметр <proom> !"
+        assert proom is not None, \
+        "Assert: [babbler.babbler] " \
+        "Пропущен параметр <proom> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage)

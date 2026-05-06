@@ -7,8 +7,7 @@ from softice import majordomo
 from softice import config
 import asyncio
 
-class CTestGambler(TestCase):
-
+class CMfjordomo(TestCase):
 
     def setUp(self) -> None:
 

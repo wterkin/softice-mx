@@ -38,7 +38,7 @@ class CMajordomo(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [majordomo.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        return self.get_hint(pchat_title, UNIT_ID, HINT)
+        return super().get_hint(pchat_title, UNIT_ID, HINT)
 
 
 

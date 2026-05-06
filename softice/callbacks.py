@@ -37,8 +37,9 @@ logger = logging.getLogger(__name__)
 
 MINIMUM_USER_QUANTITY: int = 2
 OBSOLETE_PERIOD: int = 3000
-HELP_MESSAGE: str = "В настоящий момент я понимаю только следующие группы команд: \n"
-
+HELP_MESSAGE: str = ("Все команды к боту должны начинаться с ! (восклицательного знака). "
+                     "Команда должна следовать сразу за восклицательным знаком, без пробела. "
+                     "В настоящий момент я понимаю только следующие группы команд: \n")
 
 class Callbacks:
     """Класс обратных вызовов."""
@@ -136,12 +137,15 @@ class Callbacks:
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
+                print(f":::: 1 {message}")
                 # *** Может, запросили помощь?
-                if "help" in message:
+                if "!help" in message:
 
-                    self.send_hints(room.name)
-                # *** Болтуну есть что сказать?
-                answer = await self.babbler.babbler(room.name, event.sender, message)
+
+                    answer = self.send_hints(room.name)
+                if not answer:
+                    # *** Болтуну есть что сказать?
+                    answer = await self.babbler.babbler(room.name, event.sender, message)
                 if not answer:
 
                     # *** Бармену есть что сказать?
@@ -156,8 +160,12 @@ class Callbacks:
                     answer = await self.haijin.haijin(room.name, event.sender, message)
                 if not answer:
 
+                    # *** Библиотекарю есть что сказать?
+                    answer = await self.haijin.haijin(room.name, event.sender, message)
+                if not answer:
+
                     # *** Мажордому есть что сказать?
-                    answer = self.majordomo.majordomo(room.name, message)
+                    answer = await self.librarian.librarian(room.name, event.sender, message)
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
@@ -176,7 +184,8 @@ class Callbacks:
                 # ToDo: Вот тут вывести картинку, если есть
                 answer, file_name = await self.babbler.talk(room.name, message)
             if answer:
-
+                
+                # answer = answer.strip()
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return
 
@@ -226,7 +235,7 @@ class Callbacks:
         """Проверяет, не была ли запрошена подсказка."""
 
         # *** Собираем ответы модулей на запрос помощи
-        answer: str = ""
+        answer: str = "" 
         result: str = self.barman.get_hint(pchat_title)
         if result:
 
@@ -248,7 +257,9 @@ class Callbacks:
 
             answer += result + "\n"
         result = self.majordomo.get_hint(pchat_title)
+        if result:
 
+            answer += result + "\n"
         if answer:
 
             return HELP_MESSAGE + answer
