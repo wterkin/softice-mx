@@ -21,12 +21,12 @@ class CPrototype:
 
 
     @abstractmethod
-    def get_help(self, pchat_title: str) -> str:
+    def get_commands(self, pchat_title: str, punit_id: str, pcommands: list) -> str:
         """Возвращает список команд модуля, доступных пользователю."""
 
 
     @abstractmethod
-    def get_hint(self, pchat_title: str) -> str:
+    def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
            модуль возвращает полный список команд, доступных пользователю."""
 

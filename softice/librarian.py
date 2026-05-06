@@ -120,10 +120,10 @@ def quote(pbook: list, pword_list: list) -> str:
 class CLibrarian(basis.CBasis):
     """Класс библиотекаря."""
 
-    def __init__(self, pconfig, pdata_path: str):
+    def __init__(self, pconfig):
 
         super().__init__(pconfig)
-        self.data_path = pdata_path + LIBRARIAN_FOLDER
+        self.data_path: str = self.config.data_folder + LIBRARIAN_FOLDER
         self.quotes: list = []
         print("Библиотекарь стартовал.")
 

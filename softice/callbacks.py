@@ -24,12 +24,16 @@ from softice.barman import CBarman
 from softice.collector import CCollector
 from softice.gambler import CGambler
 from softice.haijin import CHaijin
+from softice.librarian import CLibrarian
 from softice.manager import CManager
+from softice.majordomo import CMajordomo
 
 logger = logging.getLogger(__name__)
 
 MINIMUM_USER_QUANTITY: int = 2
 OBSOLETE_PERIOD: int = 3000
+HELP_MESSAGE: str = "В настоящий момент я понимаю только следующие группы команд: \n"
+
 
 class Callbacks:
     def __init__(self, client: AsyncClient, store: Storage, config: Config):
@@ -50,8 +54,11 @@ class Callbacks:
         self.collector: CCollector = CCollector(self.config)
         self.gambler: CGambler = CGambler(self.config)
         self.haijin: CHaijin = CHaijin(self.config)
+        self.librarian: CLibrarian = CLibrarian(self.config)
+        self.majordomo: CMajordomo = CMajordomo(self.config)
         self.manager: CManager = CManager(self.config, self.client)
-        self.first_run: Bool = True
+
+        self.first_run: bool = True
 
 
     async def run_once(self):
@@ -67,7 +74,8 @@ class Callbacks:
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
-        """Возвращает True, если разница между временем события и текущим равна OBSOLETE_PERIOD и больше. """
+        """Возвращает True, если разница между временем события и текущим 
+           равна OBSOLETE_PERIOD и больше. """
         now_time: int = int(datetime.now().timestamp()*1000)
         delta: int = now_time - pevent.server_timestamp
         return delta >= OBSOLETE_PERIOD
@@ -118,6 +126,11 @@ class Callbacks:
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
+                # *** Может, запросили помощь?
+                if "help" in message:
+
+                    self.send_hints(room_name)
+
                 answer = await self.babbler.babbler(room.name, event.sender, message)
                 answer = answer.strip()
                 # print(f"!babbler! {answer=}")
@@ -135,11 +148,12 @@ class Callbacks:
                     # print(f"!haijin! {answer=}")
                 if not answer:
 
-                    answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
+                    answer = await self.manager.manager(room.name, room.room_id,
+                                                        event.sender, message)
                     # print(f"!manager! {answer=}")
-                # *** Коллектор вызывается последним.                    
+                # *** Коллектор вызывается последним.
                 if not answer:
-        
+
                     answer = self.collector.collector(answer)
                     # print(f"!collector!  {answer=}")
 
@@ -148,6 +162,7 @@ class Callbacks:
                 # print("*** Babbler.talk")
                 # *** Просто сообщение
                 # def talk(self, proom: str, pmessage: str) -> str:
+                # ToDo: Вот тут вывести картинку, если есть
                 answer, file_name = await self.babbler.talk(room.name, message)
             # print(f"!!!!! {answer=}")
             if answer:
@@ -196,6 +211,38 @@ class Callbacks:
 
         # Successfully joined room
         logger.info(f"Joined {room.room_id}")
+
+    def send_hints(self, pchat_title: str) -> str:
+        """Проверяет, не была ли запрошена подсказка."""
+
+        # *** Собираем ответы модулей на запрос помощи
+        answer: str = ""
+        result: str = self.barman.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        #result = self.bellringer.get_hint(pchat_title)
+        #if result:
+
+            #answer += result + "\n"
+        result = self.gambler.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.haijin.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.librarian.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.majordomo.get_hint(pchat_title)
+
+        if answer:
+
+            return HELP_MESSAGE + answer
+        return answer
 
     async def invite_event_filtered_callback(
         self, room: MatrixRoom, event: InviteMemberEvent

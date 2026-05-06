@@ -43,17 +43,47 @@ class CBasis(prototype.CPrototype):
         return found
 
 
-    def get_help(self, pchat_title: str):
-        """Возвращает список команд модуля, доступных пользователю."""
+    def get_commands(self, pchat_title: str, punit_id: str, pcommands: list) -> str:
+        """Пользователь запросил список команд."""
 
-        return ""
+        assert pchat_title is not None, \
+            "Assert: [basis.get_commands] " \
+            "Пропущен параметр <pchat_title> !"
+        assert punit_id is not None, \
+            "Assert: [basis.get_commands] " \
+            "Пропущен параметр <punit_id> !"
+        assert pcommands is not None, \
+            "Assert: [basis.get_commands] " \
+            "Пропущен параметр <pcommands> !"
+
+        command_list: str = ""
+        if self.is_enabled(pchat_title, punit_id):
+
+            for command in pcommands:
+
+                command_list += ", ".join(command) + "\n"
+        return command_list
 
 
-    def get_hint(self, pchat_title: str):
+    def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
            модуль возвращает полный список команд, доступных пользователю."""
 
+        assert pchat_title is not None, \
+            "Assert: [basis.get_hint] " \
+            "Пропущен параметр <pchat_title> !"
+        assert punit_id is not None, \
+            "Assert: [basis.get_hint] " \
+            "Пропущен параметр <punit_id> !"
+        assert phints is not None, \
+            "Assert: [basis.get_hint] " \
+            "Пропущен параметр <phints> !"
+
+        if self.is_enabled(pchat_title, punit_id):
+
+            return ", ".join(phints)
         return ""
+
 
 
 
