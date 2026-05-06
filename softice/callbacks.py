@@ -137,7 +137,7 @@ class Callbacks:
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
-                print(f":::: 1 {message}")
+                # print(f":::: 1 {message}")
                 # *** Может, запросили помощь?
                 if "!help" in message:
 
@@ -169,8 +169,11 @@ class Callbacks:
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
-                    answer = await self.manager.manager(room.name, room.room_id,
-                                                        event.sender, message)
+                    answer = await self.majordomo.majordomo(room.name, message)
+                if not answer:
+
+                    # *** Менеджеру есть что сказать?
+                    answer = await self.manager.manager(room.name, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 
@@ -184,7 +187,7 @@ class Callbacks:
                 # ToDo: Вот тут вывести картинку, если есть
                 answer, file_name = await self.babbler.talk(room.name, message)
             if answer:
-                
+
                 # answer = answer.strip()
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return

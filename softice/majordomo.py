@@ -9,7 +9,7 @@ from softice import basis
 
 UNIT_ID = "majordomo"
 HINT: list = ["мажордом", "majordomo"]
-COMMANDS: list = ["greet", "gt", "привет", "пт"]
+COMMANDS: list = [["greet <имя>", "gt <имя>"], ["привет <имя>", "пт <имя>"]]
 MAJORDOMO_FOLDER: str = "majordomo/greetings.txt"
 
 
@@ -42,7 +42,7 @@ class CMajordomo(basis.CBasis):
 
 
 
-    def majordomo(self, pchat_title, pmessage_text) -> str:
+    async def majordomo(self, pchat_title, pmessage_text) -> str:
         """Главная функция модуля."""
 
         assert pchat_title is not None, \
@@ -54,6 +54,7 @@ class CMajordomo(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
+        print(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
         if self.can_process(pchat_title, UNIT_ID, pmessage_text, COMMANDS):
 
@@ -66,6 +67,7 @@ class CMajordomo(basis.CBasis):
         # *** Не запросили ли список команд?
         elif word_list[0] in HINT:
 
+            print(f"+++ MjDm +++ 2 +++ {HINT=}")
             # *** Отправляем полный список команд
             answer = self.get_commands(pchat_title, UNIT_ID, COMMANDS)
         return answer

@@ -41,7 +41,7 @@ class CManager(basis.CBasis):
             "No <pchat_title> parameter specified!"
 
         command_list: str = ""
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
             command_list += ", ".join(COMMANDS)
         return command_list
@@ -78,7 +78,7 @@ class CManager(basis.CBasis):
 
                 #print("!!!!!! 1")
                 # *** Получим код команды
-                print("!"*6, COMMANDS[:RESTART_COMMANDS])
+                # print("!"*6, COMMANDS[:RESTART_COMMANDS])
                 if word_list[0] in COMMANDS[:RESTART_COMMANDS]:
 
                     #print("!!!!!! Quit command detected. ")
@@ -93,7 +93,7 @@ class CManager(basis.CBasis):
                             #print("!!!!!! Quit by demand. ")
                             await self.suicide()
                         else:
-                
+
                             answer = "Вам недоступна эта возможность."
                 elif word_list[0] in COMMANDS[RESTART_COMMANDS:]:
 
@@ -109,9 +109,9 @@ class CManager(basis.CBasis):
                             #print("!!!!!! Restart by demand. ")
                             await self.suicide()
                         else:
-        
+
                             answer = "Вам недоступна эта возможность."
-                    
+
             if answer:
 
                 print("> Manager отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])

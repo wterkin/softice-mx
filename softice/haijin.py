@@ -132,7 +132,7 @@ class CHaijin(basis.CBasis):
                 #command_list += ", ".join(command) + HAIJIN_DESC[idx]
                 command_list += HAIJIN_DESC[idx] + "\n"
                 #command_list += "\n"
-        print(f"========== {command_list}")
+        # print(f"========== {command_list}")
         return command_list
 
 

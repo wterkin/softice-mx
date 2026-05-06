@@ -114,7 +114,7 @@ def quote(pbook: list, pword_list: list) -> str:
         # *** случайную.
         #print(f"--------- {pbook=}")
         #print(f"--------- {answer=}")
-        
+
         answer = random.choice(pbook)
         answer = f"[{pbook.index(answer)+1}] {answer}"
     return answer
@@ -254,7 +254,7 @@ class CLibrarian(basis.CBasis):
         command: int
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        print(f"########### {word_list}")        
+        # print(f"########### {word_list}")
 
         if self.can_class_process(pchat_title, pmessage_text):
 
@@ -293,7 +293,7 @@ class CLibrarian(basis.CBasis):
             elif word_list[0] in HINT:
 
                 answer = self.get_help(pchat_title)
-                print(f"########### {answer}")
+                # print(f"########### {answer}")
             else:
 
                 # *** Получим код команды
@@ -309,7 +309,7 @@ class CLibrarian(basis.CBasis):
 
     async def reload(self):
         """Перезагружает библиотеку."""
-        
+
         # print(f"--------- {pbook=}")
         self.quotes = await self.load_from_file_async(self.data_path + QUOTES_FILE_NAME)
         print(f"> Librarian успешно (пере)загрузил {len(self.quotes)} цитат(ы)")
