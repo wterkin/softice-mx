@@ -49,8 +49,35 @@ class CBasis(prototype.CPrototype):
         return found
 
 
+
+    def can_process_command(self, proom_name: str, pmessage: str, 
+                            punit_id: str, pcommands: list) -> bool:
+        """Возвращает True, если хайдзин может обработать эту команду."""
+
+        assert proom_name is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <pmessage> !"
+
+        can_process: bool = False
+        # *** Мы можем обрабатывать команды из этой комнаты?
+        if self.is_enabled(proom_name, punit_id):
+        
+            # *** Парсим сообщение
+            word_list: list = self.parse_input(pmessage)
+            for command in pcommands:
+            
+                can_process = word_list[0] in command
+                if can_process:
+                    
+                    break
+        return can_process
+
+    """
     def get_commands(self, pchat_title: str, punit_id: str, pcommands: list) -> str:
-        """Пользователь запросил список команд."""
+        ""Пользователь запросил список команд.""
 
         assert pchat_title is not None, \
             "Assert: [basis.get_commands] " \
@@ -69,6 +96,25 @@ class CBasis(prototype.CPrototype):
 
                 command_list += ", ".join(command) + "\n"
         return command_list
+
+    """
+    
+    def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
+    # def get_commands(self, proom_name: str) -> str:
+        """Пользователь запросил список команд."""
+
+        assert proom_name is not None, \
+            "Assert: [haijin.get_command] " \
+            "Пропущен параметр <proom_name> !"
+
+        commands: str = ""
+        if self.is_enabled(proom_name, punit_id):
+
+            for command in pdescriptions:
+
+                commands += command + "\n"
+        return commands
+
 
 
     def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:

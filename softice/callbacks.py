@@ -158,6 +158,7 @@ class Callbacks:
 
                     # *** Хайдзину есть что сказать?
                     answer = await self.haijin.haijin(room.name, event.sender, message)
+                    print(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
                     # *** Библиотекарю есть что сказать?

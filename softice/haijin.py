@@ -59,9 +59,8 @@ class CHaijin(basis.CBasis):
         self.hokku: list = []
         print("Хайдзин стартовал.")
 
-
-    def can_process_command(self, proom_name: str, pmessage: str) -> bool:
-        """Возвращает True, если хайдзин может обработать эту команду."""
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = []) -> bool:
 
         assert proom_name is not None, \
             "Assert: [haijin.can_class_process] " \
@@ -69,21 +68,8 @@ class CHaijin(basis.CBasis):
         assert pmessage is not None, \
             "Assert: [haijin.can_class_process] " \
             "Пропущен параметр <pmessage> !"
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
-        can_process: bool = False
-        # *** Мы можем обрабатывать команды из этой комнаты?
-        if self.is_enabled(proom_name, UNIT_ID):
-        
-            # *** Парсим сообщение
-            word_list: list = self.parse_input(pmessage)
-            for command in COMMANDS:
-            
-                can_process = word_list[0] in command
-                if can_process:
-                    
-                    break
-        return can_process
-        
     
     def get_commands(self, proom_name: str) -> str:
         """Пользователь запросил список команд."""
@@ -149,7 +135,9 @@ class CHaijin(basis.CBasis):
         unformatted_answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
-        if self.can_process_command(pchat_title, pmessage_text):
+        print(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
+        print(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_GROUP]=}")
+        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
             # *** Возможно, запросили перезагрузку.
             if word_list[0] in COMMANDS[RELOAD_GROUP]:
