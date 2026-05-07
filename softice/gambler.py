@@ -89,16 +89,13 @@ class CGambler(basis.CBasis):
         return command_list
 
 
-    def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
             "Assert: [gambler.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            return ", ".join(HINT)
-        return ""
+        return super().get_hint(pchat_title, UNIT_ID, HINT)
 
 
     async def reload(self):
