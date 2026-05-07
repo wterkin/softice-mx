@@ -17,17 +17,17 @@ class CTestHaijin(TestCase):
         self.haijin: haijin.CHaijin = haijin.CHaijin(self.config)
 
 
-    def test_can_class_process(self):
+    def test_can_process_command(self):
 
-        self.assertFalse(self.haijin.can_class_process("fakechat", "!hk"))
-        self.assertFalse(self.haijin.can_class_process("emptychat", "!хк+"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк+"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!хк-"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hksv"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hkrl"))
-        self.assertTrue(self.haijin.can_class_process(self.config.test_chat, "!hokku"))
-        self.assertFalse(self.haijin.can_class_process(self.config.test_chat, "!кукабарра"))
+        self.assertFalse(self.haijin.can_process_command("fakechat", "!hk"))
+        self.assertFalse(self.haijin.can_process_command("emptychat", "!хк+"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!хк"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!хк+"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!хк-"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!hksv"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!hkrl"))
+        self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!hokku"))
+        self.assertFalse(self.haijin.can_process_command(self.config.test_chat, "!кукабарра"))
 
        
     def test_format_hokku(self):
@@ -40,9 +40,9 @@ class CTestHaijin(TestCase):
         self.assertEqual(formatted_text, result_text)
   
         
-    def test_get_help(self):
+    def test_get_commands(self):
 
-        self.assertIn("хк,  hk : получить случайное хокку", self.haijin.get_help(self.config.test_chat))
+        self.assertIn("\n\nхк(hk) <номер> <строка> : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):
@@ -67,7 +67,7 @@ class CTestHaijin(TestCase):
 
             file.unlink()
 
-        self.assertIn("хк,  hk : получить случайное хокку,", self.haijin.get_help(self.config.test_chat))
+        self.assertIn("\n\nхк(hk) <номер> <строка> : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
 
     def test_is_enabled(self):
 

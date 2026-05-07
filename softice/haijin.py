@@ -15,51 +15,39 @@ SAVE_BOOK: list = ["hokkusave", "hksv"]
 HAIJIN_FOLDER: str = "haijin/"
 HAIJIN_FILE_NAME: str = "hokku.txt"
 
-HAIJIN_DESC: list = ["хк,  hk : получить случайное хокку, \n"
-                     "хк,  hk номер : с заданным номером \n"
-                     "хк,  hk строка : содержащее заданную строку",
-                     "хк+, hk+ : добавить хокку в базу",
-                     "хк-, hk- : удалить хокку из базы"]
 
 HAIJIN_COMMANDS: list = [["хк", "hk"],
                          ["хк+", "hk+"],
                          ["хк-", "hk-"]]
 
-"""
 COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("hokkusave", "hksv"),
                    ("хк", "hk"),
                    ("хк+", "hk+"),
-                   ("хк-", "hk-"))
+                   ("хк-", "hk-"),
+                   ("хокку", "hokku"))
+                   
 RELOAD_GROUP: int = 0
 SAVE_GROUP: int = 1
 ASK_GROUP: int = 2
 ADD_GROUP: int = 3
-DELETE_GROUP: int = 4                   
-"""
-HINT = ["хокку", "hokku"]
+DELETE_GROUP: int = 4
+HINT_GROUP: int = 5
+DESCRIPTIONS: tuple = ("",
+                       "",
+                       ("хк(hk) <номер> <строка> : получить случайное хокку,"
+                       " либо с с заданным номером, либо содержащее заданную строку"),
+                       "хк+(hk+) : добавить в базу новое хокку ",
+                       "хк-(hk-) : удалить хокку из базы")
+USER_RIGHTS: tuple = (False, False, True, True, False)
+
 UNIT_ID = "haijin"
-
-#BOLD: str = "**"  # "*"
-#ITALIC: str = "*"  # "_"
-BOLD: str = ""  # "*"
-ITALIC: str = ""  # "_"
-SPOILER: str = ""
-QUOTE: str = ">"
-HEADING_1: str = "#"
-HEADING_2: str = "##"
-LIST_ENTRY: str = "* "
-
-SLASH: str = "/"
-LF: str = " / " # "\n"
-SPACE: str = " "
 LEFT_PARENTHESIS: str = "("
 RIGHT_PARENTHESIS: str = ")"
 LEFT_BRACKET: str = "["
 RIGHT_BRACKET: str = "]"
 AUTHOR_INDENT: str = "     "
 DELIMITER: str = "/"
-SCREENED: str = ""
 
 class CHaijin(basis.CBasis):
     """Класс хайдзина."""
@@ -71,36 +59,46 @@ class CHaijin(basis.CBasis):
         self.hokku: list = []
         print("Хайдзин стартовал.")
 
-    def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
+
+    def can_process_command(self, proom_name: str, pmessage: str) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [haijin.can_class_process] " \
-            "Пропущен параметр <pchat_title> !"
-        assert pmessage_text is not None, \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage is not None, \
             "Assert: [haijin.can_class_process] " \
-            "Пропущен параметр <pmessage_text> !"
-        found: bool = False
-        if self.is_enabled(pchat_title, UNIT_ID):
+            "Пропущен параметр <pmessage> !"
 
-            word_list: list = self.parse_input(pmessage_text)
-            for command in HAIJIN_COMMANDS:
-
-                found = word_list[0] in command
-                if found:
-
+        can_process: bool = False
+        # *** Мы можем обрабатывать команды из этой комнаты?
+        if self.is_enabled(proom_name, UNIT_ID):
+        
+            # *** Парсим сообщение
+            word_list: list = self.parse_input(pmessage)
+            for command in COMMANDS:
+            
+                can_process = word_list[0] in command
+                if can_process:
+                    
                     break
+        return can_process
+        
+    
+    def get_commands(self, proom_name: str) -> str:
+        """Пользователь запросил список команд."""
 
-            if not found:
+        assert proom_name is not None, \
+            "Assert: [haijin.get_command] " \
+            "Пропущен параметр <proom_name> !"
 
-                found = word_list[0] in HINT
-                if not found:
+        commands: str = ""
+        if self.is_enabled(proom_name, UNIT_ID):
 
-                    found = word_list[0] in RELOAD_BOOK
-                    if not found:
+            for command in DESCRIPTIONS:
 
-                        found = word_list[0] in SAVE_BOOK
-        return found
+                commands += command + "\n"
+        return commands
 
 
     def format_hokku(self, ptext: str) -> str:
@@ -122,7 +120,6 @@ class CHaijin(basis.CBasis):
                 author = text[left_par + 1:right_par].strip()
                 text = text[:left_par]
                 # *** Разобьём текст на строки
-                # text_list: list = text.split(SLASH)
                 result_text = text.replace("/", "\n")
                 result_text = (f"<i> {result_text[1:]} </i> \n"
                                f" {AUTHOR_INDENT}<b>{author}</b> "
@@ -131,35 +128,14 @@ class CHaijin(basis.CBasis):
         return ptext
 
 
-
-    def get_help(self, pchat_title: str) -> str:
-        """Пользователь запросил список команд."""
-
-        assert pchat_title is not None, \
-            "Assert: [haijin.get_help] " \
-            "Пропущен параметр <pchat_title> !"
-        command_list: str = ""
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            #for idx, command in enumerate(HAIJIN_COMMANDS):
-
-            #    #command_list += ", ".join(command) + HAIJIN_DESC[idx]
-            ##    command_list += HAIJIN_DESC[idx] + "\n"
-            #    #command_list += "\n"
-            for command in HAIJIN_DESC:
-
-                command_list += command + "=n"
-        # print(f"========== {command_list}")
-        return command_list
-
-
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [haijin.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
-        return super().get_hint(pchat_title, UNIT_ID, HINT)
+            "Пропущен параметр <proom_name> !"
+
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
     async def haijin(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
@@ -168,34 +144,35 @@ class CHaijin(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [haijin.haijin] " \
             "Пропущен параметр <pchat_title> !"
+ 
         answer: str = ""
         unformatted_answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_class_process(pchat_title, pmessage_text):
+        # *** Мы можем обработать эту команду?
+        if self.can_process_command(pchat_title, pmessage_text):
 
             # *** Возможно, запросили перезагрузку.
-            if word_list[0] in RELOAD_BOOK:
+            if word_list[0] in COMMANDS[RELOAD_GROUP]:
 
                 # *** Пользователь хочет перезагрузить книгу хокку
-                can_reload = self.is_master(puser_name)
-                if can_reload:
+                if self.is_master(puser_name):
 
                     await self.reload()
                     answer = "Книга загружена"
-            elif word_list[0] in SAVE_BOOK:
+            elif word_list[0] in COMMANDS[SAVE_GROUP]:
 
                 # *** Пользователь хочет сохранить книгу хокку
-                can_reload = self.is_master(puser_name)
-                if can_reload:
+                if self.is_master(puser_name):
 
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
-            elif word_list[0] in HINT:
-
-                answer = self.get_help(pchat_title)
+            elif word_list[0] in COMMANDS[HINT_GROUP]:
+                
+                # *** Пользователь хочет список команд
+                answer = self.get_commands(pchat_title)
             else:
 
-                answer, unformatted_answer = await self.process_command(word_list, HAIJIN_COMMANDS)
+                answer, unformatted_answer = await self.process_command(word_list, puser_name)
             if answer:
 
                 if unformatted_answer:
@@ -213,14 +190,13 @@ class CHaijin(basis.CBasis):
         # *** Получим код команды
         answer: str = ""
         unformatted_answer: str = ""
-        command: int = self.identify_command(pcommand[0], HAIJIN_COMMANDS)
+        command: int = self.identify_command(pcommand[0], COMMANDS)
         if command >= 0:
 
             # *** Хокку запрашивали?
-            if command == ASK_HOKKU_CMD:
+            if command == ASK_GROUP:
 
                 # *** Пользователь хочет хокку....
-
                 answer = librarian.quote(self.hokku, pcommand)
                 if answer:
 
@@ -230,7 +206,7 @@ class CHaijin(basis.CBasis):
 
                         answer = "Такого хокку нет в моей базе"
 
-            elif command == ADD_HOKKU_CMD:
+            elif command == ADD_GROUP:
 
                 # *** Пользователь хочет добавить хокку в книгу
                 text: str = " ".join(pcommand[1:])
@@ -240,10 +216,10 @@ class CHaijin(basis.CBasis):
                 self.hokku.append(text)
                 answer = f"Спасибо, {self.parse_nick(puser_name)}, хокку добавлено под номером " \
                          f"{len(self.hokku)}"
-            elif command == DEL_HOKKU_CMD:
+            elif command == DELETE_GROUP:
 
                 # *** Пользователь хочет удалить хокку из книги...
-                if puser_name == self.config.master:
+                if self.is_master(puser_name):
 
                     del self.hokku[int(pcommand[1]) - 1]
                     answer = f"Хокку {pcommand[1]} удалена."
