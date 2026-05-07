@@ -173,7 +173,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
-                    answer = await self.manager.manager(room.name, message)
+                    answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 

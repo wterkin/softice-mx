@@ -141,7 +141,7 @@ ASSORTMENT: tuple = ({ID_KEY: BEER_ID,
                      )
 
 # *** Команда перегрузки текстов
-BAR_HINT: list = ["бар", "bar"]
+HINT: list = ["бар", "bar"]
 BAR_RELOAD: list = ["brreload", "brrl"]
 BARMAN_FOLDER: str = "barman/"
 # *** Ключ для списка доступных каналов в словаре конфига
@@ -172,7 +172,7 @@ class CBarman(basis.CBasis):
         if self.can_class_process(pchat_title, pmessage_text):
 
             # *** Возможно, запросили меню.
-            if word_list[0] in BAR_HINT:
+            if word_list[0] in HINT:
 
                 answer = "Сегодня в баре имеется следующий ассортимент: \n" + \
                          self.get_help(pchat_title)
@@ -223,7 +223,7 @@ class CBarman(basis.CBasis):
                     break
             if not found:
 
-                found = word_list[0] in BAR_HINT
+                found = word_list[0] in HINT
                 if not found:
 
                     found = word_list[0] in BAR_RELOAD
@@ -246,17 +246,15 @@ class CBarman(basis.CBasis):
         return command_list
 
 
-    def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
+    def get_hint(self, pchat_title: str, punit_id: str = "",
+                 phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
             "Assert: [barman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            return ", ".join(BAR_HINT)
-        return ""
+        return super().get_hint(pchat_title, UNIT_ID, HINT)
 
 
     async def load_assortment(self):
