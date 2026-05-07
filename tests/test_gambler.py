@@ -37,7 +37,7 @@ class CTestGambler(TestCase):
 
         self.assertEqual(self.gambler.get_hint("fakechat"), "")
         self.assertEqual(self.gambler.get_hint("emptychat"), "")
-        self.assertIn("игра, game", self.gambler.get_hint(self.config.test_chat))
+        self.assertIn("игры, games", self.gambler.get_hint(self.config.test_chat))
 
 
     def test_is_enabled(self):

@@ -1,5 +1,6 @@
 data/*
 logs/*
+flags/*
 __pycache__/*
 tests/__pycache__/*
 alembic/__pycache__/*
@@ -11,3 +12,4 @@ softice/__pycache__/*
 tests/__pycache__/*
 *.db
 *.log
+.mc.menu

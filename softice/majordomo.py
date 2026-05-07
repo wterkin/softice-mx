@@ -9,7 +9,7 @@ from softice import basis
 
 UNIT_ID = "majordomo"
 HINT: list = ["мажордом", "majordomo"]
-COMMANDS: list = [["greet <имя>", "gt <имя>"], ["привет <имя>", "пт <имя>"]]
+COMMANDS: list = [["greet", "gt"], ["привет", "пт"]]
 MAJORDOMO_FOLDER: str = "majordomo/greetings.txt"
 
 
@@ -58,11 +58,13 @@ class CMajordomo(basis.CBasis):
         # *** Эта команда входит в список основных команд модуля?
         if self.can_process(pchat_title, UNIT_ID, pmessage_text, COMMANDS):
 
+            print(f"+++ MjDm +++ 3 +++ process")
             # *** Ок. Указано, кого приветствовать?
             if len(word_list) > 1:
 
                 # *** Приветствуем.
                 answer = random.choice(self.greetings) % word_list[1]
+                print(f"+++ MjDm +++ 4 +++ {answer=}")
 
         # *** Не запросили ли список команд?
         elif word_list[0] in HINT:

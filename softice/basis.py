@@ -31,12 +31,18 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.can_process] Пропущен параметр <pmessage_text> !"
 
         found: bool = False
+        print(f"+++ Bas +++ 1 +++ {pchat_title=}")
+        print(f"+++ Bas +++ 2 +++ {punit_id=}")
         if self.is_enabled(pchat_title, punit_id):
 
             word_list: list = self.parse_input(pmessage_text)
+            print(f"+++ Bas +++ 2 +++ {word_list=}")
             for command in pcommands:
 
+                print(f"+++ Bas +++ 2 +++ {word_list[0]=}")
+                print(f"+++ Bas +++ 2 +++ {command=}")
                 found = word_list[0] == command
+                print(f"+++ Bas +++ 3 +++ {found=}")
                 if found:
 
                     break

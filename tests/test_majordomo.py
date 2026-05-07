@@ -18,6 +18,9 @@ class CMfjordomo(TestCase):
     def test_majordomo(self):
 
         asyncio.run(self.majordomo.reload())
+        answer = asyncio.run(self.majordomo.majordomo("Ботовка", "!gt"))
+        self.assertEqual(answer, "")
         result="Привет, Namo, вот и ты. Проходи, располагайся. Сейчас чейку бахнем ;)"
-        self.assertEqual(self.majordomo.majordomo("Ботовка", "!gt"), "")
-        self.assertEqual(self.majordomo.majordomo("Ботовка","!gt Namo"), result)
+        answer = asyncio.run(self.majordomo.majordomo("Ботовка","!gt Namo"))
+        
+        self.assertEqual(answer, result)

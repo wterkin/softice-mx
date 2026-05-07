@@ -25,10 +25,22 @@ HAIJIN_COMMANDS: list = [["хк", "hk"],
                          ["хк+", "hk+"],
                          ["хк-", "hk-"]]
 
+"""
+COMMANDS: tuple = (("hokkureload", "hkrl"),
+                   ("hokkusave", "hksv"),
+                   ("хк", "hk"),
+                   ("хк+", "hk+"),
+                   ("хк-", "hk-"))
+RELOAD_GROUP: int = 0
+SAVE_GROUP: int = 1
+ASK_GROUP: int = 2
+ADD_GROUP: int = 3
+DELETE_GROUP: int = 4                   
+"""
 HINT = ["хокку", "hokku"]
 UNIT_ID = "haijin"
 
-    #BOLD: str = "**"  # "*"
+#BOLD: str = "**"  # "*"
 #ITALIC: str = "*"  # "_"
 BOLD: str = ""  # "*"
 ITALIC: str = ""  # "_"

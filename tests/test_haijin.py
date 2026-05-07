@@ -42,7 +42,7 @@ class CTestHaijin(TestCase):
         
     def test_get_help(self):
 
-        self.assertIn("хк, hk : получить случайное хокку, \n", self.haijin.get_help(self.config.test_chat))
+        self.assertIn("хк,  hk : получить случайное хокку", self.haijin.get_help(self.config.test_chat))
 
 
     def test_get_hint(self):
@@ -67,7 +67,7 @@ class CTestHaijin(TestCase):
 
             file.unlink()
 
-        self.assertIn("хк, hk : получить случайное хокку, \n",             self.haijin.get_help(self.config.test_chat))
+        self.assertIn("хк,  hk : получить случайное хокку,", self.haijin.get_help(self.config.test_chat))
 
     def test_is_enabled(self):
 
