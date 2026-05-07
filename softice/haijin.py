@@ -97,7 +97,7 @@ class CHaijin(basis.CBasis):
         # *** Вырежем номер
         result_text: str = ""
         if "???" not in ptext:
-    
+
             if LEFT_BRACKET in ptext and RIGHT_BRACKET in ptext:
 
                 left_par: int = ptext.index(LEFT_BRACKET)
@@ -110,9 +110,11 @@ class CHaijin(basis.CBasis):
                 author = text[left_par + 1:right_par].strip()
                 text = text[:left_par]
                 # *** Разобьём текст на строки
-                text_list: list = text.split(SLASH)
+                # text_list: list = text.split(SLASH)
                 result_text = text.replace("/", "\n")
-                result_text = f"<i> {result_text[1:]} </i> \n {AUTHOR_INDENT}<b>{author}</b> {LEFT_BRACKET}{number}{DELIMITER}{len(self.hokku)}{RIGHT_BRACKET}"
+                result_text = (f"<i> {result_text[1:]} </i> \n"
+                               f" {AUTHOR_INDENT}<b>{author}</b> "
+                               f"{LEFT_BRACKET}{number}{DELIMITER}{len(self.hokku)}{RIGHT_BRACKET}")
             return result_text
         return ptext
 
@@ -127,26 +129,25 @@ class CHaijin(basis.CBasis):
         command_list: str = ""
         if self.is_enabled(pchat_title, UNIT_ID):
 
-            for idx, command in enumerate(HAIJIN_COMMANDS):
+            #for idx, command in enumerate(HAIJIN_COMMANDS):
 
-                #command_list += ", ".join(command) + HAIJIN_DESC[idx]
-                command_list += HAIJIN_DESC[idx] + "\n"
-                #command_list += "\n"
+            #    #command_list += ", ".join(command) + HAIJIN_DESC[idx]
+            ##    command_list += HAIJIN_DESC[idx] + "\n"
+            #    #command_list += "\n"
+            for command in HAIJIN_DESC:
+
+                command_list += command + "=n"
         # print(f"========== {command_list}")
         return command_list
 
 
-    def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
             "Assert: [haijin.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            # return cn.SCREENED + func.screen_text(", ".join(HINT))
-            return SCREENED + ", ".join(HINT)
-        return ""
+        return super().get_hint(pchat_title, UNIT_ID, HINT)
 
 
     async def haijin(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
@@ -158,7 +159,6 @@ class CHaijin(basis.CBasis):
         answer: str = ""
         unformatted_answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # #>Встрепенулся ночью ->с тихим шорохом наземь упал>цветок вьюнка.. /      Масаока Сики | 409 | 518 
         if self.can_class_process(pchat_title, pmessage_text):
 
             # *** Возможно, запросили перезагрузку.
