@@ -2,8 +2,8 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Игровой модуль."""
 import asyncio
-from softice import basis
 from nio import AsyncClient
+from softice import basis
 from softice.chat_functions import send_text_to_room
 
 UNIT_ID: str = "manager"
@@ -47,19 +47,16 @@ class CManager(basis.CBasis):
         return command_list
 
 
-    def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
             "Assert: [manager.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        if self.is_enabled(pchat_title):
-
-            return ", ".join(HINT)
-        return ""
+        return super().get_hint(pchat_title, UNIT_ID, HINT)
 
 
-    def reload(self):
+    async def reload(self):
         """Пустая заглушка."""
 
 
@@ -122,4 +119,3 @@ class CManager(basis.CBasis):
         """Выключение бота."""
         await asyncio.sleep(3)
         raise SystemExit
-
