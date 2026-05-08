@@ -65,7 +65,7 @@ class CManager(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # print(f"!!!!!! 1 {room_name=} {UNIT_ID=} {pmessage_text=} {COMMANDS=}")
+        # rint(f"+++ Mgr +++ 1 +++ {room_name=} {UNIT_ID=} {pmessage_text=} {COMMANDS=}")
         if self.can_process(room_name, UNIT_ID, pmessage_text, COMMANDS):
 
             if word_list[0] in HINT:
@@ -73,37 +73,32 @@ class CManager(basis.CBasis):
                 answer = self.get_help(room_name)
             else:
 
-                #print("!!!!!! 1")
                 # *** Получим код команды
-                # print("!"*6, COMMANDS[:RESTART_COMMANDS])
+                # rint(f"+++ Mgr +++ 2 +++ {COMMANDS[:RESTART_COMMANDS]=}")
                 if word_list[0] in COMMANDS[:RESTART_COMMANDS]:
 
-                    #print("!!!!!! Quit command detected. ")
+                    # rint(f"+++ Mgr +++ 3 +++ Quit")
                     if self.is_enabled(room_name, UNIT_ID):
 
-                        #print("!!!!!! Enabled. ")
                         if self.is_master(puser_name):
 
                             # *** Запрошено отключение бота
                             self.create_flag(QUIT_FLAG)
                             # await send_text_to_room(self.client, room_id, "Добби свободен!!")
-                            #print("!!!!!! Quit by demand. ")
                             await self.suicide()
                         else:
 
                             answer = "Вам недоступна эта возможность."
                 elif word_list[0] in COMMANDS[RESTART_COMMANDS:]:
 
-                    #print("!!!!!! Restart command detected. ")
+                    # rint(f"+++ Mgr +++ 4 +++ Restart")
                     if self.is_enabled(room_name, UNIT_ID):
 
-                        #print("!!!!!! Enabled. ")
                         if self.is_master(puser_name):
 
                             # *** Запрошен рестарт бота
                             self.create_flag(RESTART_FLAG)
                             #c await end_text_to_room(self.client, room_id, "Щасвирнус.")
-                            #print("!!!!!! Restart by demand. ")
                             await self.suicide()
                         else:
 

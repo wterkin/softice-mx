@@ -107,11 +107,11 @@ class Config:
         self.command_prefix = self._get_cfg(["command_prefix"], default="!c")
         self.minimum_quantity = self._get_cfg(["matrix","minimum_quantity"])
         self.chats = self._get_cfg(["matrix", "chats"], required=True)
-        #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.chats=}")
+        # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.chats=}")
         self.meteorolog = self._get_cfg(["matrix", "meteorolog"], required=True)
-        #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.meteorolog=}")
+        # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.meteorolog=}")
         self.babbler = self._get_cfg(["matrix", "babbler"], required=True)
-        #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
+        # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
         self.test_chat = self._get_cfg(["matrix", "test_chat"], required=True)
         """
         !!!!!!!!!!!!!!!!!!!!!!!!! self.chats={'Арда': 'babbler', 'Ботовка': 'babbler'}
@@ -120,8 +120,8 @@ class Config:
         """
         #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.chats['Арда']=}")
         #print(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.chats['Ботовка']=}")
-        
-        
+
+
 
     def _get_cfg(
         self,

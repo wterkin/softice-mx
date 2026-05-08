@@ -26,7 +26,7 @@ COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("хк+", "hk+"),
                    ("хк-", "hk-"),
                    ("хокку", "hokku"))
-                   
+
 RELOAD_GROUP: int = 0
 SAVE_GROUP: int = 1
 ASK_GROUP: int = 2
@@ -60,7 +60,7 @@ class CHaijin(basis.CBasis):
         print("Хайдзин стартовал.")
 
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
-                    pcommands: list = []) -> bool:
+                    pcommands: list = None) -> bool:
 
         assert proom_name is not None, \
             "Assert: [haijin.can_class_process] " \
@@ -70,21 +70,15 @@ class CHaijin(basis.CBasis):
             "Пропущен параметр <pmessage> !"
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
-    
-    def get_commands(self, proom_name: str) -> str:
+
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert proom_name is not None, \
+        assert pchat_title is not None, \
             "Assert: [haijin.get_command] " \
-            "Пропущен параметр <proom_name> !"
+            "Пропущен параметр <pchat_title> !"
 
-        commands: str = ""
-        if self.is_enabled(proom_name, UNIT_ID):
-
-            for command in DESCRIPTIONS:
-
-                commands += command + "\n"
-        return commands
+        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
 
 
     def format_hokku(self, ptext: str) -> str:
@@ -114,14 +108,14 @@ class CHaijin(basis.CBasis):
         return ptext
 
 
-    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert proom_name is not None, \
+        assert pchat_title is not None, \
             "Assert: [haijin.get_hint] " \
-            "Пропущен параметр <proom_name> !"
+            "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
     async def haijin(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
@@ -130,13 +124,13 @@ class CHaijin(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [haijin.haijin] " \
             "Пропущен параметр <pchat_title> !"
- 
+
         answer: str = ""
         unformatted_answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
-        print(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
-        print(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_GROUP]=}")
+        # rint(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
+        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_GROUP]=}")
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
             # *** Возможно, запросили перезагрузку.
@@ -155,7 +149,7 @@ class CHaijin(basis.CBasis):
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
             elif word_list[0] in COMMANDS[HINT_GROUP]:
-                
+
                 # *** Пользователь хочет список команд
                 answer = self.get_commands(pchat_title)
             else:

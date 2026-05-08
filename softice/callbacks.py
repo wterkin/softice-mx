@@ -155,10 +155,10 @@ class Callbacks:
                     # *** Игруну есть что сказать?
                     answer = self.gambler.gambler(room.name, message)
                 if not answer:
-
+    
                     # *** Хайдзину есть что сказать?
                     answer = await self.haijin.haijin(room.name, event.sender, message)
-                    print(f"+++ Cllb +++ 1 +++ {answer=}")
+                    # rint(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
                     # *** Библиотекарю есть что сказать?
@@ -186,10 +186,13 @@ class Callbacks:
                 # *** Просто сообщение
                 # def talk(self, proom: str, pmessage: str) -> str:
                 # ToDo: Вот тут вывести картинку, если есть
+                print(f"+++ Cllb +++ 2 +++ {answer=}")
                 answer, file_name = await self.babbler.talk(room.name, message)
             if answer:
 
                 # answer = answer.strip()
+                
+                # rint(f"+++ Cllb +++ 3 +++ {answer=}")
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return
 

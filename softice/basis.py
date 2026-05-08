@@ -31,18 +31,18 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.can_process] Пропущен параметр <pmessage_text> !"
 
         found: bool = False
-        print(f"+++ Bas +++ 1 +++ {pchat_title=}")
-        print(f"+++ Bas +++ 2 +++ {punit_id=}")
+        # rint(f"+++ Bas +++ 1 +++ {pchat_title=}")
+        # rint(f"+++ Bas +++ 2 +++ {punit_id=}")
         if self.is_enabled(pchat_title, punit_id):
 
             word_list: list = self.parse_input(pmessage_text)
-            print(f"+++ Bas +++ 2 +++ {word_list=}")
+            # rint(f"+++ Bas +++ 2 +++ {word_list=}")
             for command in pcommands:
 
-                print(f"+++ Bas +++ 2 +++ {word_list[0]=}")
-                print(f"+++ Bas +++ 2 +++ {command=}")
+                # rint(f"+++ Bas +++ 2 +++ {word_list[0]=}")
+                # rint(f"+++ Bas +++ 2 +++ {command=}")
                 found = word_list[0] == command
-                print(f"+++ Bas +++ 3 +++ {found=}")
+                # rint(f"+++ Bas +++ 3 +++ {found=}")
                 if found:
 
                     break
@@ -75,46 +75,22 @@ class CBasis(prototype.CPrototype):
                     break
         return can_process
 
-    """
-    def get_commands(self, pchat_title: str, punit_id: str, pcommands: list) -> str:
-        ""Пользователь запросил список команд.""
-
-        assert pchat_title is not None, \
-            "Assert: [basis.get_commands] " \
-            "Пропущен параметр <pchat_title> !"
-        assert punit_id is not None, \
-            "Assert: [basis.get_commands] " \
-            "Пропущен параметр <punit_id> !"
-        assert pcommands is not None, \
-            "Assert: [basis.get_commands] " \
-            "Пропущен параметр <pcommands> !"
-
-        command_list: str = ""
-        if self.is_enabled(pchat_title, punit_id):
-
-            for command in pcommands:
-
-                command_list += ", ".join(command) + "\n"
-        return command_list
-
-    """
     
     def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
-    # def get_commands(self, proom_name: str) -> str:
         """Пользователь запросил список команд."""
 
-        assert proom_name is not None, \
+        assert pchat_title is not None, \
             "Assert: [haijin.get_command] " \
-            "Пропущен параметр <proom_name> !"
+            "Пропущен параметр <pchat_title> !"
 
         commands: str = ""
-        if self.is_enabled(proom_name, punit_id):
+        
+        if self.is_enabled(pchat_title, punit_id):
 
             for command in pdescriptions:
 
                 commands += command + "\n"
         return commands
-
 
 
     def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:
