@@ -8,11 +8,26 @@ from softice import basis
 
 UNIT_ID: str = "gambler"
 HINT: tuple = ("игры", "games")
-ROCKSCIPAP_COMMANDS: tuple = ("камень", "ножницы", "бумага")
-ROCKSCIPAP_SHORT_COMMANDS: tuple = ("кам", "нож", "бум")
-ROCKSCIPAPLIZSPOCK_COMMANDS: tuple = ("камень", "ножницы", "бумага", "ящерица", "спок")
-ROCKSCIPAPLIZSPOCK_SHORT_COMMANDS: tuple = ("кам", "нож", "бум", "ящер", "спок")
-THROW_COIN_COMMANDS: tuple = ("монета", "coin")
+#ROCKSCIPAP_COMMANDS: tuple = ("камень", "ножницы", "бумага")
+#ROCKSCIPAP_SHORT_COMMANDS: tuple = ("кам", "нож", "бум")
+#ROCKSCIPAPLIZSPOCK_COMMANDS: tuple = ("камень", "ножницы", "бумага", "ящерица", "спок")
+#ROCKSCIPAPLIZSPOCK_SHORT_COMMANDS: tuple = ("кам", "нож", "бум", "ящер", "спок")
+#THROW_COIN_COMMANDS: tuple = ("монета", "coin")
+
+COMMANDS: tuple = (("камень", "кам"),
+                   ("ножницы", "нож"),
+                   ("бумага", "бум"),
+                   ("ящерица", "ящер"),
+                   ("спок", "спок"),
+                   ("монета", "coin"))
+DESCRIPTIONS: tuple = ("камень - вы выбираете игровой жест 'камень', 👊🏻",
+                       "ножницы - вы выбираете игровой жест 'ножницы', ✌🏻"
+                       "бумага - вы выбираете игровой жест 'бумага', ✋🏻"
+                       "ящерица - вы выбираете игровой жест 'ящерица', 🦎"
+                       "спок - вы выбираете игровой жест 'спок', 🖖🏻"
+                       "монета - вы выбрали подбросить монету"
+                      )
+
 #COMMANDS: tuple = (("камень", "ножницы", "бумага", "ящерица", "спок"),
 #                   ("кам", "нож", "бум", "ящер", "спок"),
 #                   ("монета", "coin")
@@ -23,6 +38,7 @@ SCISSORS_COMMAND: int = 1
 PAPER_COMMAND: int = 2
 LIZARD_COMMAND: int = 3
 SPOCK_COMMAND: int = 4
+COIN_COMMAND: int = 5
 
 EMODJIES: tuple = ("👊🏻", "✌🏻", "✋🏻", "🦎", "🖖🏻")
 THUMBS_UP: str = "👍🏻"
@@ -37,8 +53,9 @@ class CGambler(basis.CBasis):
         super().__init__(pconfig)
         print("Игрун стартовал.")
 
+    """
     def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        """Возвращает True, если игрок может обработать эту команду."""
+        ""Возвращает True, если игрок может обработать эту команду.""
 
         assert pchat_title is not None, \
             "Assert: [gambler.can_class_process] " \
@@ -79,9 +96,31 @@ class CGambler(basis.CBasis):
                 found = word_list[0] in HINT
         # print(f"** gmb:cnprc: {found=}")
         return found
+    """
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
 
-    def get_help(self, pchat_title: str) -> str:
+        assert proom_name is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <pmessage> !"
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
+
+
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
+
+        assert pchat_title is not None, \
+            "Assert: [haijin.get_command] " \
+            "Пропущен параметр <pchat_title> !"
+
+        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+
+    """
+    def get_help(self, pchat_title: str) -> str:
+        ""Пользователь запросил список команд.""
 
         assert pchat_title is not None, \
             "Assert: [gambler.get_help] " \
@@ -92,7 +131,7 @@ class CGambler(basis.CBasis):
             command_list += ", ".join(ROCKSCIPAPLIZSPOCK_COMMANDS)+"\n"
             command_list += ", ".join(THROW_COIN_COMMANDS)
         return command_list
-
+    """
 
     def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
@@ -105,9 +144,9 @@ class CGambler(basis.CBasis):
 
     async def reload(self):
         """Пустая заглушка."""
-
+    """
     def rock_scissors_paper(self, pcommand: int):
-        """Камень-ножницы-бумага."""
+        ""Камень-ножницы-бумага.""
 
         answer = f"Ваш выбор {EMODJIES[pcommand]} {ROCKSCIPAP_COMMANDS[pcommand]}\n"
         turn = random.randint(0,2)
@@ -145,20 +184,23 @@ class CGambler(basis.CBasis):
 
                     answer += " Ножницы режут бумагу. Вы выиграли. 👍🏻"
         return answer
-
+    """
 
     def rock_scissors_paper_lizard_spock(self, pcommand: int):
         """Камень-ножницы-бумага."""
 
-        answer = f"Ваш выбор {EMODJIES[pcommand]} {ROCKSCIPAPLIZSPOCK_COMMANDS[pcommand]}\n"
+        #answer = f"Ваш выбор {EMODJIES[pcommand]} {ROCKSCIPAPLIZSPOCK_COMMANDS[pcommand]}\n"
+        answer = f"Ваш выбор {EMODJIES[pcommand]} {COMMANDS[pcommand][0]}\n"
         turn = random.randint(0,4)
         if pcommand == turn:
 
             answer += (f"Я выбрал также {EMODJIES[turn]}"
-                       f"{ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}. Ничья. 🤝")
+                       #f"{ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}. Ничья. 🤝")
+                       f"{COMMANDS[turn][0]}. Ничья. 🤝")
         else:
 
-            answer += f"Я выбираю {EMODJIES[turn]} {ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}."
+            #answer += f"Я выбираю {EMODJIES[turn]} {ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}."
+            answer += f"Я выбираю {EMODJIES[turn]} {COMMANDS[turn][0]}."
             if turn == ROCK_COMMAND:
 
                 if pcommand == SCISSORS_COMMAND:
@@ -242,23 +284,25 @@ class CGambler(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_class_process(pchat_title, pmessage_text):
+        # if self.can_class_process(pchat_title, pmessage_text):
+        if self.can_process_command(pchat_title, pmessage_text):
 
             if word_list[0] in HINT:
 
-                answer = self.get_help(pchat_title)
+                answer = self.get_commands(pchat_title)
             else:
 
                 # *** Получим код команды
-                if word_list[0] in ROCKSCIPAPLIZSPOCK_COMMANDS:
+                command: int = self.identify_command(word_list[0], COMMANDS)
+                #if word_list[0] in ROCKSCIPAPLIZSPOCK_COMMANDS:
 
-                    answer = self.rock_scissors_paper_lizard_spock( \
-                             ROCKSCIPAPLIZSPOCK_COMMANDS.index(word_list[0]))
-                elif word_list[0] in ROCKSCIPAPLIZSPOCK_SHORT_COMMANDS:
+                #    answer = self.rock_scissors_paper_lizard_spock( \
+                #             ROCKSCIPAPLIZSPOCK_COMMANDS.index(word_list[0]))
+                if ROCK_COMMAND <= command <= SPOCK_COMMAND:
 
-                    answer = self.rock_scissors_paper_lizard_spock( \
-                             ROCKSCIPAPLIZSPOCK_SHORT_COMMANDS.index(word_list[0]))
-                elif word_list[0] in THROW_COIN_COMMANDS:
+                    #answer = self.rock_scissors_paper_lizard_spock(COMMANDS.index(word_list[0]))
+                    answer = self.rock_scissors_paper_lizard_spock(command)
+                elif command == COIN_COMMAND:
 
                     answer = self.throw_coin()
                 else:

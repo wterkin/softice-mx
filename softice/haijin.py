@@ -10,15 +10,15 @@ ASK_HOKKU_CMD: int = 0
 ADD_HOKKU_CMD: int = 1
 DEL_HOKKU_CMD: int = 2
 
-RELOAD_BOOK: list = ["hokkureload", "hkrl"]
-SAVE_BOOK: list = ["hokkusave", "hksv"]
+#RELOAD_BOOK: list = ["hokkureload", "hkrl"]
+#SAVE_BOOK: list = ["hokkusave", "hksv"]
 HAIJIN_FOLDER: str = "haijin/"
 HAIJIN_FILE_NAME: str = "hokku.txt"
 
 
-HAIJIN_COMMANDS: list = [["хк", "hk"],
-                         ["хк+", "hk+"],
-                         ["хк-", "hk-"]]
+#HAIJIN_COMMANDS: list = [["хк", "hk"],
+#                        ["хк+", "hk+"],
+#                         ["хк-", "hk-"]]
 
 COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("hokkusave", "hksv"),
