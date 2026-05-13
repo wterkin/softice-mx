@@ -50,7 +50,7 @@ class CBasis(prototype.CPrototype):
 
 
 
-    def can_process_command(self, proom_name: str, pmessage: str, 
+    def can_process_command(self, proom_name: str, pmessage: str,
                             punit_id: str, pcommands: list) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""
 
@@ -66,18 +66,18 @@ class CBasis(prototype.CPrototype):
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(proom_name, punit_id):
-        
+
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
             for command in pcommands:
-            
+
                 can_process = word_list[0] in command
                 if can_process:
-                    
+
                     break
         return can_process
 
-    
+
     def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
         """Пользователь запросил список команд."""
 
@@ -86,7 +86,7 @@ class CBasis(prototype.CPrototype):
             "Пропущен параметр <pchat_title> !"
 
         commands: str = ""
-        
+
         if self.is_enabled(pchat_title, punit_id):
 
             commands = "\n".join(pdescriptions)

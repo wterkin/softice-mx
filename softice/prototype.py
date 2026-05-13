@@ -21,7 +21,7 @@ class CPrototype:
 
 
     @abstractmethod
-    def get_commands(self, pchat_title: str, punit_id: str, pcommands: list) -> str:
+    def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
         """Возвращает список команд модуля, доступных пользователю."""
 
 

@@ -5,20 +5,8 @@
 from softice import librarian
 from softice import basis
 
-# *** Команды для цитатника хокку
-ASK_HOKKU_CMD: int = 0
-ADD_HOKKU_CMD: int = 1
-DEL_HOKKU_CMD: int = 2
-
-#RELOAD_BOOK: list = ["hokkureload", "hkrl"]
-#SAVE_BOOK: list = ["hokkusave", "hksv"]
 HAIJIN_FOLDER: str = "haijin/"
 HAIJIN_FILE_NAME: str = "hokku.txt"
-
-
-#HAIJIN_COMMANDS: list = [["хк", "hk"],
-#                        ["хк+", "hk+"],
-#                         ["хк-", "hk-"]]
 
 COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("hokkusave", "hksv"),
@@ -33,6 +21,7 @@ ASK_COMMANDS: int = 2
 ADD_COMMANDS: int = 3
 DELETE_COMMANDS: int = 4
 HINT_COMMANDS: int = 5
+
 DESCRIPTIONS: tuple = ("",
                        "",
                        ("хк/hk [номер] [строка] : получить случайное хокку,"

@@ -54,17 +54,17 @@ class CMajordomo(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        print(f"+++ MjDm +++ 1 +++ {word_list=}")
+        # rint(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
-        if self.can_process_command(pchat_title, UNIT_ID, pmessage_text, COMMANDS):
+        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
-            print(f"+++ MjDm +++ 3 +++ process")
+            # rint(f"+++ MjDm +++ 3 +++ process")
             # *** Ок. Указано, кого приветствовать?
             if len(word_list) > 1:
 
                 # *** Приветствуем.
                 answer = random.choice(self.greetings) % word_list[1]
-                print(f"+++ MjDm +++ 4 +++ {answer=}")
+                # rint(f"+++ MjDm +++ 4 +++ {answer=}")
 
         # *** Не запросили ли список команд?
         elif word_list[0] in HINT:
