@@ -7,18 +7,32 @@ import random
 from softice import basis
 
 # *** Список списков доступных команд
-COMMANDS: list = [["пиво", "beer", "пв", "br"],
-                  ["водка", "vodka", "вк", "vk"],
-                  ["коньяк", "cognac", "кн", "cn"],
-                  ["коктейль", "cocktail", "кт", "ct"],
-                  ["чай", "tea", "чй", "te"],
-                  ["кофе", "coffee", "кф", "cf", "кофи"],
-                  ["печеньки", "cookies", "пч", "ck"],
-                  ["шоколад", "chocolate", "шк", "ch"],
-                  ["мороженое", "icecream", "мр", "ic"],
-                  ["булочка", "bun", "бч", "bn"],
-                  ["шампанское", "champagne", "шмп", "chm"],
-                  ]
+COMMANDS: tuple = (("пиво", "beer", "пв", "br"),
+                  ("водка", "vodka", "вк", "vk"),
+                  ("коньяк", "cognac", "кн", "cn"),
+                  ("коктейль", "cocktail", "кт", "ct"),
+                  ("чай", "tea", "чй", "te"),
+                  ("кофе", "coffee", "кф", "cf", "кофи"),
+                  ("печеньки", "cookies", "пч", "ck"),
+                  ("шоколад", "chocolate", "шк", "ch"),
+                  ("мороженое", "icecream", "мр", "ic"),
+                  ("булочка", "bun", "бч", "bn"),
+                  ("шампанское", "champagne", "шмп", "chm"),
+                  ("бар", "bar"),
+                  ("brreload", "brrl")
+                  )
+
+DESCRIPTIONS: tuple = ("пиво - бот нальёт вам кружечку пивка",
+                       "водка - бот нацедит вам рюмочку водки",
+                       "коньяк - бот напузырит вам коньячку",
+                       "коктейль - бот смешает вам вкусный коктейль",
+                       "чай - бот заварит вам чашечку чая",
+                       "кофе - бот сварит для вас ароматный кофе",
+                       "печеньки - бот организует для вас вкусное печенье",
+                       "шоколад - бот подарит вам плитку отличного шоколада",
+                       "мороженое - бот угостит вас чудесным мороженым",
+                       "булочка - бот принесёт вам свежую булочку",
+                       "шампанское - бот откроет вам бутылочку шампанского")
 
 # *** Идентификаторы, они же индексы, напитков, их ключи и эмодзи
 
@@ -44,7 +58,8 @@ CHOCOLATE_ID: int = 7
 ICECREAM_ID: int = 8
 BUN_ID: int = 9
 CHAMPAGNE_ID: int = 10
-
+HINT_COMMAND: int = 11
+RELOAD_COMMAND: int = 12
 
 ASSORTMENT: tuple = ({ID_KEY: BEER_ID,
                       EMODJI_KEY: "🍺",
@@ -169,14 +184,14 @@ class CBarman(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_class_process(pchat_title, pmessage_text):
+        if self.can_process_command(pchat_title, pmessage_text):
 
             # *** Возможно, запросили меню.
-            if word_list[0] in HINT:
+            if word_list[0] in COMMANDS[HINT_COMMAND]:
 
                 answer = "Сегодня в баре имеется следующий ассортимент: \n" + \
                          self.get_help(pchat_title)
-            elif word_list[0] in BAR_RELOAD:
+            elif word_list[0] in COMMANDS[RELOAD_COMMAND]:
 
                 if self.is_master(puser_name):
 
@@ -201,8 +216,21 @@ class CBarman(basis.CBasis):
         return answer.strip()
 
 
+
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
+
+        assert proom_name is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage is not None, \
+            "Assert: [haijin.can_class_process] " \
+            "Пропущен параметр <pmessage> !"
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
+
+    """
     def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        """Возвращает True, если бармен может обработать эту команду"""
+        ""Возвращает True, если бармен может обработать эту команду""
 
         assert pchat_title is not None, \
             "Assert: [barman.can_class_process] " \
@@ -228,7 +256,7 @@ class CBarman(basis.CBasis):
 
                     found = word_list[0] in BAR_RELOAD
         return found
-
+    """
 
     def get_help(self, pchat_title: str) -> str:  # noqa
         """Пользователь запросил список команд."""

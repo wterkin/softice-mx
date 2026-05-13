@@ -89,7 +89,6 @@ class CGambler(basis.CBasis):
     def rock_scissors_paper_lizard_spock(self, pcommand: int):
         """Камень-ножницы-бумага."""
 
-        #answer = f"Ваш выбор {EMODJIES[pcommand]} {ROCKSCIPAPLIZSPOCK_COMMANDS[pcommand]}\n"
         answer = f"Ваш выбор {EMODJIES[pcommand]} {COMMANDS[pcommand][0]}\n"
         turn = random.randint(0,4)
         if pcommand == turn:
@@ -99,7 +98,6 @@ class CGambler(basis.CBasis):
                        f"{COMMANDS[turn][0]}. Ничья. 🤝")
         else:
 
-            #answer += f"Я выбираю {EMODJIES[turn]} {ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}."
             answer += f"Я выбираю {EMODJIES[turn]} {COMMANDS[turn][0]}."
             if turn == ROCK_COMMANDS:
 

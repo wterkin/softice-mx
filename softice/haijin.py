@@ -48,6 +48,7 @@ class CHaijin(basis.CBasis):
         self.hokku: list = []
         print("Хайдзин стартовал.")
 
+
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
 
