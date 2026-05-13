@@ -179,6 +179,8 @@ class CBarman(basis.CBasis):
 
         assert pchat_title is not None, \
             "Assert: [barman.barman] Пропущен параметр <pchat_title> !"
+        assert puser_name is not None, \
+            "Assert: [barman.barman] Пропущен параметр <puser_name> !"
         assert pmessage_text is not None, \
             "Assert: [barman.barman] Пропущен параметр <pmessage_text> !"
 
@@ -190,7 +192,7 @@ class CBarman(basis.CBasis):
             if word_list[0] in COMMANDS[HINT_COMMAND]:
 
                 answer = "Сегодня в баре имеется следующий ассортимент: \n" + \
-                         self.get_help(pchat_title)
+                         self.get_commands(pchat_title)
             elif word_list[0] in COMMANDS[RELOAD_COMMAND]:
 
                 if self.is_master(puser_name):
@@ -216,82 +218,39 @@ class CBarman(basis.CBasis):
         return answer.strip()
 
 
-
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.can_class_process] " \
+            "Assert: [barman.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [haijin.can_class_process] " \
+            "Assert: [barman.can_process_command] " \
             "Пропущен параметр <pmessage> !"
+
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
-    """
-    def can_class_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        ""Возвращает True, если бармен может обработать эту команду""
 
-        assert pchat_title is not None, \
-            "Assert: [barman.can_class_process] " \
-            "Пропущен параметр <pchat_title> !"
-        assert pmessage_text is not None, \
-            "Assert: [barman.can_class_process] " \
-            "Пропущен параметр <pmessage_text> !"
-
-        found: bool = False
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            word_list: list = self.parse_input(pmessage_text)
-            for command in COMMANDS:
-
-                found = word_list[0].lower() in command
-                if found:
-
-                    break
-            if not found:
-
-                found = word_list[0] in HINT
-                if not found:
-
-                    found = word_list[0] in BAR_RELOAD
-        return found
-    """
-
-    def get_help(self, pchat_title: str) -> str:  # noqa
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [barman.get_help] " \
+            "Assert: [barman.get_commands] " \
             "Пропущен параметр <pchat_title> !"
 
-        command_list: str = ""
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            for command in COMMANDS:
-
-                command_list += ", ".join(command) + "\n"
-        return command_list
+        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
 
 
     def get_hint(self, pchat_title: str, punit_id: str = "",
                  phints: str = "") -> str:
-        """Возвращает список команд, поддерживаемых модулем.  """
+        """Возвращает команду, которая возвращает полныйй список команд, поддерживаемых модулем."""
 
         assert pchat_title is not None, \
             "Assert: [barman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
         return super().get_hint(pchat_title, UNIT_ID, HINT)
-
-
-    async def load_assortment(self):
-        """Загружает ассортимент бара."""
-
-        for item in ASSORTMENT:
-
-            await self.load_item(item)
-        print(f"> Barman успешно (пере)загрузил {len(ASSORTMENT)} типов товаров.")
 
 
     async def load_item(self, pitem: dict):
@@ -309,10 +268,13 @@ class CBarman(basis.CBasis):
         self.bar_content[pitem[ID_KEY]] = storage
 
 
-    async def reload(self):  # , pchat_id: int, puser_name: str, puser_title):
+    async def reload(self):
         """Перегружает все содержимое бара."""
 
-        await self.load_assortment()
+        for item in ASSORTMENT:
+
+            await self.load_item(item)
+        print(f"> Barman успешно (пере)загрузил {len(ASSORTMENT)} типов товаров.")
 
 
     def serve_client(self, puser_name: str, pcommand: str):

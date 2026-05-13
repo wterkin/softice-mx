@@ -41,11 +41,12 @@ class CTestBarman(TestCase):
         self.assertTrue(self.barman.can_process_command(self.config.test_chat,  "!brreload"))
 
 
-    def test_get_help(self):
+    def test_get_commands(self):
 
-        self.assertEqual(self.barman.get_help("fakechat"), "")
-        self.assertEqual(self.barman.get_help("emptychat"), "")
-        self.assertIn("чай, tea, чй, te", self.barman.get_help(self.config.test_chat))
+        self.assertEqual(self.barman.get_commands("fakechat"), "")
+        self.assertEqual(self.barman.get_commands("emptychat"), "")
+        self.assertIn("пиво - бот нальёт вам", self.barman.get_commands(self.config.test_chat))
+
 
     def test_get_hint(self):
 
