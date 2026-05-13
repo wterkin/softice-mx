@@ -27,18 +27,18 @@ COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("хк-", "hk-"),
                    ("хокку", "hokku"))
 
-RELOAD_GROUP: int = 0
-SAVE_GROUP: int = 1
-ASK_GROUP: int = 2
-ADD_GROUP: int = 3
-DELETE_GROUP: int = 4
-HINT_GROUP: int = 5
+RELOAD_COMMANDS: int = 0
+SAVE_COMMANDS: int = 1
+ASK_COMMANDS: int = 2
+ADD_COMMANDS: int = 3
+DELETE_COMMANDS: int = 4
+HINT_COMMANDS: int = 5
 DESCRIPTIONS: tuple = ("",
                        "",
-                       ("хк(hk) <номер> <строка> : получить случайное хокку,"
+                       ("хк/hk [номер] [строка] : получить случайное хокку,"
                        " либо с с заданным номером, либо содержащее заданную строку"),
-                       "хк+(hk+) : добавить в базу новое хокку ",
-                       "хк-(hk-) : удалить хокку из базы")
+                       "хк+/hk+ : добавить в базу новое хокку ",
+                       "хк-/hk- : удалить хокку из базы")
 USER_RIGHTS: tuple = (False, False, True, True, False)
 
 UNIT_ID = "haijin"
@@ -115,7 +115,7 @@ class CHaijin(basis.CBasis):
             "Assert: [haijin.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
     async def haijin(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
@@ -130,25 +130,25 @@ class CHaijin(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
         # rint(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
-        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_GROUP]=}")
+        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
             # *** Возможно, запросили перезагрузку.
-            if word_list[0] in COMMANDS[RELOAD_GROUP]:
+            if word_list[0] in COMMANDS[RELOAD_COMMANDS]:
 
                 # *** Пользователь хочет перезагрузить книгу хокку
                 if self.is_master(puser_name):
 
                     await self.reload()
                     answer = "Книга загружена"
-            elif word_list[0] in COMMANDS[SAVE_GROUP]:
+            elif word_list[0] in COMMANDS[SAVE_COMMANDS]:
 
                 # *** Пользователь хочет сохранить книгу хокку
                 if self.is_master(puser_name):
 
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
-            elif word_list[0] in COMMANDS[HINT_GROUP]:
+            elif word_list[0] in COMMANDS[HINT_COMMANDS]:
 
                 # *** Пользователь хочет список команд
                 answer = self.get_commands(pchat_title)
@@ -176,7 +176,7 @@ class CHaijin(basis.CBasis):
         if command >= 0:
 
             # *** Хокку запрашивали?
-            if command == ASK_GROUP:
+            if command == ASK_COMMANDS:
 
                 # *** Пользователь хочет хокку....
                 answer = librarian.quote(self.hokku, pcommand)
@@ -188,7 +188,7 @@ class CHaijin(basis.CBasis):
 
                         answer = "Такого хокку нет в моей базе"
 
-            elif command == ADD_GROUP:
+            elif command == ADD_COMMANDS:
 
                 # *** Пользователь хочет добавить хокку в книгу
                 text: str = " ".join(pcommand[1:])
@@ -198,7 +198,7 @@ class CHaijin(basis.CBasis):
                 self.hokku.append(text)
                 answer = f"Спасибо, {self.parse_nick(puser_name)}, хокку добавлено под номером " \
                          f"{len(self.hokku)}"
-            elif command == DELETE_GROUP:
+            elif command == DELETE_COMMANDS:
 
                 # *** Пользователь хочет удалить хокку из книги...
                 if self.is_master(puser_name):

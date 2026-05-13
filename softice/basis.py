@@ -61,6 +61,8 @@ class CBasis(prototype.CPrototype):
             "Assert: [haijin.can_class_process] " \
             "Пропущен параметр <pmessage> !"
 
+        print(f"+++ Bas +++ cpc +++ {pmessage=}")
+        print(f"+++ Bas +++ cpc +++ {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(proom_name, punit_id):
@@ -87,9 +89,13 @@ class CBasis(prototype.CPrototype):
         
         if self.is_enabled(pchat_title, punit_id):
 
-            for command in pdescriptions:
+            commands = "\n".join(pdescriptions)
+            #for command in pdescriptions:
 
-                commands += command + "\n"
+            #    commands += command + "\n"
+            # rint(f"+++ Bas +++ gc +++ {command=}")
+        # rint(f"+++ Bas +++ gc +++ {commands=}")
+        # rint(f"+++ Bas +++ cpc +++ {pcommands=}")
         return commands
 
 

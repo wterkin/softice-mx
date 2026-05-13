@@ -42,7 +42,7 @@ class CTestHaijin(TestCase):
         
     def test_get_commands(self):
 
-        self.assertIn("\n\nхк(hk) <номер> <строка> : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
+        self.assertIn("\n\nхк/hk [номер] [строка] : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):
@@ -50,11 +50,11 @@ class CTestHaijin(TestCase):
         self.assertIn("хокку, hokku", self.haijin.get_hint(self.config.test_chat))
 
 
-    def test_get_command(self):
+    def test_identify_command(self):
 
-        self.assertEqual(self.haijin.identify_command("hk", haijin.HAIJIN_COMMANDS), haijin.ASK_HOKKU_CMD)
-        self.assertEqual(self.haijin.identify_command("hk+", haijin.HAIJIN_COMMANDS), haijin.ADD_HOKKU_CMD)
-        self.assertEqual(self.haijin.identify_command("hk-", haijin.HAIJIN_COMMANDS), haijin.DEL_HOKKU_CMD)
+        self.assertEqual(self.haijin.identify_command("hk", haijin.COMMANDS), haijin.ASK_COMMANDS)
+        self.assertEqual(self.haijin.identify_command("hk+", haijin.COMMANDS), haijin.ADD_COMMANDS)
+        self.assertEqual(self.haijin.identify_command("hk-", haijin.COMMANDS), haijin.DELETE_COMMANDS)
       
 
     def test_haijin(self):
@@ -67,7 +67,7 @@ class CTestHaijin(TestCase):
 
             file.unlink()
 
-        self.assertIn("\n\nхк(hk) <номер> <строка> : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
+        self.assertIn("\n\nхк/hk [номер] [строка] : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
 
     def test_is_enabled(self):
 

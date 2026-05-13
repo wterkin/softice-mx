@@ -56,7 +56,7 @@ class CMajordomo(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         print(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
-        if self.can_process(pchat_title, UNIT_ID, pmessage_text, COMMANDS):
+        if self.can_process_command(pchat_title, UNIT_ID, pmessage_text, COMMANDS):
 
             print(f"+++ MjDm +++ 3 +++ process")
             # *** Ок. Указано, кого приветствовать?
@@ -69,7 +69,7 @@ class CMajordomo(basis.CBasis):
         # *** Не запросили ли список команд?
         elif word_list[0] in HINT:
 
-            print(f"+++ MjDm +++ 2 +++ {HINT=}")
+            # rint(f"+++ MjDm +++ 2 +++ {HINT=}")
             # *** Отправляем полный список команд
             answer = self.get_commands(pchat_title, UNIT_ID, COMMANDS)
         return answer
