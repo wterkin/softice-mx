@@ -51,12 +51,13 @@ class CHaijin(basis.CBasis):
 
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.can_class_process] " \
+            "Assert: [haijin.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [haijin.can_class_process] " \
+            "Assert: [haijin.can_process_command] " \
             "Пропущен параметр <pmessage> !"
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
@@ -65,7 +66,7 @@ class CHaijin(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [haijin.get_command] " \
+            "Assert: [haijin.get_commands] " \
             "Пропущен параметр <pchat_title> !"
 
         return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
@@ -73,6 +74,10 @@ class CHaijin(basis.CBasis):
 
     def format_hokku(self, ptext: str) -> str:
         """Форматирует хокку так, как нам хочется."""
+
+        assert ptext is not None, \
+            "Assert: [haijin.format_hokku] " \
+            "Пропущен параметр <ptext> !"
 
         # *** Вырежем номер
         result_text: str = ""
@@ -114,6 +119,12 @@ class CHaijin(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [haijin.haijin] " \
             "Пропущен параметр <pchat_title> !"
+        assert puser_name is not None, \
+            "Assert: [haijin.haijin] " \
+            "Пропущен параметр <puser_name> !"
+        assert pmessage_text is not None, \
+            "Assert: [haijin.haijin] " \
+            "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""
         unformatted_answer: str = ""
@@ -158,6 +169,13 @@ class CHaijin(basis.CBasis):
 
     async def process_command(self, pcommand: list, puser_name: str):
         """Обрабатывает пользовательские команды."""
+
+        assert pcommand is not None, \
+            "Assert: [haijin.process_command] " \
+            "Пропущен параметр <pcommand> !"
+        assert puser_name is not None, \
+            "Assert: [haijin.process_command] " \
+            "Пропущен параметр <puser_name> !"
 
         # *** Получим код команды
         answer: str = ""
