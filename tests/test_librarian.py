@@ -25,10 +25,10 @@ class CTestLibrarian(TestCase):
 
     def test_get_command(self):
 
-        self.assertEqual(librarian.get_command("qt"), librarian.ASK_QUOTE_CMD)
-        self.assertEqual(librarian.get_command("qt?"), librarian.FIND_QUOTE_CMD)
-        self.assertEqual(librarian.get_command("qt+"), librarian.ADD_QUOTE_CMD)
-        self.assertEqual(librarian.get_command("qt-"), librarian.DEL_QUOTE_CMD)
+        self.assertEqual(librarian.get_command("qt"), librarian.ASK_QUOTE_COMMAND)
+        self.assertEqual(librarian.get_command("qt?"), librarian.FIND_QUOTE_COMMAND)
+        self.assertEqual(librarian.get_command("qt+"), librarian.ADD_QUOTE_COMMAND)
+        self.assertEqual(librarian.get_command("qt-"), librarian.DEL_QUOTE_COMMAND)
 
 
     def test_quote(self):
@@ -41,36 +41,36 @@ class CTestLibrarian(TestCase):
         self.assertEqual(librarian.quote(["No fate.",], ["1"],), "[1] No fate.")
 
 
-    def test_can_class_process(self):
+    def test_can_process_command(self):
 
-        self.assertTrue(self.librarian.can_class_process(self.config.test_chat, '!цт'))
-        self.assertFalse(self.librarian.can_class_process('fakechat', '!цт'))
-        self.assertFalse(self.librarian.can_class_process('empttychat', '!хквс'))
+        self.assertTrue(self.librarian.can_process_command(self.config.test_chat, '!цт'))
+        self.assertFalse(self.librarian.can_process_command('fakechat', '!цт'))
+        self.assertFalse(self.librarian.can_process_command('empttychat', '!хквс'))
 
 
     def test_execute_quotes_commands(self):
 
         asyncio.run(self.librarian.reload())
         result = "Мы думаем, что Бог видит нас сверху - но Он видит нас изнутри..."
-        self.assertIn(result, self.librarian.execute_quotes_commands(self.config.master, [""], librarian.ASK_QUOTE_CMD))
+        self.assertIn(result, self.librarian.execute_quotes_commands(self.config.master, [""], librarian.ASK_QUOTE_COMMAND))
 
         quote = "Нет у тебя, человек, ничего, кроме души. Пифагор"
         self.assertIn(f"Спасибо, {self.config.master}, цитата добавлена под номером 2",
                       self.librarian.execute_quotes_commands(self.config.master,
-                                                     ["qt+", quote], librarian.ADD_QUOTE_CMD))
+                                                     ["qt+", quote], librarian.ADD_QUOTE_COMMAND))
         self.assertIn("Цитата 2 удалена",
                       self.librarian.execute_quotes_commands(self.config.master,
-                      ["hk-", "2"], librarian.DEL_QUOTE_CMD))
+                      ["hk-", "2"], librarian.DEL_QUOTE_COMMAND))
         # Запрос на удаление от нелегитимного лица
         result = f"Извини, User, только {self.config.master} может удалять цитаты"
-        self.assertIn(result, self.librarian.execute_quotes_commands("User", ["hk-", "1"], librarian.DEL_QUOTE_CMD))
+        self.assertIn(result, self.librarian.execute_quotes_commands("User", ["hk-", "1"], librarian.DEL_QUOTE_COMMAND))
 
 
-    def test_get_help(self):
+    def test_get_commands(self):
 
-        self.assertNotEqual(self.librarian.get_help(self.config.test_chat), "")
-        self.assertEqual(self.librarian.get_help("fakechat"), "")
-        self.assertEqual(self.librarian.get_help("emptychat"), "")
+        self.assertNotEqual(self.librarian.get_commands(self.config.test_chat), "")
+        self.assertEqual(self.librarian.get_commands("fakechat"), "")
+        self.assertEqual(self.librarian.get_commands("emptychat"), "")
 
 
     def test_get_hint(self):
@@ -101,7 +101,7 @@ class CTestLibrarian(TestCase):
         result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User", '!lbsave'))
         self.assertEqual(result, f"Извини, User, только {self.config.master} может сохранять цитаты!")
         result = asyncio.run(self.librarian.librarian(self.config.test_chat, 'user', '!библиотека'))
-        self.assertIn("quoteadd", result)
+        self.assertIn("получить случайную цитату", result)
         result = asyncio.run(self.librarian.librarian("fakechat", 'user', '!библиотека'))
         self.assertEqual(result, "")
         result = asyncio.run(self.librarian.librarian("emptychat", 'user', '!библиотека'))

@@ -17,7 +17,13 @@ class CBasis(prototype.CPrototype):
     """Базовый класс для классов модулей бота.. """
 
     def __init__(self, pconfig):
+
+        assert pconfig is not None, \
+        "Assert: [CBasis.__init__] " \
+        "Пропущен параметр <pconfig> !"
+
         self.config = pconfig
+
 
 
     def can_process(self, pchat_title: str, punit_id: str,

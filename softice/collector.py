@@ -22,12 +22,20 @@ class CCollector(basis.CBasis):
 
     def __init__(self, pconfig):
 
+        assert pconfig is not None, \
+        "Assert: [CCollector.__init__] " \
+        "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         print("Коллектор стартовал.")
 
 
     def collector(self, panswer: str) -> str:
         """Функция будет в определенные часы просить пожертвований."""
+
+        assert panswer is not None, \
+        "Assert: [CCollector.__init__] " \
+        "Пропущен параметр <panswer> !"
 
         # *** Время рабочее?
         just_now = datetime.now()
@@ -40,6 +48,7 @@ class CCollector(basis.CBasis):
                 # *** Сформируем ответ
                 panswer = panswer + DONATE_MESSAGE
         return panswer
+
 
     async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""

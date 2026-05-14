@@ -38,7 +38,7 @@ class CBabbler(basis.CBasis):
         "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
-        self.data_path: str = self.config.data_folder + BABBLER_PATH  # pdata_path + BABBLER_PATH
+        self.data_path: str = self.config.data_folder + BABBLER_PATH
         self.mind: list = []
         self.last_phrase_time: datetime = datetime.now()
         print("Болтун стартовал.")

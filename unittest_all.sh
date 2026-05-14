@@ -5,8 +5,8 @@
 echo %%%%%%%%%%%%%%%%%%%%%% Barman %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% > unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Barman %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% > unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_barman.py" -vv  >> unittest.log 2>> unittest2.log
-echo %%%%%%%%%%%%%%%%%%%%%% Basis %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
-echo %%%%%%%%%%%%%%%%%%%%%% Basis %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
+echo %%%%%%%%%%%%%%%%%%%%%% Callbacks %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
+echo %%%%%%%%%%%%%%%%%%%%%% Callbacks %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_callbacks.py" -vv  >> unittest.log 2>> unittest2.log
 echo %%%%%%%%%%%%%%%%%%%%%% Config %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Config %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log

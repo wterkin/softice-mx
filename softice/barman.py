@@ -166,6 +166,10 @@ class CBarman(basis.CBasis):
 
     def __init__(self, pconfig):
 
+        assert pconfig is not None, \
+        "Assert: [CBasis.__init__] " \
+        "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + BARMAN_FOLDER
         self.bar_content: dict = {}
