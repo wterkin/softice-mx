@@ -13,6 +13,10 @@ class CPrototype:
     def __init__(self, pconfig):
         pass
 
+    @abstractmethod
+    def can_process_command(self, pchat_title: str, pmessage: str,
+                            punit_id: str, pcommands: list) -> bool:
+        """Возвращает True, если модуль может обработать команду."""
 
     @abstractmethod
     def can_process(self, pchat_title: str, punit_id: str,

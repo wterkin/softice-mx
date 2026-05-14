@@ -49,23 +49,22 @@ class CBasis(prototype.CPrototype):
         return found
 
 
-
-    def can_process_command(self, proom_name: str, pmessage: str,
+    def can_process_command(self, pchat_title: str, pmessage: str,
                             punit_id: str, pcommands: list) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""
 
-        assert proom_name is not None, \
-            "Assert: [haijin.can_class_process] " \
-            "Пропущен параметр <proom_name> !"
+        assert pchat_title is not None, \
+            "Assert: [CBasis.can_process_command] " \
+            "Пропущен параметр <pchat_title> !"
         assert pmessage is not None, \
-            "Assert: [haijin.can_class_process] " \
+            "Assert: [CBasis.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
         # rint(f"+++ Bas +++ cpc +++ {pmessage=}")
         # rint(f"+++ Bas +++ cpc +++ {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
-        if self.is_enabled(proom_name, punit_id):
+        if self.is_enabled(pchat_title, punit_id):
 
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
@@ -82,7 +81,7 @@ class CBasis(prototype.CPrototype):
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [haijin.get_command] " \
+            "Assert: [CBasis.get_command] " \
             "Пропущен параметр <pchat_title> !"
 
         commands: str = ""
@@ -90,12 +89,6 @@ class CBasis(prototype.CPrototype):
         if self.is_enabled(pchat_title, punit_id):
 
             commands = "\n".join(pdescriptions)
-            #for command in pdescriptions:
-
-            #    commands += command + "\n"
-            # rint(f"+++ Bas +++ gc +++ {command=}")
-        # rint(f"+++ Bas +++ gc +++ {commands=}")
-        # rint(f"+++ Bas +++ cpc +++ {pcommands=}")
         return commands
 
 
@@ -104,21 +97,19 @@ class CBasis(prototype.CPrototype):
            модуль возвращает полный список команд, доступных пользователю."""
 
         assert pchat_title is not None, \
-            "Assert: [basis.get_hint] " \
+            "Assert: [CBasis.get_hint] " \
             "Пропущен параметр <pchat_title> !"
         assert punit_id is not None, \
-            "Assert: [basis.get_hint] " \
+            "Assert: [CBasis.get_hint] " \
             "Пропущен параметр <punit_id> !"
         assert phints is not None, \
-            "Assert: [basis.get_hint] " \
+            "Assert: [CBasis.get_hint] " \
             "Пропущен параметр <phints> !"
 
         if self.is_enabled(pchat_title, punit_id):
 
             return ", ".join(phints)
         return ""
-
-
 
 
     def identify_command(self, pword: str, pcommands : list) -> int:  # noqa
@@ -157,6 +148,7 @@ class CBasis(prototype.CPrototype):
 
     def is_master(self, puser_name: str) -> bool:
         """Проверяет, хозяин ли отдал команду."""
+
         assert puser_name is not None, \
             "Assert: [CBasis.is_master] Пропущен параметр <puser_name> !"
 
@@ -166,15 +158,16 @@ class CBasis(prototype.CPrototype):
     async def load_from_file_async(self, pfile_name):
         """Асинхронная обёртка через потоки."""
 
+        assert pfile_name is not None, \
+            "Assert: [CBasis.load_from_file_async] Пропущен параметр <file_name> !"
+
         # *** Патч для питона 3.8.2
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.load_from_file, pfile_name)
-        # return await asyncio.to_thread(self.load_from_file, pfile_name)
-        # return await self.load_from_file, pfile_name
-
 
 
     def load_from_file(self, pfile_name: str) -> list:
+        """Загружает текстовый файл в список строк."""
 
         assert pfile_name is not None, \
             "Assert: [CBasis.load_from_file] Пропущен параметр <pfile_name> !"
@@ -199,13 +192,24 @@ class CBasis(prototype.CPrototype):
 
     def parse_nick(self, pnick: str) -> str:
         """Вытаскивает из полного адреса имя пользователя и капитализирует его."""
+
+        assert pnick is not None, \
+            "Assert: [CBasis.parse_nick] Пропущен параметр <pnick> !"
+
         nick: str = pnick.split(":")[0]
         if nick[0] == "@":
+
             nick = nick[1:]
         return nick.capitalize()
 
+
     async def save_to_file_async(self, plist: list, pfile_name: str):
         """Асинхронное сохранение списка в файл."""
+
+        assert plist is not None, \
+            "Assert: [CBasis.save_to_file_async] Пропущен параметр <plist> !"
+        assert pfile_name is not None, \
+            "Assert: [CBasis.save_to_file_async] Пропущен параметр <file_name> !"
 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.save_to_file, plist, pfile_name)
@@ -237,11 +241,8 @@ class CBasis(prototype.CPrototype):
         assert pmessage_text is not None, \
             "Assert: [CBasis.parse_input] Пропущен параметр <pmessage_text> !"
 
-        #: list = []
-        # if pmessage_text is not None:
         return pmessage_text[1:].strip().split(" ")
-        # return answer
 
 
     async def reload(self):
-        """Вызывает перезагрузку внешних данных модуля."""        
+        """Вызывает перезагрузку внешних данных модуля."""

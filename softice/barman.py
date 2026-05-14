@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
+# @author: Andrey Pakhomenkov pakhomenkov dog mail ru
 """Модуль бармена."""
 
 import random
@@ -156,8 +156,8 @@ ASSORTMENT: tuple = ({ID_KEY: BEER_ID,
                      )
 
 # *** Команда перегрузки текстов
-HINT: list = ["бар", "bar"]
-BAR_RELOAD: list = ["brreload", "brrl"]
+# HINT: list = ["бар", "bar"]
+# BAR_RELOAD: list = ["brreload", "brrl"]
 BARMAN_FOLDER: str = "barman/"
 # *** Ключ для списка доступных каналов в словаре конфига
 UNIT_ID = "barman"
@@ -250,7 +250,7 @@ class CBarman(basis.CBasis):
             "Assert: [barman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, HINT)
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
 
 
     async def load_item(self, pitem: dict):
