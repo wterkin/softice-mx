@@ -156,8 +156,6 @@ ASSORTMENT: tuple = ({ID_KEY: BEER_ID,
                      )
 
 # *** Команда перегрузки текстов
-# HINT: list = ["бар", "bar"]
-# BAR_RELOAD: list = ["brreload", "brrl"]
 BARMAN_FOLDER: str = "barman/"
 # *** Ключ для списка доступных каналов в словаре конфига
 UNIT_ID = "barman"
@@ -178,11 +176,11 @@ class CBarman(basis.CBasis):
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \
-            "Assert: [barman.barman] Пропущен параметр <pchat_title> !"
+            "Assert: [CBarman.barman] Пропущен параметр <pchat_title> !"
         assert puser_name is not None, \
-            "Assert: [barman.barman] Пропущен параметр <puser_name> !"
+            "Assert: [CBarman.barman] Пропущен параметр <puser_name> !"
         assert pmessage_text is not None, \
-            "Assert: [barman.barman] Пропущен параметр <pmessage_text> !"
+            "Assert: [CBarman.barman] Пропущен параметр <pmessage_text> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
@@ -218,25 +216,25 @@ class CBarman(basis.CBasis):
         return answer.strip()
 
 
-    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert proom_name is not None, \
-            "Assert: [barman.can_process_command] " \
-            "Пропущен параметр <proom_name> !"
+        assert pchat_title is not None, \
+            "Assert: [CBarman.can_process_command] " \
+            "Пропущен параметр <pchat_title> !"
         assert pmessage is not None, \
-            "Assert: [barman.can_process_command] " \
+            "Assert: [CBarman.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
     def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [barman.get_commands] " \
+            "Assert: [CBarman.get_commands] " \
             "Пропущен параметр <pchat_title> !"
 
         return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
@@ -247,7 +245,7 @@ class CBarman(basis.CBasis):
         """Возвращает команду, которая возвращает полныйй список команд, поддерживаемых модулем."""
 
         assert pchat_title is not None, \
-            "Assert: [barman.get_hint] " \
+            "Assert: [CBarman.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
@@ -257,14 +255,13 @@ class CBarman(basis.CBasis):
         """Загружает одно наименование ассортимента бара."""
 
         assert pitem is not None, \
-            "Assert: [barman.load_item] " \
+            "Assert: [CBarman.load_item] " \
             "Пропущен параметр <pitem> !"
 
         storage: dict = {}
         for key in pitem[PROPERTIES_KEY]:
 
             storage[key] = await self.load_from_file_async(self.data_path + pitem[key])
-
         self.bar_content[pitem[ID_KEY]] = storage
 
 
@@ -281,9 +278,9 @@ class CBarman(basis.CBasis):
         """Обслуживает клиентов."""
 
         assert puser_name is not None, \
-            "Assert: [barman.serve_client] Пропущен параметр <puser_name> !"
+            "Assert: [CBarman.serve_client] Пропущен параметр <puser_name> !"
         assert pcommand is not None, \
-            "Assert: [barman.serve_client] Пропущен параметр <pcommand> !"
+            "Assert: [CBarman.serve_client] Пропущен параметр <pcommand> !"
 
         answer: str = ""
         for item in ASSORTMENT:
@@ -295,7 +292,6 @@ class CBarman(basis.CBasis):
 
                     arguments.append(random.choice(self.bar_content[item[ID_KEY]][prop]))
                 # *** Предпоследний аргумент - имя пользователя
-                # nick = self.parse_nick(puser_name)
                 arguments.append(self.parse_nick(puser_name))
                 # *** Последний аргумент - это эмоджи
                 arguments.append(item[EMODJI_KEY])
