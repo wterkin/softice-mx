@@ -12,7 +12,7 @@ from softice.config import Config
 from softice import basis
 
 # *** Команда перегрузки текстов
-COMMANDS: list = ["blreload", "blrl"]
+COMMANDS: tuple = ("blreload", "blrl")
 # *** Ключ для списка доступных чатов в словаре конфига
 UNIT_ID = "babbler"
 BABBLER_PATH: str = "babbler/"
@@ -44,37 +44,44 @@ class CBabbler(basis.CBasis):
         print("Болтун стартовал.")
 
 
-    async def babbler(self, proom: str, psender: str, pmessage: str) -> str:
+    async def babbler(self, pchat_title: str, puser_title: str, pmessage: str) -> str:
         """Обработчик команд болтуна"""
 
-        assert proom is not None, \
-        "Assert: [babbler.babbler] " \
-        "Пропущен параметр <proom> !"
-        assert proom is not None, \
-        "Assert: [babbler.babbler] " \
-        "Пропущен параметр <proom> !"
+        assert pchat_title is not None, \
+        "Assert: [CBabbler.babbler] " \
+        "Пропущен параметр <pchat_title> !"
+        assert puser_title is not None, \
+        "Assert: [CBabbler.babbler] " \
+        "Пропущен параметр <puser_title> !"
+        assert pmessage is not None, \
+        "Assert: [CBabbler.babbler] " \
+        "Пропущен параметр <pmessage> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage)
-        if self.can_process(proom, UNIT_ID, pmessage, COMMANDS):
+        if self.can_process(pchat_title, UNIT_ID, pmessage, COMMANDS):
 
             # *** Возможно, запросили перезагрузку базы.
             if word_list[0] in COMMANDS:
 
-                if self.is_master(psender):
+                if self.is_master(puser_title):
 
                     await self.reload()
                     answer = "База болтуна обновлена"
                 else:
 
                     print(f"> Babbler: Запрос на перезагрузку конфига от "
-                          f"нелегитимного лица {psender}.")
-                    answer = f"У вас нет на это прав, {psender}."
+                          f"нелегитимного лица {puser_title}.")
+                    answer = f"У вас нет на это прав, {puser_title}."
         return answer
 
 
     def is_personal(self, pword_list: list) -> bool:
         """Определяет, есть ли во входном сообщении имя бота."""
+
+        assert pword_list is not None, \
+        "Assert: [CBabbler.is_personal] " \
+        "Пропущен параметр <pword_list> !"
 
         personal: bool = False
         for nick in NICKNAMES:
@@ -87,14 +94,20 @@ class CBabbler(basis.CBasis):
         return personal
 
 
-    async def talk(self, proom: str, pmessage: str) -> str:
+    async def talk(self, pchat_title: str, pmessage: str) -> str:
         """Улучшенная версия болтуна."""
+
+        assert pchat_title is not None, \
+        "Assert: [CBabbler.talk] " \
+        "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+        "Assert: [CBabbler.talk] " \
+        "Пропущен параметр <pmessage> !"
 
         answer: str = ""
         file_name: str = ""
-        if self.is_enabled(proom, UNIT_ID):
+        if self.is_enabled(pchat_title, UNIT_ID):
 
-            #:: Babbler is enabled here")
 	        # *** Заданный период времени с последней фразы прошел?
             minutes: float = (datetime.now() - self.last_phrase_time).total_seconds() / \
                              int(self.config.babbler[BABBLER_PERIOD_KEY])
@@ -143,6 +156,10 @@ class CBabbler(basis.CBasis):
 
     async def think(self, pmessage: str):
         """Процесс принятия решений =)"""
+
+        assert pmessage is not None, \
+        "Assert: [CBabbler.think] " \
+        "Пропущен параметр <pmessage> !"
 
         reactions_path: Path = Path(self.data_path) / REACTIONS_FOLDER
         word_list: list = pmessage.split(" ")
