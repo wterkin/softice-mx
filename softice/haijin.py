@@ -49,13 +49,13 @@ class CHaijin(basis.CBasis):
         print("Хайдзин стартовал.")
 
 
-    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert proom_name is not None, \
+        assert pchat_title is not None, \
             "Assert: [haijin.can_process_command] " \
-            "Пропущен параметр <proom_name> !"
+            "Пропущен параметр <pchat_title> !"
         assert pmessage is not None, \
             "Assert: [haijin.can_process_command] " \
             "Пропущен параметр <pmessage> !"

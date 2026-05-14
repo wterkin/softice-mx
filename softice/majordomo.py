@@ -15,7 +15,7 @@ COMMANDS: tuple = (("greet", "gt", "привет", "пт"),
 MAJORDOMO_COMMAND: int = 0
 HINT_COMMANDS: int = 1
 
-DESCRIPTIONS: tuple = (f"{', '.join(COMMANDS[MAJORDOMO_COMMAND])} - поприветствовать кого-либо")
+DESCRIPTIONS: tuple = (f"{', '.join(COMMANDS[MAJORDOMO_COMMAND])} - поприветствовать кого-либо",)
 
 MAJORDOMO_FOLDER: str = "majordomo/greetings.txt"
 
@@ -26,18 +26,27 @@ class CMajordomo(basis.CBasis):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-            "Assert: [majordomo.__init__] " \
+            "Assert: [CMajordomo.__init__] " \
             "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + MAJORDOMO_FOLDER
         self.greetings: list = []
 
 
-    async def reload(self) -> None:
-        """Вызывает перезагрузку внешних данных модуля."""
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        self.greetings = await self.load_from_file_async(self.data_path)
-        
+        assert pchat_title is not None, \
+            "Assert: [CMajordomo.can_process_command] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+            "Assert: [CMajordomo.can_process_command] " \
+            "Пропущен параметр <pmessage> !"
+
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+
 
     def get_hint(self, pchat_title, punit_id: str = "", phints: str = "") -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
@@ -46,7 +55,7 @@ class CMajordomo(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [majordomo.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
+        return super().get_hint(pchat_title, UNIT_ID, DESCRIPTIONS)
 
 
     async def majordomo(self, pchat_title, pmessage_text) -> str:
@@ -63,7 +72,7 @@ class CMajordomo(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         # rint(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
-        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
+        if self.can_process_command(pchat_title, pmessage_text):
 
             # rint(f"+++ MjDm +++ 3 +++ process")
             # *** Ок. Указано, кого приветствовать?
@@ -76,7 +85,13 @@ class CMajordomo(basis.CBasis):
         # *** Не запросили ли список команд?
         elif word_list[0] in COMMANDS[HINT_COMMANDS]:
 
-            print(f"+++ MjDm +++ 2 +++ {HINT=}")
+            print(f"+++ MjDm +++ 2 +++ {COMMANDS[HINT_COMMANDS]=}")
             # *** Отправляем полный список команд
             answer = self.get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
         return answer
+
+
+    async def reload(self) -> None:
+        """Вызывает перезагрузку внешних данных модуля."""
+
+        self.greetings = await self.load_from_file_async(self.data_path)
