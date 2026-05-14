@@ -101,7 +101,7 @@ class CTestLibrarian(TestCase):
         result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User", '!lbsave'))
         self.assertEqual(result, f"Извини, User, только {self.config.master} может сохранять цитаты!")
         result = asyncio.run(self.librarian.librarian(self.config.test_chat, 'user', '!библиотека'))
-        self.assertIn("получить случайную цитату", result)
+        self.assertIn("цитата, цт, quote, qt", result)
         result = asyncio.run(self.librarian.librarian("fakechat", 'user', '!библиотека'))
         self.assertEqual(result, "")
         result = asyncio.run(self.librarian.librarian("emptychat", 'user', '!библиотека'))

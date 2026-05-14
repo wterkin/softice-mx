@@ -77,7 +77,7 @@ class Callbacks:
             self.first_run = False
             print("*** Run once.")
             await self.babbler.reload()
-            await self.barman.load_assortment()
+            await self.barman.reload()
             await self.haijin.reload()
             await self.librarian.reload()
             await self.majordomo.reload()

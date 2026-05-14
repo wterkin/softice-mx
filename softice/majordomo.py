@@ -8,8 +8,15 @@ from softice.config import Config
 from softice import basis
 
 UNIT_ID = "majordomo"
-HINT: list = ["мажордом", "majordomo"]
-COMMANDS: list = [["greet", "gt"], ["привет", "пт"]]
+
+COMMANDS: tuple = (("greet", "gt", "привет", "пт"),
+                   ("мажордом", "majordomo"))
+
+MAJORDOMO_COMMAND: int = 0
+HINT_COMMANDS: int = 1
+
+DESCRIPTIONS: tuple = (f"{', '.join(COMMANDS[MAJORDOMO_COMMAND])} - поприветствовать кого-либо")
+
 MAJORDOMO_FOLDER: str = "majordomo/greetings.txt"
 
 
@@ -30,6 +37,7 @@ class CMajordomo(basis.CBasis):
         """Вызывает перезагрузку внешних данных модуля."""
 
         self.greetings = await self.load_from_file_async(self.data_path)
+        
 
     def get_hint(self, pchat_title, punit_id: str = "", phints: str = "") -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
@@ -38,8 +46,7 @@ class CMajordomo(basis.CBasis):
         assert pchat_title is not None, \
             "Assert: [majordomo.get_hint] " \
             "Пропущен параметр <pchat_title> !"
-        return super().get_hint(pchat_title, UNIT_ID, HINT)
-
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
 
 
     async def majordomo(self, pchat_title, pmessage_text) -> str:
@@ -67,9 +74,9 @@ class CMajordomo(basis.CBasis):
                 # rint(f"+++ MjDm +++ 4 +++ {answer=}")
 
         # *** Не запросили ли список команд?
-        elif word_list[0] in HINT:
+        elif word_list[0] in COMMANDS[HINT_COMMANDS]:
 
-            # rint(f"+++ MjDm +++ 2 +++ {HINT=}")
+            print(f"+++ MjDm +++ 2 +++ {HINT=}")
             # *** Отправляем полный список команд
-            answer = self.get_commands(pchat_title, UNIT_ID, COMMANDS)
+            answer = self.get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
         return answer
