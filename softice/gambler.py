@@ -47,18 +47,18 @@ class CGambler(basis.CBasis):
         print("Игрун стартовал.")
 
 
-    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
 
-        assert proom_name is not None, \
+        assert pchat_title is not None, \
             "Assert: [gambler.can_class_process] " \
-            "Пропущен параметр <proom_name> !"
+            "Пропущен параметр <pchat_title> !"
         assert pmessage is not None, \
             "Assert: [gambler.can_class_process] " \
             "Пропущен параметр <pmessage> !"
 
         # rint(f"+++ Gmb +++ cpc +++ {COMMANDS=}")
-        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
     def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:

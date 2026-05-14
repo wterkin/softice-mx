@@ -32,7 +32,8 @@ SAVE_COMMAND: int = 5
 HINT_COMMAND: int = 6
 
 DESCRIPTIONS: tuple = (f"{', '.join(COMMANDS[ASK_QUOTE_COMMAND])}: получить случайную цитату",
-                       f"{', '.join(COMMANDS[FIND_QUOTE_COMMAND])}: найти цитату по фрагменту текста",
+                       (f"{', '.join(COMMANDS[FIND_QUOTE_COMMAND])}: "
+                        "найти цитату по фрагменту текста"),
                        f"{', '.join(COMMANDS[ADD_QUOTE_COMMAND])}: добавить цитату")
 
 # HINT = []

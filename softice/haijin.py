@@ -59,7 +59,7 @@ class CHaijin(basis.CBasis):
         assert pmessage is not None, \
             "Assert: [haijin.can_process_command] " \
             "Пропущен параметр <pmessage> !"
-        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
     def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
