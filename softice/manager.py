@@ -22,6 +22,7 @@ class CManager(basis.CBasis):
 
         super().__init__(pconfig)
         self.client: AsyncClient = pclient
+        self.last_report: bool = False
         print("Менеджер стартовал.")
 
 
@@ -84,7 +85,11 @@ class CManager(basis.CBasis):
 
                             # *** Запрошено отключение бота
                             self.create_flag(QUIT_FLAG)
-                            # await send_text_to_room(self.client, room_id, "Добби свободен!!")
+                            # rint("+++ Mgr +++ 2 +++ Quit")
+                            if not self.last_report:
+
+                                self.last_report = True
+                                await send_text_to_room(self.client, room_id, "Добби свободен!!")
                             await self.suicide()
                         else:
 
@@ -98,7 +103,12 @@ class CManager(basis.CBasis):
 
                             # *** Запрошен рестарт бота
                             self.create_flag(RESTART_FLAG)
-                            #c await end_text_to_room(self.client, room_id, "Щасвирнус.")
+                            #rint("+++ Mgr +++ 1 +++ Restart")
+
+                            if not self.last_report:
+
+                                self.last_report = True
+                                await send_text_to_room(self.client, room_id, "Щасвирнус.")
                             await self.suicide()
                         else:
 
