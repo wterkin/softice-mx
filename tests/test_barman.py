@@ -45,7 +45,7 @@ class CTestBarman(TestCase):
 
         self.assertEqual(self.barman.get_commands("fakechat"), "")
         self.assertEqual(self.barman.get_commands("emptychat"), "")
-        self.assertIn("пиво - бот нальёт вам", self.barman.get_commands(self.config.test_chat))
+        self.assertIn("пиво, beer, пв, br - бот нальёт вам", self.barman.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):

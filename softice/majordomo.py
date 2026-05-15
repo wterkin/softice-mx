@@ -8,7 +8,7 @@ from softice.config import Config
 from softice import basis
 
 UNIT_ID = "majordomo"
-        
+
 COMMANDS: tuple = (("greet", "gt", "привет", "пт"),
                    ("мажордом", "majordomo"))
 
@@ -48,14 +48,24 @@ class CMajordomo(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_hint(self, pchat_title, punit_id: str = "", phints: str = "") -> str:
-        """Возвращает команду верхнего уровня, в ответ на которую
-           модуль возвращает полный список команд, доступных пользователю."""
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+        """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
-            "Assert: [majordomo.get_hint] " \
+            "Assert: [haijin.get_commands] " \
             "Пропущен параметр <pchat_title> !"
-        return super().get_hint(pchat_title, UNIT_ID, DESCRIPTIONS)
+
+        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+
+
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+        """Возвращает список команд, поддерживаемых модулем.  """
+
+        assert pchat_title is not None, \
+            "Assert: [haijin.get_hint] " \
+            "Пропущен параметр <pchat_title> !"
+
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
     async def majordomo(self, pchat_title, pmessage_text) -> str:
@@ -72,22 +82,27 @@ class CMajordomo(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         # rint(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
+        # rint(f"+++ MjDm +++ 1 +++ {word_list[0]=}")
+        # rint(f"+++ MjDm +++ 2 +++ {COMMANDS[HINT_COMMANDS]=}")
         if self.can_process_command(pchat_title, pmessage_text):
 
-            # rint(f"+++ MjDm +++ 3 +++ process")
-            # *** Ок. Указано, кого приветствовать?
-            if len(word_list) > 1:
+            # *** Не запросили ли список команд?
+            if word_list[0] in COMMANDS[HINT_COMMANDS]:
 
-                # *** Приветствуем.
-                answer = random.choice(self.greetings) % word_list[1]
-                # rint(f"+++ MjDm +++ 4 +++ {answer=}")
+                # *** Отправляем полный список команд
+                # rint(f"+++ MjDm +++ 2 +++ {DESCRIPTIONS=}")
+                answer = self.get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+                # rint(f"+++ MjDm +++ 2 +++ {answer=}")
+            else:
 
-        # *** Не запросили ли список команд?
-        elif word_list[0] in COMMANDS[HINT_COMMANDS]:
+                # rint("+++ MjDm +++ 3 +++ process")
+                # *** Ок. Указано, кого приветствовать?
+                if len(word_list) > 1:
 
-            print(f"+++ MjDm +++ 2 +++ {COMMANDS[HINT_COMMANDS]=}")
-            # *** Отправляем полный список команд
-            answer = self.get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+                    # *** Приветствуем.
+                    answer = random.choice(self.greetings) % word_list[1]
+                    # rint(f"+++ MjDm +++ 4 +++ {answer=}")
+
         return answer
 
 

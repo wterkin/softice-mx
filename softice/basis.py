@@ -94,7 +94,10 @@ class CBasis(prototype.CPrototype):
 
         if self.is_enabled(pchat_title, punit_id):
 
+            # rint(f"+++ Bas +++ 1 +++")
+
             commands = "\n".join(pdescriptions)
+        # rint(f"+++ Bas +++ 1 +++ {commands=}")
         return commands
 
 

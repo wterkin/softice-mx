@@ -20,7 +20,7 @@ class CTestLibrarian(TestCase):
         book: list = ["Не экономь на душе. Не наготовить запасов там, где должно трудиться сердце. Отдать - значит перебросить мост через бездну своего одиночества. Антуан де Сент-Экзюпери", "Мы думаем, что Бог видит нас сверху - но Он видит нас изнутри..."]
         word_list: list = "Мы думаем".split(" ")
         asyncio.run(self.librarian.reload())
-        self.assertEqual(librarian.find_in_book(book, word_list), "[2]"+book[1])
+        self.assertEqual(librarian.find_in_book(book, word_list), "[2] "+book[1])
 
 
     def test_get_command(self):

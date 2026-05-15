@@ -186,12 +186,12 @@ class Callbacks:
                 # *** Просто сообщение
                 # def talk(self, proom: str, pmessage: str) -> str:
                 # ToDo: Вот тут вывести картинку, если есть
-                print(f"+++ Cllb +++ 2 +++ {answer=}")
+                # rint(f"+++ Cllb +++ 2 +++ {answer=}")
                 answer, file_name = await self.babbler.talk(room.name, message)
             if answer:
 
                 # answer = answer.strip()
-                
+
                 # rint(f"+++ Cllb +++ 3 +++ {answer=}")
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return

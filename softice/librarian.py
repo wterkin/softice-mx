@@ -73,7 +73,7 @@ def find_in_book(pbook: list, pword_list: list) -> str:
     if not answer:
 
         answer = basis.MESSAGE_NOT_FOUND
-    print(f"+++ Lib +++ 3 +++ {answer=}")
+    # rint(f"+++ Lib +++ 3 +++ {answer=}")
     return answer
 
 
