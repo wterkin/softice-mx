@@ -155,7 +155,7 @@ class Callbacks:
                     # *** Игруну есть что сказать?
                     answer = self.gambler.gambler(room.name, message)
                 if not answer:
-    
+
                     # *** Хайдзину есть что сказать?
                     answer = await self.haijin.haijin(room.name, event.sender, message)
                     # rint(f"+++ Cllb +++ 1 +++ {answer=}")
@@ -174,7 +174,8 @@ class Callbacks:
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
-                    answer = await self.manager.manager(room.name, room.room_id, event.sender, message)
+                    answer = await self.manager.manager(room.name, room.room_id,
+                                                        event.sender, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 
@@ -224,7 +225,8 @@ class Callbacks:
         # Attempt to join 3 times before giving up
         for attempt in range(3):
             result = await self.client.join(room.room_id)
-            if type(result) == JoinError:
+            # if type(result) == JoinError:
+            if isinstance(result, JoinError):
                 logger.error(
                     f"Error joining room {room.room_id} (attempt %d): %s",
                     attempt,
@@ -242,7 +244,7 @@ class Callbacks:
         """Проверяет, не была ли запрошена подсказка."""
 
         # *** Собираем ответы модулей на запрос помощи
-        answer: str = "" 
+        answer: str = ""
         result: str = self.barman.get_hint(pchat_title)
         if result:
 
