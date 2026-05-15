@@ -8,7 +8,7 @@ from softice.config import Config
 from softice import basis
 
 UNIT_ID = "majordomo"
-
+        
 COMMANDS: tuple = (("greet", "gt", "привет", "пт"),
                    ("мажордом", "majordomo"))
 

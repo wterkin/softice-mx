@@ -51,6 +51,7 @@ def find_in_book(pbook: list, pword_list: list) -> str:
         "Пропущен параметр <pword_list> !"
 
     answer: str = ""
+    # rint(f"+++ Lib +++ 1 +++ ")
     if len(pword_list) > 1:
 
         found_list: list = []
@@ -59,15 +60,20 @@ def find_in_book(pbook: list, pword_list: list) -> str:
 
             if search_line.upper() in line.upper():
 
-                found_list.append(f"[{idx+1}]{line}")
+                # rint(f"+++ Lib +++ 5 +++ {idx=}")
+                # rint(f"+++ Lib +++ 6 +++ {line=}")
+                found_list.append(f"[{idx+1}] {line}")
 
         if len(found_list) > 0:
 
+            # rint(f"+++ Lib +++ 2 +++ {found_list=}")
             answer = random.choice(found_list)
+            # rint(f"+++ Lib +++ 3 +++ {answer=}")
 
     if not answer:
 
         answer = basis.MESSAGE_NOT_FOUND
+    print(f"+++ Lib +++ 3 +++ {answer=}")
     return answer
 
 
@@ -119,11 +125,13 @@ def quote(pbook: list, pword_list: list) -> str:
         else:
 
             answer = find_in_book(pbook, pword_list)
+            # rint(f"+++ Lib +++ 10 +++ {answer=}")
     else:
 
         # *** случайную.
         answer = random.choice(pbook)
         answer = f"[{pbook.index(answer)+1}] {answer}"
+        # rint(f"+++ Lib +++ 11 +++ {answer=}")
     return answer
 
 
