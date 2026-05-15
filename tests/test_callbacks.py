@@ -20,6 +20,7 @@ class CallbacksTestCase(unittest.TestCase):
         # We don't spec config, as it doesn't currently have well defined attributes
         self.fake_config = Mock(spec=Config)
         self.fake_config.data_folder = "/home/user/projects/softice-mx/"
+        self.fake_config.command_prefix  = "!"
         self.callbacks = Callbacks(
             self.fake_client, self.fake_storage, self.fake_config
         )

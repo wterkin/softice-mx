@@ -73,7 +73,6 @@ class Config:
 
         # Database setup
         database_path = self._get_cfg(["storage", "database"], required=True)
-
         # Support both SQLite and Postgres backends
         # Determine which one the user intends
         sqlite_scheme = "sqlite://"
@@ -108,7 +107,7 @@ class Config:
         self.minimum_quantity = self._get_cfg(["matrix","minimum_quantity"])
         self.chats = self._get_cfg(["matrix", "chats"], required=True)
         # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.chats=}")
-        self.meteorolog = self._get_cfg(["matrix", "meteorolog"], required=True)
+        # self.meteorolog = self._get_cfg(["matrix", "meteorolog"], required=True)
         # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.meteorolog=}")
         self.babbler = self._get_cfg(["matrix", "babbler"], required=True)
         # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
