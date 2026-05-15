@@ -250,6 +250,10 @@ class CBasis(prototype.CPrototype):
         assert pmessage_text is not None, \
             "Assert: [CBasis.parse_input] Пропущен параметр <pmessage_text> !"
 
+        print(f"+++ Bas +++ 0 +++ {pmessage_text=}")
+        print(f"+++ Bas +++ 1 +++ {pmessage_text[1:]=}")
+        print(f"+++ Bas +++ 2 +++ {pmessage_text[1:].strip()=}")
+        print(f"+++ Bas +++ 3 +++ {pmessage_text[1:].strip().split(' ')=}")
         return pmessage_text[1:].strip().split(" ")
 
 

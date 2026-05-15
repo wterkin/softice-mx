@@ -213,3 +213,63 @@ class CBabbler(basis.CBasis):
 
                 break
         return answer, file_name.replace("\\", "/")
+"""
+import mimetypes
+from pathlib import Path
+
+# Путь к файлу
+image_path = Path("my_image.png")
+
+# Определи MIME-тип
+mime_type = mimetypes.guess_type(image_path)[0] or "application/octet-stream"
+
+# Прочитай файл
+with open(image_path, "rb") as f:
+    image_data = f.read()
+
+# Загрузи на сервер
+response = await client.upload(
+    data=image_data,
+    content_type=mime_type,
+    filename=image_path.name
+)
+
+if isinstance(response, UploadResponse):
+    mxc_url = response.content_uri  # что-то вроде "mxc://example.com/..."
+else:
+    print("Ошибка загрузки:", response)
+    return
+    
+    
+from nio import RoomSendResponse
+
+# Узнай размеры (опционально, но рекомендуется)
+from PIL import Image
+with Image.open(image_path) as img:
+    width, height = img.size
+
+# Отправь сообщение типа "m.image"
+content = {
+    "body": image_path.name,          # имя файла (подпись)
+    "msgtype": "m.image",
+    "url": mxc_url,
+    "info": {
+        "mimetype": mime_type,
+        "size": len(image_data),
+        "w": width,
+        "h": height,
+    }
+}
+
+resp = await client.room_send(
+    room_id=room_id,
+    message_type="m.room.message",
+    content=content
+)
+
+if isinstance(resp, RoomSendResponse):
+    print("Изображение отправлено!")
+else:
+    print("Ошибка отправки:", resp)    
+"""        
+        

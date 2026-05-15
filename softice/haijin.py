@@ -128,34 +128,77 @@ class CHaijin(basis.CBasis):
 
         answer: str = ""
         unformatted_answer: str = ""
+        print(f"+++ Hjn +++ 0 +++ {pmessage_text=}")
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
-        # rint(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
-        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
+        print(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
+        print(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
+            print(f"+++ Hjn +++ 3 +++ Process!")
+            command: int = self.identify_command(word_list[0], COMMANDS)
+            print(f"+++ Hjn +++ 3 +++ {command=}")
+   
             # *** Возможно, запросили перезагрузку.
-            if word_list[0] in COMMANDS[RELOAD_COMMANDS]:
+            if command == RELOAD_COMMANDS:
 
+                print(f"+++ Hjn +++ 5 +++ Reload")
                 # *** Пользователь хочет перезагрузить книгу хокку
                 if self.is_master(puser_name):
 
+                    print(f"+++ Hjn +++ 6 +++ Master!")
                     await self.reload()
                     answer = "Книга загружена"
-            elif word_list[0] in COMMANDS[SAVE_COMMANDS]:
+            elif command == SAVE_COMMANDS:
 
                 # *** Пользователь хочет сохранить книгу хокку
                 if self.is_master(puser_name):
 
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
-            elif word_list[0] in COMMANDS[HINT_COMMANDS]:
+            elif command == HINT_COMMANDS:
 
                 # *** Пользователь хочет список команд
                 answer = self.get_commands(pchat_title)
-            else:
 
-                answer, unformatted_answer = await self.process_command(word_list, puser_name)
+            # answer, unformatted_answer = await self.process_command(word_list, puser_name)
+            # *** Хокку запрашивали?
+            elif command == ASK_COMMANDS:
+
+                # *** Пользователь хочет хокку....
+                answer = librarian.quote(self.hokku, word_list)
+                if answer:
+
+                    unformatted_answer = answer
+                    answer = self.format_hokku(unformatted_answer)
+                    if not answer:
+
+                        answer = "Такого хокку нет в моей базе"
+            elif command == ADD_COMMANDS:
+
+                # *** Пользователь хочет добавить хокку в книгу
+                text: str = " ".join(word_list[1:])
+                if '(' not in text:
+
+                    text += "(автор не  известен)"
+                self.hokku.append(text)
+                answer = (f"Спасибо, {self.parse_nick(puser_name)},"
+                           " хокку добавлено под номером "
+                          f"{len(self.hokku)}")
+            elif command == DELETE_COMMANDS:
+
+                # *** Пользователь хочет удалить хокку из книги...
+                if self.is_master(puser_name):
+
+                    del self.hokku[int(word_list[1]) - 1]
+                    answer = f"Хокку {word_list[1]} удалена."
+                else:
+
+                    # *** ... но не тут-то было...
+                    print("> Haijin: Запрос на удаление хокку от "
+                          f"нелегитимного лица {self.parse_nick(puser_name)}.")
+                    answer = (f"Извини, {self.parse_nick(puser_name)}, "
+                              f"только {self.config.master} может удалять хокку")
             if answer:
 
                 if unformatted_answer:
@@ -166,9 +209,9 @@ class CHaijin(basis.CBasis):
                     print("> Haijin отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
         return answer
 
-
+    """
     async def process_command(self, pcommand: list, puser_name: str):
-        """Обрабатывает пользовательские команды."""
+        ""Обрабатывает пользовательские команды.""
 
         assert pcommand is not None, \
             "Assert: [haijin.process_command] " \
@@ -221,7 +264,7 @@ class CHaijin(basis.CBasis):
                     answer = (f"Извини, {self.parse_nick(puser_name)}, "
                               f"только {self.config.master} может удалять хокку")
         return answer, unformatted_answer
-
+    """
 
     async def reload(self):
         """Перезагружает библиотеку."""

@@ -5,7 +5,7 @@ import logging
 
 from datetime import datetime
 
-
+# pylint: disable=import-error
 from nio import (
     AsyncClient,
     InviteMemberEvent,
@@ -15,7 +15,8 @@ from nio import (
     RoomGetEventError,
     RoomMessageText,
     UnknownEvent,
-)
+)  # noqa
+# pylint: enable=import-error
 
 # from softice.bot_commands import Command
 from softice.chat_functions import make_pill, react_to_event, send_text_to_room

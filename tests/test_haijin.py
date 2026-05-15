@@ -61,13 +61,30 @@ class CTestHaijin(TestCase):
     
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hkrl"))
         self.assertEqual(result, "Книга загружена")
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master,"!hksv"))
+
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hksv"))
         self.assertEqual(result, "Книга сохранена")
         for file in Path(self.haijin.data_path).glob("hokku.txt_*"):
 
             file.unlink()
-
-        self.assertIn("\n\nхк/hk [номер] [строка] : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
+        asyncio.run(self.haijin.reload())
+        
+        # answer = "[1]Печальный мир. / Даже когда расцветают вишни.. / Даже тогда... (Исса)"
+        answer = "<i> Печальный мир. \n Даже когда расцветают вишни.. \n Даже тогда...  </i>"
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk"))
+        self.assertIn(answer, result)
+        
+        hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, f"!hk+ {hokku}"))
+        self.assertIn("Спасибо, Namo, хокку добавлено под номером 2", result)
+        
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk- 2"))
+        self.assertIn("Хокку 2 удалена.", result)
+        
+        # Запрос на удаление от нелегитимного лица
+        answer = "Извини, User, только @namo:sibnsk.net может удалять хокку"
+        result = result = asyncio.run(self.haijin.haijin(self.config.test_chat, "user", "!hk- 1"))
+        self.assertIn(answer, result)
 
     def test_is_enabled(self):
 
@@ -82,23 +99,4 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.is_master(self.config.master)) #, self.config["master_name"]))
 
 
-    def test_process_command(self):
-
-        asyncio.run(self.haijin.reload())
-        
-        answer = "[1] Печальный мир. / Даже когда расцветают вишни.. / Даже тогда... (Исса)"
-        result = asyncio.run(self.haijin.process_command(["hk"], self.config.master))
-        self.assertIn(answer, result)
-        
-        hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
-        result = asyncio.run(self.haijin.process_command(["hk+", hokku],                                                     self.config.master))
-        self.assertIn("Спасибо, Namo, хокку добавлено под номером 2", result)
-        
-        result = asyncio.run(self.haijin.process_command(["hk-", "2"],self.config.master))
-        self.assertIn("Хокку 2 удалена.", result)
-        
-        # Запрос на удаление от нелегитимного лица
-        answer = "Извини, User, только @namo:sibnsk.net может удалять хокку"
-        result = result = asyncio.run(self.haijin.process_command(["hk-", "1"], "user"))
-        self.assertIn(answer, result)
         

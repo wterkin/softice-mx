@@ -5,7 +5,7 @@ import nio
 
 from softice.callbacks import Callbacks
 from softice.storage import Storage
-
+from softice.config import Config
 from tests.utils import make_awaitable, run_coroutine
 
 
@@ -18,8 +18,8 @@ class CallbacksTestCase(unittest.TestCase):
         self.fake_storage = Mock(spec=Storage)
 
         # We don't spec config, as it doesn't currently have well defined attributes
-        self.fake_config = Mock()
-
+        self.fake_config = Mock(spec=Config)
+        self.fake_config.data_folder = "/home/user/projects/softice-mx/"
         self.callbacks = Callbacks(
             self.fake_client, self.fake_storage, self.fake_config
         )
