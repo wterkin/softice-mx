@@ -9,21 +9,13 @@ from softice import basis
 UNIT_ID: str = "gambler"
 HINT: tuple = ("игры", "games")
 
-COMMANDS: tuple = (("камень", "кам"),
-                   ("ножницы", "нож"),
-                   ("бумага", "бум"),
-                   ("ящерица", "ящер"),
-                   ("спок", "спок"),
-                   ("монета", "coin"),
+COMMANDS: tuple = (("камень", "кам", "rock", "rk"),
+                   ("ножницы", "нож", "scissors", "sc"),
+                   ("бумага", "бум", "paper", "pp"),
+                   ("ящерица", "ящер", "lizard", "lz"),
+                   ("спок", "спок", "spock", "sp"),
+                   ("монета", "мон", "coin", "co"),
                    ("игры", "games"))
-DESCRIPTIONS: tuple = ("камень - вы выбираете игровой жест 'камень', 👊🏻",
-                       "ножницы - вы выбираете игровой жест 'ножницы', ✌🏻",
-                       "бумага - вы выбираете игровой жест 'бумага', ✋🏻",
-                       "ящерица - вы выбираете игровой жест 'ящерица', 🦎",
-                       "спок - вы выбираете игровой жест 'спок', 🖖🏻",
-                       "монета - вы выбрали подбросить монету"
-                      )
-
 
 ROCK_COMMANDS: int = 0
 SCISSORS_COMMANDS: int = 1
@@ -32,6 +24,22 @@ LIZARD_COMMANDS: int = 3
 SPOCK_COMMANDS: int = 4
 COIN_COMMANDS: int = 5
 HINT_COMMANDS: int = 6
+
+DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[ROCK_COMMANDS])}"
+                         " - вы выбираете игровой жест 'камень', 👊🏻"),
+                       (f"{', '.join(COMMANDS[SCISSORS_COMMANDS])}"
+                         " - вы выбираете игровой жест 'ножницы', ✌🏻"),
+                       (f"{', '.join(COMMANDS[PAPER_COMMANDS])}"
+                         " - вы выбираете игровой жест 'бумага', ✋🏻"),
+                       (f"{', '.join(COMMANDS[LIZARD_COMMANDS])}"
+                         " - вы выбираете игровой жест 'ящерица', 🦎"),
+                       (f"{', '.join(COMMANDS[SPOCK_COMMANDS])}"
+                         " - вы выбираете игровой жест 'спок', 🖖🏻"),
+                       (f"{', '.join(COMMANDS[COIN_COMMANDS])}"
+                         " - вы выбрали подбросить монету")
+                      )
+
+
 
 EMODJIES: tuple = ("👊🏻", "✌🏻", "✋🏻", "🦎", "🖖🏻")
 THUMBS_UP: str = "👍🏻"
