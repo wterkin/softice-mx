@@ -22,17 +22,33 @@ COMMANDS: tuple = (("пиво", "beer", "пв", "br"),
                   ("brreload", "brrl")
                   )
 
-DESCRIPTIONS: tuple = ("пиво - бот нальёт вам кружечку пивка",
-                       "водка - бот нацедит вам рюмочку водки",
-                       "коньяк - бот напузырит вам коньячку",
-                       "коктейль - бот смешает вам вкусный коктейль",
-                       "чай - бот заварит вам чашечку чая",
-                       "кофе - бот сварит для вас ароматный кофе",
-                       "печеньки - бот организует для вас вкусное печенье",
-                       "шоколад - бот подарит вам плитку отличного шоколада",
-                       "мороженое - бот угостит вас чудесным мороженым",
-                       "булочка - бот принесёт вам свежую булочку",
-                       "шампанское - бот откроет вам бутылочку шампанского")
+BEER_ID: int = 0
+VODKA_ID: int = 1
+COGNAC_ID: int = 2
+COCKTAIL_ID: int = 3
+TEA_ID: int = 4
+COFFEE_ID: int = 5
+COOKIE_ID: int = 6
+CHOCOLATE_ID: int = 7
+ICECREAM_ID: int = 8
+BUN_ID: int = 9
+CHAMPAGNE_ID: int = 10
+HINT_COMMAND: int = 11
+RELOAD_COMMAND: int = 12
+
+DESCRIPTIONS: tuple = (f"{', '.join(COMMANDS[BEER_ID])} - бот нальёт вам кружечку пивка",
+                       f"{', '.join(COMMANDS[VODKA_ID])} - бот нацедит вам рюмочку водки",
+                       f"{', '.join(COMMANDS[COGNAC_ID])} - бот напузырит вам коньячку",
+                       f"{', '.join(COMMANDS[COCKTAIL_ID])} - бот смешает вам вкусный коктейль",
+                       f"{', '.join(COMMANDS[TEA_ID])} - бот заварит вам чашечку чая",
+                       f"{', '.join(COMMANDS[COFFEE_ID])} - бот сварит для вас ароматный кофе",
+                       f"{', '.join(COMMANDS[COOKIE_ID])} - бот организует для вас вкусное печенье",
+                       (f"{', '.join(COMMANDS[CHOCOLATE_ID])} - "
+                         "бот подарит вам плитку отличного шоколада"),
+                       f"{', '.join(COMMANDS[ICECREAM_ID])} - бот угостит вас чудесным мороженым",
+                       f"{', '.join(COMMANDS[BUN_ID])} - бот принесёт вам свежую булочку",
+                       (f"{', '.join(COMMANDS[CHAMPAGNE_ID])} - "
+                         "бот откроет вам бутылочку ледяного шампанского"))
 
 # *** Идентификаторы, они же индексы, напитков, их ключи и эмодзи
 
@@ -47,19 +63,6 @@ FILLS_KEY: str = "fills"
 TRANSFER_KEY: str = "transfer"
 TEMPLATE_KEY: str = "template"
 
-BEER_ID: int = 0
-VODKA_ID: int = 1
-COGNAC_ID: int = 2
-COCKTAIL_ID: int = 3
-TEA_ID: int = 4
-COFFEE_ID: int = 5
-COOKIE_ID: int = 6
-CHOCOLATE_ID: int = 7
-ICECREAM_ID: int = 8
-BUN_ID: int = 9
-CHAMPAGNE_ID: int = 10
-HINT_COMMAND: int = 11
-RELOAD_COMMAND: int = 12
 
 ASSORTMENT: tuple = ({ID_KEY: BEER_ID,
                       EMODJI_KEY: "🍺",
