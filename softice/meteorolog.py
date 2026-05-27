@@ -8,8 +8,6 @@ import requests
 import functions as func
 import basis
 
-WEATHER_COMMANDS: list = ["погода", "пг", "weather", "wt",
-                          "прогноз", "пр", "forecast", "fr"]
 
 WEATHER_GROUP: int = 0
 FORECAST_GROUP: int = 1
