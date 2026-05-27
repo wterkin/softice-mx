@@ -12,17 +12,19 @@ WEATHER_COMMANDS: list = ["погода", "пг", "weather", "wt",
                           "прогноз", "пр", "forecast", "fr"]
 
 WEATHER_GROUP: int = 0
-FORECAST_GROUP: int = 0
+FORECAST_GROUP: int = 1
+HINT_GROUP: int = 2
 COMMANDS: tuple = (("погода", "пг", "weather", "wt"),
-                   ("прогноз", "пр", "forecast", "fr"))
+                   ("прогноз", "пр", "forecast", "fr"),
+                   ("метео", "meteo"))
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[WEATHER_GROUP])} город - "
                          "получить сводку погоды по указанному городу на сегодня"),
                        (f"{', '.join(COMMANDS[FORECAST_GROUP])} город -"
                          " получить прогноз погоды по указанному городу на завтра"))
-                   
+
 UNIT_ID: str = "meteorolog"
 READ_TIMEOUT = 1
-HINT: list = ["метео", "meteo"]
+
 FIND_CITY_URL: str = 'http://api.openweathermap.org/data/2.5/find'
 FORECAST_WEATHER_URL: str = 'http://api.openweathermap.org/data/2.5/forecast'
 ICON_CONVERT: dict = {"01d": "Ясно. ☀️",
@@ -52,7 +54,7 @@ DIRECTIONS: list = ['сев. ', 'св', ' вост.', 'юв', 'юг ', 'юз', '
 def get_wind_direction(pdegree) -> str:
     """Возвращает направление ветра."""
 
-	assert pdegree is not None, \
+    assert pdegree is not None, \
 		"Assert: [meteorolog.get_wind_direction] " \
 		"Пропущен параметр <pdegree> !"
 
@@ -74,10 +76,10 @@ def get_wind_direction(pdegree) -> str:
 def parse_weather(pdata, preq_date) -> str:
     """Парсит данные погоды и формирует строку погоды."""
 
-	assert pdata is not None, \
+    assert pdata is not None, \
 		"Assert: [meteorolog.parse_weather] " \
 		"Пропущен параметр <pdata> !"
-	assert preq_date is not None, \
+    assert preq_date is not None, \
 		"Assert: [meteorolog.parse_weather] " \
 		"Пропущен параметр <preq_date> !"
 
@@ -110,7 +112,7 @@ def parse_weather(pdata, preq_date) -> str:
             # *** Ветер
             wind_speed = item["wind"]["speed"]
             wind_angle = item["wind"]["deg"]
-            
+
             if wind_speed < min_wind_speed:
 
                 min_wind_speed = wind_speed
@@ -136,35 +138,36 @@ def parse_weather(pdata, preq_date) -> str:
 
                 weather.append(icon)
     if min_temperature == max_temperature:
-	
-		answer = f"Темп.: {round(min_temperature)} °C, "
-	else:	
-		answer = f"Темп.: {round(min_temperature)}  -  {round(max_temperature)} °C, "
-	if min_pressure == max_pressure:
 
-		answer = answer + f" давл.: {round(min_pressure * 0.75)} мм.рт.ст., "
-	else:
-		
-		answer = answer + f" давл.: {round(min_pressure * 0.75)} - {round(max_pressure * 0.75)} мм.рт.ст., "
-	if min_humidity == max_humidity:
-		
-        answer = answer + f" влажн.: {round(min_humidity)} %, " 
-	else:
+        answer = f"Темп.: {round(min_temperature)} °C, "
+    else:
+        answer = f"Темп.: {round(min_temperature)}  -  {round(max_temperature)} °C, "
+    if min_pressure == max_pressure:
 
-        answer = answer + f" влажн.: {round(min_humidity)} - {round(max_humidity)} %, " 
-	min_wind_dir: str = get_wind_direction(min_wind_angle)
-	max_wind_dir: str = get_wind_direction(max_wind_angle)
+        answer = answer + f" давл.: {round(min_pressure * 0.75)} мм.рт.ст., "
+    else:
+
+        answer = answer + f" давл.: {round(min_pressure * 0.75)} - {round(max_pressure * 0.75)} мм.рт.ст., "
+    if min_humidity == max_humidity:
+
+        answer = answer + f" влажн.: {round(min_humidity)} %, "
+    else:
+
+        answer = answer + f" влажн.: {round(min_humidity)} - {round(max_humidity)} %, "
+    min_wind_dir: str = get_wind_direction(min_wind_angle)
+    max_wind_dir: str = get_wind_direction(max_wind_angle)
     if min_wind_speed == max_wind_speed:
 
-		answer = answer + f" ветер: {round(min_wind_speed)} м/с"
-	else:	    
+        answer = answer + f" ветер: {round(min_wind_speed)} м/с"
+    else:
+
         answer = answer + f" ветер: {round(min_wind_speed)} м/с- {round(max_wind_speed)} м/c "
-	if min_wind_dir == max_wind_dir:
-		
-		answer = answer + f"{min_wind_dir}"
-	else:	
-		
-		answer = answer + f"{min_wind_dir} - {max_wind_dir}"
+    if min_wind_dir == max_wind_dir:
+
+        answer = answer + f"{min_wind_dir}"
+    else:
+
+        answer = answer + f"{min_wind_dir} - {max_wind_dir}"
     ##(f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} "
     # f"- {round(max_wind_speed)} м/c {max_wind_dir}" ")
     for icon in weather:
@@ -230,7 +233,7 @@ class CMeteorolog(basis.CBasis):
         return city_id
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: tuple=None) -> str:
         """Пользователь запросил список команд."""
 
         assert pchat_title is not None, \
@@ -247,82 +250,99 @@ class CMeteorolog(basis.CBasis):
             "Assert: [haijin.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    def meteorolog(self, pchat_title: str, pmessage_text: str) -> str:
+    async def meteorolog(self, pchat_title: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
+
+        assert pchat_title is not None, \
+            "Assert: [meteorolog.meteorolog] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage_text is not None, \
+            "Assert: [meteorolog.meteorolog] " \
+            "Пропущен параметр <pmessage_text> !"
+
 
         answer: str = ""
         word_list: list = func.parse_input(pmessage_text)
         # *** Метеоролог может обработать эту команду?
-        if self.can_process(pchat_title, pmessage_text):
+        if self.can_process_command(pchat_title, pmessage_text):
 
             # *** Запросили помощь?
             if word_list[0] in HINT:
 
-                answer = self.get_help(pchat_title)
+                answer = self.get_commands(pchat_title)
                 return answer
             # *** Запросили погоду? А город указали?
             if len(word_list) > 1:
 
-                # *** Получим ID города
                 city_name = " ".join(word_list[1:])
-                city_id = self.get_city_id(city_name)
-                if city_id > 0:
-
-                    # *** Указан существующий город, работаем.
-                    now: dtime.datetime = dtime.datetime.now()
-                    date_str: str = ""
-                    weather_str: str = ""
-                    # *** Прогноз на завтра?
-                    if word_list[0] in ["прогноз", "пр", "forecast", "fr"]:
-
-                        # *** Да, так и есть.
-                        tomorrow: dtime.datetime = now + dtime.timedelta(days=1)
-                        date_str = tomorrow.strftime(RUSSIAN_DATE_FORMAT)
-                        weather_str = self.request_weather(city_id, tomorrow)
-
-                    elif word_list[0] in ["погода", "пг", "weather", "wt"]:
-
-                        # *** Нет, на сегодня. Еще не поздно?
-                        if now.hour < 21:
-
-                            # *** Вполне еще можно
-                            date_str = now.strftime(RUSSIAN_DATE_FORMAT)
-                            weather_str = self.request_weather(city_id, now)
-                    # *** Если еще не поздно, то выдадим погоду, иначе дадим знать юзеру
-                    if now.hour < 21:
-
-                        answer = f"{city_name} : {date_str} : {weather_str}"
-                    else:
-
-                        answer = "Уже слишком поздно, метеоролог уснул..."
-                else:
-
-                    answer = f"Нет данных о погоде для города {' '.join(word_list[1:]).strip()}"
             else:
 
-                answer = "А в каком городе погода нужна?"
+                city_name = "Москва"
+			# *** Получим ID города
+            city_id = await self.get_city_id(city_name)
+            if city_id > 0:
+
+				# *** Указан существующий город, работаем.
+                now: dtime.datetime = dtime.datetime.now()
+                date_str: str = ""
+                weather_str: str = ""
+				# *** Прогноз на завтра?
+				# if word_list[0] in ["прогноз", "пр", "forecast", "fr"]:
+                if word_list[0] in COMMANDS[FORECAST_GROUP]:
+
+					# *** Да, так и есть.
+                    tomorrow: dtime.datetime = now + dtime.timedelta(days=1)
+                    date_str = tomorrow.strftime(RUSSIAN_DATE_FORMAT)
+                    weather_str = await self.request_weather(city_id, tomorrow)
+
+				# elif word_list[0] in ["погода", "пг", "weather", "wt"]:
+                elif word_list[0] in COMMANDS[WEATHER_GROUP]:
+
+					# *** Нет, на сегодня. Еще не поздно?
+                    if now.hour < 21:
+
+						# *** Вполне еще можно
+                        date_str = now.strftime(RUSSIAN_DATE_FORMAT)
+                        weather_str = await self.request_weather(city_id, now)
+				# *** Если еще не поздно, то выдадим погоду, иначе дадим знать юзеру
+                if now.hour < 21:
+
+                    answer = f"{city_name} : {date_str} : {weather_str}"
+                else:
+
+                    answer = "Уже слишком поздно, метеоролог уснул..."
+            else:
+
+                answer = f"Нет данных о погоде для города {' '.join(word_list[1:]).strip()}"
         return answer
 
 
     def reload(self):
-
+        """"""
         pass
 
 
-    def request_weather(self, pcity_id, prequest_date: dtime.datetime, plang: str = "ru"):
+    async def request_weather(self, pcity_id, prequest_date: dtime.datetime, plang: str = "ru"):
         """Запрос погоды на завтра."""
+
+        assert pcity_id is not None, \
+            "Assert: [meteorolog.request_weather] " \
+            "Пропущен параметр <pcity_id> !"
+        assert prequest_date is not None, \
+            "Assert: [meteorolog.request_weather] " \
+            "Пропущен параметр <prequest_date> !"
 
         answer: str = ""
         try:
 
             # *** Запрашиваем информацию
-            data = requests.get(FORECAST_WEATHER_URL,
-                                params={'id': pcity_id, 'units': 'metric',
-                                        'lang': plang, 'APPID': self.config["api_key"]},
-                               timeout=READ_TIMEOUT).json()
+            data = await requests.get(FORECAST_WEATHER_URL,
+                                      params={'id': pcity_id, 'units': 'metric',
+                                              'lang': plang, 'APPID': self.config["api_key"]},
+                                      timeout=READ_TIMEOUT).json()
             answer = parse_weather(data, prequest_date.date())
         except requests.TooManyRedirects as ex:
 
