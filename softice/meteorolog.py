@@ -5,8 +5,7 @@
 import datetime as dtime
 import requests
 
-import functions as func
-import basis
+from softice import basis
 
 
 WEATHER_GROUP: int = 0
@@ -159,13 +158,13 @@ def parse_weather(pdata, preq_date) -> str:
         answer = answer + f" ветер: {round(min_wind_speed)} м/с"
     else:
 
-        answer = answer + f" ветер: {round(min_wind_speed)} м/с- {round(max_wind_speed)} м/c "
+        answer = answer + f" ветер: {round(min_wind_speed)} м/с - {round(max_wind_speed)} м/c "
     if min_wind_dir == max_wind_dir:
 
         answer = answer + f"{min_wind_dir}"
     else:
 
-        answer = answer + f"{min_wind_dir} - {max_wind_dir}"
+        answer = answer + f"{min_wind_dir}- {max_wind_dir}"
     ##(f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} "
     # f"- {round(max_wind_speed)} м/c {max_wind_dir}" ")
     for icon in weather:
@@ -203,13 +202,17 @@ class CMeteorolog(basis.CBasis):
 
         city_id: int = 0
         try:
+            
+            api_key: str = self.config.meteorolog["api_key"]
+            print(f"+++ Mtrl +++ gci +++ {api_key=}")
 
             res = await requests.get(FIND_CITY_URL,
                                      params={'q': pcity_name, 'type': 'like',
                                              'units': 'metric', 'lang': plang,
-                                             'APPID': self.config["api_key"]},
+                                             'APPID': api_key},
                                      timeout=READ_TIMEOUT)
             data = res.json()
+            print(f"+++ Mtrl +++ gci +++ {data=}")
             if 'list' in data:
 
                 if len(data['list']) > 0:

@@ -134,6 +134,8 @@ class Callbacks:
                 # General message listener
             # message = Message(self.client, self.store, self.config, msg, room, event)
             # await message.process()
+            # async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
+            local_name: str = get_display_name_in_room(self.client, room_id, event.sender)
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
             if has_command_prefix:
@@ -146,11 +148,11 @@ class Callbacks:
                     answer = self.send_hints(room.name)
                 if not answer:
                     # *** Болтуну есть что сказать?
-                    answer = await self.babbler.babbler(room.name, event.sender, message)
+                    answer = await self.babbler.babbler(room.name, local_name, message)
                 if not answer:
 
                     # *** Бармену есть что сказать?
-                    answer = await self.barman.barman(room.name, event.sender, message)
+                    answer = await self.barman.barman(room.name, local_name, message)
                 if not answer:
 
                     # *** Игруну есть что сказать?
@@ -158,16 +160,16 @@ class Callbacks:
                 if not answer:
 
                     # *** Хайдзину есть что сказать?
-                    answer = await self.haijin.haijin(room.name, event.sender, message)
+                    answer = await self.haijin.haijin(room.name, local_name, message)
                     # rint(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
                     # *** Библиотекарю есть что сказать?
-                    answer = await self.haijin.haijin(room.name, event.sender, message)
+                    answer = await self.haijin.haijin(room.name, local_name, message)
                 if not answer:
 
                     # *** Мажордому есть что сказать?
-                    answer = await self.librarian.librarian(room.name, event.sender, message)
+                    answer = await self.librarian.librarian(room.name, local_name, message)
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
@@ -176,7 +178,7 @@ class Callbacks:
 
                     # *** Менеджеру есть что сказать?
                     answer = await self.manager.manager(room.name, room.room_id,
-                                                        event.sender, message)
+                                                        local_name, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 
@@ -380,3 +382,30 @@ class Callbacks:
         logger.debug(
             f"Got unknown event with type to {event.type} from {event.sender} in {room.room_id}."
         ) # noqa
+        
+    async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
+        """Получить локальный displayname пользователя в комнате."""
+
+        try:
+        
+            # Запрашиваем power levels — но на самом деле нам нужен m.room.member
+            response = await client.joined_members(room_id)
+            if hasattr(response, "members"):
+
+                for member in response.members:
+
+                    if member.user_id == user_id:
+
+                        # Локальный displayname в комнате
+                        if member.display_name:
+
+                            return member.display_name
+                        else:
+                            # Если не задан — используем локальную часть MXID
+                            return user_id.split(":")[0][1:]  # убираем @
+            # Fallback: запросим профиль (глобальный)
+            profile = await client.get_profile(user_id)
+            return profile.display_name or user_id.split(":")[0][1:]
+        except Exception as e:
+            print(f"Ошибка получения displayname: {e}")
+            return user_id.split(":")[0][1:]        

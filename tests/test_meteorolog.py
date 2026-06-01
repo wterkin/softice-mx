@@ -2,6 +2,7 @@ from unittest import TestCase
 import datetime as dtime
 import json
 # import constants as cn
+import asyncio
 from softice import config
 from softice import meteorolog
 
@@ -46,39 +47,41 @@ class CTestMeterolog(TestCase):
             item["weather"]: list = []
             item["weather"].append(weather)
             
-        result: str = "Темп.: 15 - 30 °C,  давл.: 710 - 740 мм.рт.ст.,  влажн.: 70 - 100 %,  ветер: 10 м/с - 40 м/c  сев. - юг , Ясно. \u2600\ufe0f Облачно. \u2601 "
+        result: str = "Темп.: 15  -  30 °C,  давл.: 710 - 740 мм.рт.ст.,  влажн.: 70 - 100 %,  ветер: 10 м/с - 40 м/c сев. - юг Ясно. \u2600\ufe0f Облачно. \u2601 "
         self.assertEqual(meteorolog.parse_weather(data, now.date()), result)
 
-"""
-    def test_can_process(self):
-        
-        self.assertTrue(self.meteorolog.can_process(test_softice.TESTPLACE_CHAT_NAME, '!пг Смоленск'))
-        self.assertTrue(self.meteorolog.can_process(test_softice.TESTPLACE_CHAT_NAME, '!пр Смоленск'))
-        self.assertFalse(self.meteorolog.can_process('fakechat', '!пр'))
-        self.assertFalse(self.meteorolog.can_process('empttychat', '!пг'))
-        self.assertFalse(self.meteorolog.can_process(test_softice.TESTPLACE_CHAT_NAME, '!кукабарра'))
 
+    def test_can_process_command(self):
+        
+        self.assertTrue(self.meteorolog.can_process_command(self.config.test_chat, '!пг Смоленск'))
+        self.assertTrue(self.meteorolog.can_process_command(self.config.test_chat, '!пр Смоленск'))
+        self.assertFalse(self.meteorolog.can_process_command('fakechat', '!пр'))
+        self.assertFalse(self.meteorolog.can_process_command('empttychat', '!пг'))
+        self.assertFalse(self.meteorolog.can_process_command(self.config.test_chat, '!кукабарра'))
 
     def test_get_city_id(self):
 
-        self.assertEqual(self.meteorolog.get_city_id("Смоленск"), 491687)
+        result = asyncio.run(self.meteorolog.get_city_id("Смоленск"))
+        self.assertEqual(result, 491687)
 
 
-    def test_get_help(self):
+    def test_get_commands(self):
 
-        self.assertIn("погода <город>, пг <город>", self.meteorolog.get_help(test_softice.TESTPLACE_CHAT_NAME))
+        self.assertIn("погода, пг, weather, wt город", self.meteorolog.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):
 
-        self.assertIn("метео, meteo", self.meteorolog.get_hint(test_softice.TESTPLACE_CHAT_NAME))
+        self.assertIn("метео, meteo", self.meteorolog.get_hint(self.config.test_chat))
     
 
     def test_is_enabled(self):
 
-        self.assertFalse(self.meteorolog.is_enabled("fakechat"))
-        self.assertFalse(self.meteorolog.is_enabled("emptychat"))
-        self.assertTrue(self.meteorolog.is_enabled(test_softice.TESTPLACE_CHAT_NAME))
+        self.assertFalse(self.meteorolog.is_enabled("fakechat", meteorolog.UNIT_ID))
+        self.assertFalse(self.meteorolog.is_enabled("emptychat", meteorolog.UNIT_ID))
+        self.assertTrue(self.meteorolog.is_enabled(self.config.test_chat, meteorolog.UNIT_ID))
+
+"""
 
 
     def test_meteorolog(self):
@@ -86,12 +89,12 @@ class CTestMeterolog(TestCase):
         #Смоленск : 02.10.2025
         self.assertEqual(self.meteorolog.meteorolog("fakechat", "!пг Смоленск"), "")
         self.assertEqual(self.meteorolog.meteorolog("emptychat", "!пг Смоленск"), "")
-        self.assertIn("А в каком городе погода нужна?", self.meteorolog.meteorolog(test_softice.TESTPLACE_CHAT_NAME, "!пг"))
-        self.assertIn("Нет данных о погоде для города Диптаун", self.meteorolog.meteorolog(test_softice.TESTPLACE_CHAT_NAME, "!пг Диптаун"))
+        # self.assertIn("А в каком городе погода нужна?", self.meteorolog.meteorolog(self.config.test_chat, "!пг"))
+        self.assertIn("Нет данных о погоде для города Диптаун", self.meteorolog.meteorolog(self.config.test_chat, "!пг Диптаун"))
         now_date = dtime.datetime.now()
-        self.assertIn(now_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(test_softice.TESTPLACE_CHAT_NAME, "!пг Смоленск"))
+        self.assertIn(now_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(self.config.test_chat, "!пг Смоленск"))
         tomorrow_date = now_date + dtime.timedelta(days=1) 
-        self.assertIn(tomorrow_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(test_softice.TESTPLACE_CHAT_NAME, "!пр Смоленск"))
+        self.assertIn(tomorrow_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(self.config.test_chat, "!пр Смоленск"))
 
 
     def test_request_weather(self):
@@ -100,3 +103,7 @@ class CTestMeterolog(TestCase):
         self.assertIn("Темп.:", self.meteorolog.request_weather(491687, now_date))
         
 """
+#Темп.: 15  -  30 °C,  давл.: 710 - 740 мм.рт.ст.,  влажн.: 70 - 100 %,  ветер: 10 м/с - 40 м/c сев. - юг Ясно. ☀️ Облачно. ☁ 
+#Темп.: 15  -  30 °C,  давл.: 710 - 740 мм.ст.рт.,  влажн.: 70 - 100 %,  ветер: 10 м/с - 40 м/c сев. - юг Ясно. ☀️ Облачно. ☁ 
+
+

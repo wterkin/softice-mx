@@ -72,10 +72,13 @@ class CBasis(prototype.CPrototype):
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(pchat_title, punit_id):
 
+            # rint(f"+++ Bas +++ cpc +++ enabled")
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
             for command in pcommands:
 
+                # rint(f"+++ Bas +++ cpc +++ {command=}")
+                # rint(f"+++ Bas +++ cpc +++ {word_list[0]=}")
                 can_process = word_list[0] in command
                 if can_process:
 
@@ -250,12 +253,14 @@ class CBasis(prototype.CPrototype):
         assert pmessage_text is not None, \
             "Assert: [CBasis.parse_input] Пропущен параметр <pmessage_text> !"
 
-        print(f"+++ Bas +++ 0 +++ {pmessage_text=}")
-        print(f"+++ Bas +++ 1 +++ {pmessage_text[1:]=}")
-        print(f"+++ Bas +++ 2 +++ {pmessage_text[1:].strip()=}")
-        print(f"+++ Bas +++ 3 +++ {pmessage_text[1:].strip().split(' ')=}")
+        # rint(f"+++ Bas +++ 0 +++ {pmessage_text=}")
+        # rint(f"+++ Bas +++ 1 +++ {pmessage_text[1:]=}")
+        # rint(f"+++ Bas +++ 2 +++ {pmessage_text[1:].strip()=}")
+        # rint(f"+++ Bas +++ 3 +++ {pmessage_text[1:].strip().split(' ')=}")
         return pmessage_text[1:].strip().split(" ")
 
 
     async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
+
+
