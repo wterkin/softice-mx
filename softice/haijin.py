@@ -128,25 +128,25 @@ class CHaijin(basis.CBasis):
 
         answer: str = ""
         unformatted_answer: str = ""
-        print(f"+++ Hjn +++ 0 +++ {pmessage_text=}")
+        # rint(f"+++ Hjn +++ 0 +++ {pmessage_text=}")
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
-        print(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
-        print(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
+        # rint(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
+        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
 
-            print(f"+++ Hjn +++ 3 +++ Process!")
+            # rint(f"+++ Hjn +++ 3 +++ Process!")
             command: int = self.identify_command(word_list[0], COMMANDS)
-            print(f"+++ Hjn +++ 3 +++ {command=}")
+            # rint(f"+++ Hjn +++ 3 +++ {command=}")
    
             # *** Возможно, запросили перезагрузку.
             if command == RELOAD_COMMANDS:
 
-                print(f"+++ Hjn +++ 5 +++ Reload")
+                # rint(f"+++ Hjn +++ 5 +++ Reload")
                 # *** Пользователь хочет перезагрузить книгу хокку
                 if self.is_master(puser_name):
 
-                    print(f"+++ Hjn +++ 6 +++ Master!")
+                    # rint(f"+++ Hjn +++ 6 +++ Master!")
                     await self.reload()
                     answer = "Книга загружена"
             elif command == SAVE_COMMANDS:
