@@ -215,21 +215,6 @@ class CMeteorolog(basis.CBasis):
                 
                 api_key: str = self.config.meteorolog["api_key"]
                 # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
-                """
-                res = await requests.get(FIND_CITY_URL,
-                                         params={'q': pcity_name, 'type': 'like',
-                                                 'units': 'metric', 'lang': plang,
-                                                 'APPID': api_key},
-                                         timeout=READ_TIMEOUT)
-                data = res.json()
-                print(f"+++ Mtrl +++ gci +++ {data=}")
-                if 'list' in data:
-
-                    if len(data['list']) > 0:
-
-                        city_id = data['list'][0]['id']
-                        self.cities_id[pcity_name] = city_id
-                """
                 async with aiohttp.ClientSession() as session:
                 
                     async with session.get(
@@ -370,6 +355,7 @@ class CMeteorolog(basis.CBasis):
             "Пропущен параметр <prequest_date> !"
 
         answer: str = ""
+        """
         try:
 
             # *** Запрашиваем информацию
@@ -390,4 +376,26 @@ class CMeteorolog(basis.CBasis):
         except requests.ConnectionError as ex:
 
             print("Exception (find):", ex)
+        """    
+        async with aiohttp.ClientSession() as session:
+
+            async with session.get(
+                FORECAST_WEATHER_URL,
+                params={
+                    'id': pcity_id,  # Используем ID вместо имени!
+                    'appid': self.config.meteorolog["api_key"],
+                    'units': 'metric',
+                    'lang': plang
+                },
+                timeout=READ_TIMEOUT
+            ) as res:
+            
+                res.raise_for_status()
+                data = await res.json()
+                print(f"+++ Mtrl +++ reqw +++ {data=}")
+                answer = parse_weather(data, prequest_date.date())
+                #temp = data["main"]["temp"]
+                #description = data["weather"][0]["description"]
+            
+            #return f"Температура: {temp}°C, {description}"        
         return answer
