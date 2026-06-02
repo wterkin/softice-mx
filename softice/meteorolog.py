@@ -4,6 +4,8 @@
 
 import datetime as dtime
 import requests
+import asyncio
+import aiohttp
 
 from softice import basis
 
@@ -178,6 +180,7 @@ class CMeteorolog(basis.CBasis):
 
     def __init__(self, pconfig):
         super().__init__(pconfig)
+        self.cities_id: dict = {}
         print("Метеоролог стартовал.")
 
     def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
@@ -201,36 +204,66 @@ class CMeteorolog(basis.CBasis):
             "Пропущен параметр <pcity_name> !"
 
         city_id: int = 0
-        try:
-            
-            api_key: str = self.config.meteorolog["api_key"]
-            print(f"+++ Mtrl +++ gci +++ {api_key=}")
+        # *** Если у нас есть уже ID этого города...
+        if pcity_name in self.cities_id:
+           
+            # *** .. берём его из словаря
+            city_id = self.pcities_id[pcity_name]
+        else:    
+        
+            try:
+                
+                api_key: str = self.config.meteorolog["api_key"]
+                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
+                """
+                res = await requests.get(FIND_CITY_URL,
+                                         params={'q': pcity_name, 'type': 'like',
+                                                 'units': 'metric', 'lang': plang,
+                                                 'APPID': api_key},
+                                         timeout=READ_TIMEOUT)
+                data = res.json()
+                print(f"+++ Mtrl +++ gci +++ {data=}")
+                if 'list' in data:
 
-            res = await requests.get(FIND_CITY_URL,
-                                     params={'q': pcity_name, 'type': 'like',
-                                             'units': 'metric', 'lang': plang,
-                                             'APPID': api_key},
-                                     timeout=READ_TIMEOUT)
-            data = res.json()
-            print(f"+++ Mtrl +++ gci +++ {data=}")
-            if 'list' in data:
+                    if len(data['list']) > 0:
 
-                if len(data['list']) > 0:
+                        city_id = data['list'][0]['id']
+                        self.cities_id[pcity_name] = city_id
+                """
+                async with aiohttp.ClientSession() as session:
+                
+                    async with session.get(
+                        FIND_CITY_URL,
+                        params={
+                            'q': pcity_name, 
+                            'limit': 1, 
+                            'lang': plang,
+                            'APPID': api_key
+                        },
+                        timeout=READ_TIMEOUT
+                    ) as res:
+                    
+                        res.raise_for_status()  
+                        data = await res.json() 
+                # rint(f"+++ Mtrl +++ gci +++ {data=}")
+                if data:
 
-                    city_id = data['list'][0]['id']
-        except requests.TooManyRedirects as ex:
+                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
+                    if "list" in data:
+    
+                        key_list: list = data["list"]
+                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
+                        if "id" in key_list[0]:
+                            
+                            city_id = key_list[0]["id"]
+                            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
+                        
+                    # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
+                                           
+            except asyncio.exceptions.TimeoutError as ex:
 
-            print("Exception (find):", ex)
-        except requests.Timeout as ex:
-
-            print("Exception (find):", ex)
-        except requests.HTTPError as ex:
-
-            print("Exception (find):", ex)
-        except requests.ConnectionError as ex:
-
-            print("Exception (find):", ex)
-        assert isinstance(city_id, int)
+                print("Exception (find):", ex)
+            assert isinstance(city_id, int)
         return city_id
 
 
