@@ -81,21 +81,21 @@ class CTestMeterolog(TestCase):
         self.assertFalse(self.meteorolog.is_enabled("emptychat", meteorolog.UNIT_ID))
         self.assertTrue(self.meteorolog.is_enabled(self.config.test_chat, meteorolog.UNIT_ID))
 
-    """
+    def test_meteorolog(self):
 
-
-        def test_meteorolog(self):
-
-            #Смоленск : 02.10.2025
-            self.assertEqual(self.meteorolog.meteorolog("fakechat", "!пг Смоленск"), "")
-            self.assertEqual(self.meteorolog.meteorolog("emptychat", "!пг Смоленск"), "")
-            # self.assertIn("А в каком городе погода нужна?", self.meteorolog.meteorolog(self.config.test_chat, "!пг"))
-            self.assertIn("Нет данных о погоде для города Диптаун", self.meteorolog.meteorolog(self.config.test_chat, "!пг Диптаун"))
-            now_date = dtime.datetime.now()
-            self.assertIn(now_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(self.config.test_chat, "!пг Смоленск"))
-            tomorrow_date = now_date + dtime.timedelta(days=1) 
-            self.assertIn(tomorrow_date.strftime("Смоленск : %d.%m.%Y"), self.meteorolog.meteorolog(self.config.test_chat, "!пр Смоленск"))
-    """
+        #Смоленск : 02.10.2025
+        result = asyncio.run(self.meteorolog.meteorolog("fakechat", "!пг Смоленск"))
+        self.assertEqual(result, "")
+        result = asyncio.run(self.meteorolog.meteorolog("emptychat", "!пг Смоленск"))
+        self.assertEqual(result, "")
+        result = asyncio.run(self.meteorolog.meteorolog(self.config.test_chat, "!пг Диптаун"))
+        self.assertIn("Нет данных о погоде для города Диптаун", result)
+        now_date = dtime.datetime.now()
+        result = asyncio.run(self.meteorolog.meteorolog(self.config.test_chat, "!пг Смоленск"))
+        self.assertIn(now_date.strftime("Смоленск : %d.%m.%Y"), result)
+        tomorrow_date = now_date + dtime.timedelta(days=1) 
+        result = asyncio.run(self.meteorolog.meteorolog(self.config.test_chat, "!пр Смоленск"))
+        self.assertIn(tomorrow_date.strftime("Смоленск : %d.%m.%Y"), result)
 
 
     def test_request_weather(self):

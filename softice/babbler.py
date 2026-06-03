@@ -250,11 +250,11 @@ with Image.open(image_path) as img:
 
 # Отправь сообщение типа "m.image"
 content = {
+        "mimetype": mime_type,
     "body": image_path.name,          # имя файла (подпись)
     "msgtype": "m.image",
     "url": mxc_url,
     "info": {
-        "mimetype": mime_type,
         "size": len(image_data),
         "w": width,
         "h": height,
@@ -271,5 +271,4 @@ if isinstance(resp, RoomSendResponse):
     print("Изображение отправлено!")
 else:
     print("Ошибка отправки:", resp)    
-"""        
-        
+"""

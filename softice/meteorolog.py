@@ -3,7 +3,6 @@
 """Погодный модуль для бота."""
 
 import datetime as dtime
-import requests
 import asyncio
 import aiohttp
 
@@ -22,7 +21,7 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[WEATHER_GROUP])} город - "
                          " получить прогноз погоды по указанному городу на завтра"))
 
 UNIT_ID: str = "meteorolog"
-READ_TIMEOUT = 1
+READ_TIMEOUT = 5 # 1
 
 FIND_CITY_URL: str = 'http://api.openweathermap.org/data/2.5/find'
 FORECAST_WEATHER_URL: str = 'http://api.openweathermap.org/data/2.5/forecast'
@@ -146,7 +145,8 @@ def parse_weather(pdata, preq_date) -> str:
         answer = answer + f" давл.: {round(min_pressure * 0.75)} мм.рт.ст., "
     else:
 
-        answer = answer + f" давл.: {round(min_pressure * 0.75)} - {round(max_pressure * 0.75)} мм.рт.ст., "
+        answer = answer + (f" давл.: {round(min_pressure * 0.75)} - "
+                           f"{round(max_pressure * 0.75)} мм.рт.ст., ")
     if min_humidity == max_humidity:
 
         answer = answer + f" влажн.: {round(min_humidity)} %, "
@@ -167,8 +167,6 @@ def parse_weather(pdata, preq_date) -> str:
     else:
 
         answer = answer + f"{min_wind_dir}- {max_wind_dir}"
-    ##(f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} "
-    # f"- {round(max_wind_speed)} м/c {max_wind_dir}" ")
     for icon in weather:
 
         answer += ICON_CONVERT[icon] + " "
@@ -206,17 +204,17 @@ class CMeteorolog(basis.CBasis):
         city_id: int = 0
         # *** Если у нас есть уже ID этого города...
         if pcity_name in self.cities_id:
-           
+
             # *** .. берём его из словаря
-            city_id = self.pcities_id[pcity_name]
-        else:    
-        
+            city_id = self.cities_id[pcity_name]
+        else:
+
             try:
-                
+
                 api_key: str = self.config.meteorolog["api_key"]
-                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
+                print(f"+++ Mtrl +++ gci +++ {api_key=}")
                 async with aiohttp.ClientSession() as session:
-                
+
                     async with session.get(
                         FIND_CITY_URL,
                         params={
@@ -227,24 +225,25 @@ class CMeteorolog(basis.CBasis):
                         },
                         timeout=READ_TIMEOUT
                     ) as res:
-                    
-                        res.raise_for_status()  
-                        data = await res.json() 
-                # rint(f"+++ Mtrl +++ gci +++ {data=}")
+
+                        res.raise_for_status()
+                        data = await res.json()
+                print(f"+++ Mtrl +++ gci +++ {data=}")
                 if data:
 
-                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
+                    print(f"+++ Mtrl +++ gci +++ {data=}")
                     if "list" in data:
-    
+
                         key_list: list = data["list"]
-                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
-                        if "id" in key_list[0]:
-                            
+                        print(f"+++ Mtrl +++ gci +++ {key_list=}")
+                        dictionary: dict = key_list[0]
+                        if "id" in dictionary:
+
                             city_id = key_list[0]["id"]
-                            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
-                        
-                    # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
-                                           
+                            print(f"+++ Mtrl +++ gci +++ {city_id=}")
+
+                    print(f"+++ Mtrl +++ gci +++ {city_id=}")
+
             except asyncio.exceptions.TimeoutError as ex:
 
                 print("Exception (find):", ex)
@@ -266,7 +265,7 @@ class CMeteorolog(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
-            "Assert: [haijin.get_hint] " \
+            "Assert: [meteorolog.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
@@ -284,12 +283,12 @@ class CMeteorolog(basis.CBasis):
 
 
         answer: str = ""
-        word_list: list = func.parse_input(pmessage_text)
+        word_list: list = self.parse_input(pmessage_text)
         # *** Метеоролог может обработать эту команду?
         if self.can_process_command(pchat_title, pmessage_text):
 
             # *** Запросили помощь?
-            if word_list[0] in HINT:
+            if word_list[0] in COMMANDS[HINT_GROUP]:
 
                 answer = self.get_commands(pchat_title)
                 return answer
@@ -339,11 +338,6 @@ class CMeteorolog(basis.CBasis):
         return answer
 
 
-    def reload(self):
-        """"""
-        pass
-
-
     async def request_weather(self, pcity_id, prequest_date: dtime.datetime, plang: str = "ru"):
         """Запрос погоды на завтра."""
 
@@ -355,28 +349,6 @@ class CMeteorolog(basis.CBasis):
             "Пропущен параметр <prequest_date> !"
 
         answer: str = ""
-        """
-        try:
-
-            # *** Запрашиваем информацию
-            data = await requests.get(FORECAST_WEATHER_URL,
-                                      params={'id': pcity_id, 'units': 'metric',
-                                              'lang': plang, 'APPID': self.config["api_key"]},
-                                      timeout=READ_TIMEOUT).json()
-            answer = parse_weather(data, prequest_date.date())
-        except requests.TooManyRedirects as ex:
-
-            print("Exception (find):", ex)
-        except requests.Timeout as ex:
-
-            print("Exception (find):", ex)
-        except requests.HTTPError as ex:
-
-            print("Exception (find):", ex)
-        except requests.ConnectionError as ex:
-
-            print("Exception (find):", ex)
-        """    
         async with aiohttp.ClientSession() as session:
 
             async with session.get(
@@ -389,13 +361,13 @@ class CMeteorolog(basis.CBasis):
                 },
                 timeout=READ_TIMEOUT
             ) as res:
-            
+
                 res.raise_for_status()
                 data = await res.json()
                 print(f"+++ Mtrl +++ reqw +++ {data=}")
                 answer = parse_weather(data, prequest_date.date())
                 #temp = data["main"]["temp"]
                 #description = data["weather"][0]["description"]
-            
-            #return f"Температура: {temp}°C, {description}"        
+
+            #return f"Температура: {temp}°C, {description}"
         return answer

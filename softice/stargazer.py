@@ -4,15 +4,15 @@
 
 from datetime import date, timedelta, datetime
 import locale
-import subprocess as sub
+# import subprocess as sub
 from softice import basis
 
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
 NEW_STYLE_OFFSET: int = 13
-EASTER_CMD_GROUP: int = 0
-DATE_CMD_GROUP: int = 1
-DAY_CMD_GROUP: int = 2
+EASTER_GROUP: int = 0
+DATE_GROUP: int = 1
+DAY_GROUP: int = 2
 NEW_YEAR_GROUP: int = 3
 HINT_GROUP: int = 4
 
@@ -20,7 +20,7 @@ COMMANDS: tuple = (("пасха", "easter"),
                    ("дата", "date"),
                    ("день", "day"),
                    ("новыйгод", "newyear", "нг", "ny"),
-                   ("календарь", "кл", "calendar", "cl") 
+                   ("календарь", "кл", "calendar", "cl")
                   )
 
 
@@ -41,6 +41,10 @@ ITALIC: str = "_"
 
 def calculate_easter(pyear):
     """Вычисляет дату пасхи на заданный год."""
+
+    assert pyear is not None, \
+        "Assert: [stargazer:calculate_easter] " \
+        "Пропущен параметр <pyear> !"
 
     first_value: int = (19 * (pyear % 19) + 15) % 30
     second_value: int = (2 * (pyear % 4) + 4 * (pyear % 7) + 6 * first_value + 6) % 7
@@ -71,22 +75,24 @@ class CStarGazer(basis.CBasis):
     """Класс модуля звездочёта."""
 
 
-    def __init__(self, pconfig, pdata_path):
+    def __init__(self, pconfig):
 
-        super().__init__()
-        self.config = pconfig
-        self.data_path = pdata_path + STARGAZER_FOLDER
+        super().__init__(pconfig)
+        self.data_path: str = self.config.data_folder + STARGAZER_FOLDER
 
 
     def additional_info(self, pnow_date):
         """Возвращает дополнительные сведения об указанном дне."""
 
+        assert pnow_date is not None, \
+            "Assert: [stargazer.additional_info] " \
+            "Пропущен параметр <pnow_date> !"
+
         # pnow_date = date(pnow_date.year, 6, 9)  # закоментить!!!
         easter_date: date = calculate_easter(pnow_date.year).date()
-        # print("!!!", pnow_date - easter_date)
+        # rint(f"+++ Strg +++ ai +++ {key_list=}")
         peter_paul_date: date = date(pnow_date.year, 7, 12)
         answer: str = ""
-        # print(easter_date)
         if easter_date > pnow_date:
 
             if pnow_date < datetime(pnow_date.year, 1, 7).date():
@@ -95,7 +101,8 @@ class CStarGazer(basis.CBasis):
             elif pnow_date == datetime(pnow_date.year, 1, 7).date():
 
                 answer = "Рождество."
-            elif datetime(pnow_date.year, 1, 7).date() < pnow_date < datetime(pnow_date.year, 1, 18).date():
+            elif datetime(pnow_date.year, 1, 7).date() < pnow_date < \
+                 datetime(pnow_date.year, 1, 18).date():
 
                 answer = "Святки."
             elif timedelta(days=56) <= (easter_date - pnow_date) <= timedelta(days=62):
@@ -120,73 +127,45 @@ class CStarGazer(basis.CBasis):
         elif pnow_date < peter_paul_date and (pnow_date - easter_date) > timedelta(days=56):
 
             answer = "Петров пост."
-        elif datetime(pnow_date.year, 8, 14).date() < pnow_date < datetime(pnow_date.year, 8, 28).date():
+        elif datetime(pnow_date.year, 8, 14).date() < pnow_date < \
+             datetime(pnow_date.year, 8, 28).date():
 
             answer = "Успенский пост."
         return answer
 
 
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        """Возвращает True, если модуль может обработать команду."""
-        assert pchat_title is not None, \
-            "Assert: [stargazer.can_process] " \
-            "No <pchat_title> parameter specified!"
-        assert pmessage_text is not None, \
-            "Assert: [stargazer.can_process] " \
-            "No <pmessage_text> parameter specified!"
-        found: bool = False
-        if self.is_enabled(pchat_title):
-
-            word_list: list = func.parse_input(pmessage_text)
-            for command in COMMANDS:
-
-                found = word_list[0] in command
-                if not found:
-
-                    found = word_list[0] in HINTS
-                else:
-
-                    break
-
-        return found
-
-
-    def get_help(self, pchat_title: str) -> str:
-        """Возвращает список команд модуля, доступных пользователю."""
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert pchat_title is not None, \
-            "Assert: [stargazer.get_help] " \
-            "No <pchat_title> parameter specified!"
-        command_list: str = ""
-        if self.is_enabled(pchat_title):
-
-            for command in COMMANDS:
-              
-                command_list += ", ".join(command) + "\n"
-        return command_list
+            "Assert: [stargazer.can_process_command] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+            "Assert: [stargazer.can_process_command] " \
+            "Пропущен параметр <pmessage> !"
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_hint(self, pchat_title: str) -> str:
-        """Возвращает команду верхнего уровня, в ответ на которую
-           модуль возвращает полный список команд, доступных пользователю."""
+    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+        """Пользователь запросил список команд."""
+
+        assert pchat_title is not None, \
+            "Assert: [stargazer.get_commands] " \
+            "Пропущен параметр <pchat_title> !"
+
+        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+
+
+    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+        """Возвращает список команд, поддерживаемых модулем.  """
+
         assert pchat_title is not None, \
             "Assert: [stargazer.get_hint] " \
-            "No <pchat_title> parameter specified!"
-        if self.is_enabled(pchat_title):
-            return ", ".join(HINTS)
-        return ""
+            "Пропущен параметр <pchat_title> !"
 
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
-    def is_enabled(self, pchat_title: str) -> bool:
-        """Возвращает True, если на этом канале этот модуль разрешен."""
-        assert pchat_title is not None, \
-            "Assert: [stargazer.is_enabled] " \
-            "No <pchat_title> parameter specified!"
-
-        if pchat_title in self.config["chats"]:
-
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False    
 
     """
     def print_month(self):
@@ -223,31 +202,32 @@ class CStarGazer(basis.CBasis):
                     lines[lindex+1] = " ".join(days)
         return "\n".join(lines)
     """
-        
+
     def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
 
 
     def stargazer(self, pchat_title: str, pmessage_text: str) -> str:
         """Обработчик команд звездочёта."""
+
         assert pchat_title is not None, \
             "Assert: [stargazer.stargazer] No <pchat_title> parameter specified!"
         assert pmessage_text is not None, \
             "Assert: [stargazer.stargazer] No <pmessage_text> parameter specified!"
 
         answer: str = ""
-        word_list: list = func.parse_input(pmessage_text)
+        word_list: list = self.parse_input(pmessage_text)
         year: int
         now_date: date = date.today()
         today: str
-        if self.can_process(pchat_title, pmessage_text):
+        if self.can_process_command(pchat_title, pmessage_text):
 
             # *** Возможно, запросили меню.
-            if word_list[0] in HINTS:
+            if word_list[0] in COMMANDS[HINT_GROUP]:
 
-                answer = self.get_help(pchat_title)
+                answer = self.get_commands(pchat_title)
             # *** Запросили Пасху?
-            elif word_list[0] in COMMANDS[EASTER_CMD_GROUP]:
+            elif word_list[0] in COMMANDS[EASTER_GROUP]:
 
                 if len(word_list) > 1:
 
@@ -266,25 +246,23 @@ class CStarGazer(basis.CBasis):
                 else:
 
                     answer = "Невозможно рассчитать Пасху на заданную дату."
-
             # *** Запросили гражданские праздники
-            elif word_list[0] in COMMANDS[DATE_CMD_GROUP]:
+            elif word_list[0] in COMMANDS[DATE_GROUP]:
 
                 today = f"{now_date.day:02}/{now_date.month:02}"
                 answer = self.search_in_calendar(CIVILIAN_CALENDAR, today)
             # *** Запросили церковные праздники
-            elif word_list[0] in COMMANDS[DAY_CMD_GROUP]:
+            elif word_list[0] in COMMANDS[DAY_GROUP]:
 
                 today = f"{now_date.day:02}/{now_date.month:02}"
                 jul_greg_delta = timedelta(days=JUL_GREG_CALENDAR_DIFF)
                 jul_now_date: date = now_date - jul_greg_delta
                 answer = "Сегодня " + now_date.strftime("%d %B %Y") + \
                          " г., по старому стилю " + jul_now_date.strftime("%d %B %Y") + " г. "
-
                 answer += self.search_in_calendar(CHURCH_CALENDAR, today)
                 answer += " " + self.additional_info(now_date)
-            elif word_list[0] in COMMANDS[NEW_YEAR_GROUP] or \
-                 word_list[0] in COMMANDS[NEW_YEAR_SHORTS_GROUP]:
+            elif word_list[0] in COMMANDS[NEW_YEAR_GROUP]:
+
                 today: date = date.today()
                 newyear: date = date(today.year, 12, 31)
                 delta: timedelta = newyear - today
@@ -293,16 +271,16 @@ class CStarGazer(basis.CBasis):
             # elif word_list[0] in COMMANDS[MONTH_GROUP] or \
             #    word_list[0] in COMMANDS[MONTH_SHORTS_GROUP]:
 
-            #    answer = self.print_month() 
+            #    answer = self.print_month()
         if answer:
 
-            print(f"Stargazer answers: {answer[:func.OUT_MSG_LOG_LEN]}")
+            print(f"Stargazer answers: {answer[:basis.OUT_MSG_LOG_LEN]}")
         return answer.strip()
 
 
     def search_in_calendar(self, pcalendar: str, ptoday: str):
         """Ищет заданную дату в заданном календаре."""
-        calendar: list = func.load_from_file(self.data_path + pcalendar)
+        calendar: list = self.load_from_file(self.data_path + pcalendar)
         now_date: date = date.today()
         answer: str = ""
         for item in calendar:

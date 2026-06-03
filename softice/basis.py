@@ -262,5 +262,3 @@ class CBasis(prototype.CPrototype):
 
     async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
-
-
