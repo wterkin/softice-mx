@@ -20,9 +20,12 @@ echo %%%%%%%%%%%%%%%%%%%%%% Haijin %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.
 echo %%%%%%%%%%%%%%%%%%%%%% Librarian %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Librarian %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_librarian.py" -vv  >> unittest.log 2>> unittest2.log
-echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
-echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
+echo %%%%%%%%%%%%%%%%%%%%%% Majordomo %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
+echo %%%%%%%%%%%%%%%%%%%%%% Majordomo %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_majordomo.py" -vv  >> unittest.log 2>> unittest2.log
+echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
+echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
+/home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_stargazer.py" -vv  >> unittest.log 2>> unittest2.log
 echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 # pluma unittest2.log &
