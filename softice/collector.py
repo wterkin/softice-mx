@@ -7,7 +7,6 @@ from random import randint
 
 from softice import basis
 
-
 UNIT_ID = "collector"
 WORK_HOURS: tuple = (12, 13, 14, 15, 16, 17, 18)
 PROBABILITY: int = 16

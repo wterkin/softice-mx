@@ -5,6 +5,8 @@
 import random
 from softice import basis
 
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 
 UNIT_ID: str = "gambler"
 HINT: tuple = ("игры", "games")

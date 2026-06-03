@@ -5,6 +5,8 @@
 from softice import librarian
 from softice import basis
 
+# pylint: disable=too-many-branches
+
 HAIJIN_FOLDER: str = "haijin/"
 HAIJIN_FILE_NAME: str = "hokku.txt"
 

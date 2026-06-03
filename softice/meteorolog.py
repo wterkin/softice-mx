@@ -4,9 +4,16 @@
 
 import datetime as dtime
 import asyncio
+# pylint: disable=import-error
 import aiohttp
+# pylint: enable=import-error
 
 from softice import basis
+
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-nested-blocks
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-locals
 
 
 WEATHER_GROUP: int = 0

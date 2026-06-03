@@ -2,9 +2,18 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Игровой модуль."""
 import asyncio
+
+# pylint: disable=import-error
 from nio import AsyncClient
+# pylint: enable=import-error
+
 from softice import basis
 from softice.chat_functions import send_text_to_room
+
+
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-nested-blocks
+
 
 UNIT_ID: str = "manager"
 HINT: tuple = ("управл", "control")

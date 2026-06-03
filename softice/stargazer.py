@@ -7,6 +7,8 @@ import locale
 # import subprocess as sub
 from softice import basis
 
+# pylint: disable=too-many-branches
+
 locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 
 NEW_STYLE_OFFSET: int = 13
@@ -23,6 +25,15 @@ COMMANDS: tuple = (("пасха", "easter"),
                    ("календарь", "кл", "calendar", "cl")
                   )
 
+DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[EASTER_GROUP])} [год] - "
+                         "получить дату Пасхи в указанном году"),
+                       (f"{', '.join(COMMANDS[DATE_GROUP])} -"
+                         " получить гражданские праздники на текущую дату"),
+                       (f"{', '.join(COMMANDS[DAY_GROUP])} -"
+                         " получить церковные праздники на текущую дату"),
+                       (f"{', '.join(COMMANDS[NEW_YEAR_GROUP])} -"
+                         " получить количество оставшихся дней до Нового года")
+                      )
 
 # HINTS: tuple = ("календарь", "кл", "calendar", "cl")
 UNIT_ID = "stargazer"
@@ -166,7 +177,7 @@ class CStarGazer(basis.CBasis):
 
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
-
+    # pylint: disable=pointless-string-statement
     """
     def print_month(self):
         ""Выводит календарь на текущий месяц, используя команду cal линукса.""
@@ -203,11 +214,8 @@ class CStarGazer(basis.CBasis):
         return "\n".join(lines)
     """
 
-    def reload(self):
-        """Вызывает перезагрузку внешних данных модуля."""
 
-
-    def stargazer(self, pchat_title: str, pmessage_text: str) -> str:
+    async def stargazer(self, pchat_title: str, pmessage_text: str) -> str:
         """Обработчик команд звездочёта."""
 
         assert pchat_title is not None, \
@@ -250,7 +258,7 @@ class CStarGazer(basis.CBasis):
             elif word_list[0] in COMMANDS[DATE_GROUP]:
 
                 today = f"{now_date.day:02}/{now_date.month:02}"
-                answer = self.search_in_calendar(CIVILIAN_CALENDAR, today)
+                answer = await self.search_in_calendar(CIVILIAN_CALENDAR, today)
             # *** Запросили церковные праздники
             elif word_list[0] in COMMANDS[DAY_GROUP]:
 
@@ -259,7 +267,7 @@ class CStarGazer(basis.CBasis):
                 jul_now_date: date = now_date - jul_greg_delta
                 answer = "Сегодня " + now_date.strftime("%d %B %Y") + \
                          " г., по старому стилю " + jul_now_date.strftime("%d %B %Y") + " г. "
-                answer += self.search_in_calendar(CHURCH_CALENDAR, today)
+                answer += await self.search_in_calendar(CHURCH_CALENDAR, today)
                 answer += " " + self.additional_info(now_date)
             elif word_list[0] in COMMANDS[NEW_YEAR_GROUP]:
 
@@ -278,9 +286,9 @@ class CStarGazer(basis.CBasis):
         return answer.strip()
 
 
-    def search_in_calendar(self, pcalendar: str, ptoday: str):
+    async def search_in_calendar(self, pcalendar: str, ptoday: str):
         """Ищет заданную дату в заданном календаре."""
-        calendar: list = self.load_from_file(self.data_path + pcalendar)
+        calendar: list = await self.load_from_file_async(self.data_path + pcalendar)
         now_date: date = date.today()
         answer: str = ""
         for item in calendar:
