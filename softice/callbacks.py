@@ -138,12 +138,12 @@ class Callbacks:
             # await message.process()
             # async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
             local_name: str = await self.get_display_name_in_room(room.room_id, event.sender)
-            print(f"***** {local_name=}")
+            # rint(f"***** {local_name=}")
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
-                # print(f":::: 1 {message}")
+                # rint(f":::: 1 {message}")
                 # *** Может, запросили помощь?
                 if "!help" in message:
 
@@ -213,16 +213,16 @@ class Callbacks:
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,
         # treat it as a command
-        # print(f"*** {self.command_prefix=}")
+        # rint(f"*** {self.command_prefix=}")
 
         #if has_command_prefix:
         #    Remove the command prefix
-        #    print("Таки это команда!")
+        #    rint("Таки это команда!")
         #    msg = msg[len(self.command_prefix) :]
 
-        # print(f"*** {msg=}")
-        # print(f"*** {room=}")
-        # print(f"*** {event=}")
+        # rint(f"*** {msg=}")
+        # rint(f"*** {room=}")
+        # rint(f"*** {event=}")
         # command = Command(self.client, self.store, self.config, msg, room, event)
         # await command.process()
 
