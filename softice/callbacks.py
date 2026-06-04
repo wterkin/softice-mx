@@ -30,6 +30,7 @@ from softice.haijin import CHaijin
 from softice.librarian import CLibrarian
 from softice.majordomo import CMajordomo
 from softice.manager import CManager
+from softice.meteorolog import CMeteorolog
 from softice.stargazer import CStarGazer
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,7 @@ class Callbacks:
         self.librarian: CLibrarian = CLibrarian(self.config)
         self.majordomo: CMajordomo = CMajordomo(self.config)
         self.manager: CManager = CManager(self.config, self.client)
+        self.meteorolog: CMeteorolog = CMeteorolog(self.config)
         self.stargazer: CStarGazer = CStarGazer(self.config)
         self.first_run: bool = True
 
@@ -182,6 +184,10 @@ class Callbacks:
                                                         event.sender, message)
                 if not answer:
 
+                    # *** Метеорологу есть что сказать?
+                    answer = await self.meteorolog.meteorolog(room.name, message)
+                if not answer:
+
                     # *** Звездочёту есть что сказать?
                     answer = await self.stargazer.stargazer(room.name, message)
                 # *** Коллектор вызывается последним.
@@ -274,6 +280,10 @@ class Callbacks:
 
             answer += result + "\n"
         result = self.majordomo.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.meteorolog.get_hint(pchat_title)
         if result:
 
             answer += result + "\n"

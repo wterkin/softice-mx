@@ -53,6 +53,7 @@ ICON_CONVERT: dict = {"01d": "Ясно. ☀️",
 RUSSIAN_DATE_FORMAT: str = "%d.%m.%Y"
 STEP: int = 45
 DIRECTIONS: list = ['сев. ', 'св', ' вост.', 'юв', 'юг ', 'юз', ' зап.', 'сз']
+PRESSURE_COEFF: float = 1.02972973
 
 
 
@@ -149,11 +150,11 @@ def parse_weather(pdata, preq_date) -> str:
         answer = f"Темп.: {round(min_temperature)}  -  {round(max_temperature)} °C, "
     if min_pressure == max_pressure:
 
-        answer = answer + f" давл.: {round(min_pressure * 0.75)} мм.рт.ст., "
+        answer = answer + f" давл.: {round((min_pressure * 0.75) / PRESSURE_COEFF)} мм.рт.ст., "
     else:
 
-        answer = answer + (f" давл.: {round(min_pressure * 0.75)} - "
-                           f"{round(max_pressure * 0.75)} мм.рт.ст., ")
+        answer = answer + (f" давл.: {round((min_pressure * 0.75) / PRESSURE_COEFF)} - "
+                           f"{round((max_pressure * 0.75) / PRESSURE_COEFF)} мм.рт.ст., ")
     if min_humidity == max_humidity:
 
         answer = answer + f" влажн.: {round(min_humidity)} %, "
@@ -162,18 +163,20 @@ def parse_weather(pdata, preq_date) -> str:
         answer = answer + f" влажн.: {round(min_humidity)} - {round(max_humidity)} %, "
     min_wind_dir: str = get_wind_direction(min_wind_angle)
     max_wind_dir: str = get_wind_direction(max_wind_angle)
-    if min_wind_speed == max_wind_speed:
+    if round(min_wind_speed) == round(max_wind_speed):
 
-        answer = answer + f" ветер: {round(min_wind_speed)} м/с"
+        answer = answer + f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} "
     else:
 
-        answer = answer + f" ветер: {round(min_wind_speed)} м/с - {round(max_wind_speed)} м/c "
+        answer = answer + f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} - {round(max_wind_speed)} м/c {max_wind_dir} "
+    """
     if min_wind_dir == max_wind_dir:
 
         answer = answer + f"{min_wind_dir}"
     else:
 
-        answer = answer + f"{min_wind_dir}- {max_wind_dir}"
+        answer = answer + f"{min_wind_dir}- {max_wind_dir} "
+    """    
     for icon in weather:
 
         answer += ICON_CONVERT[icon] + " "
@@ -219,7 +222,7 @@ class CMeteorolog(basis.CBasis):
             try:
 
                 api_key: str = self.config.meteorolog["api_key"]
-                print(f"+++ Mtrl +++ gci +++ {api_key=}")
+                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
                 async with aiohttp.ClientSession() as session:
 
                     async with session.get(
@@ -235,21 +238,21 @@ class CMeteorolog(basis.CBasis):
 
                         res.raise_for_status()
                         data = await res.json()
-                print(f"+++ Mtrl +++ gci +++ {data=}")
+                # rint(f"+++ Mtrl +++ gci +++ {data=}")
                 if data:
 
-                    print(f"+++ Mtrl +++ gci +++ {data=}")
+                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
                     if "list" in data:
 
                         key_list: list = data["list"]
-                        print(f"+++ Mtrl +++ gci +++ {key_list=}")
+                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
                         dictionary: dict = key_list[0]
                         if "id" in dictionary:
 
                             city_id = key_list[0]["id"]
-                            print(f"+++ Mtrl +++ gci +++ {city_id=}")
+                            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
 
-                    print(f"+++ Mtrl +++ gci +++ {city_id=}")
+                    # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
 
             except asyncio.exceptions.TimeoutError as ex:
 
@@ -294,6 +297,7 @@ class CMeteorolog(basis.CBasis):
         # *** Метеоролог может обработать эту команду?
         if self.can_process_command(pchat_title, pmessage_text):
 
+            # rint(f"+++ Mtrl +++ mtrl +++ can proc")
             # *** Запросили помощь?
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -307,9 +311,11 @@ class CMeteorolog(basis.CBasis):
 
                 city_name = "Москва"
 			# *** Получим ID города
+            # rint(f"+++ Mtrl +++ mtrl +++ {city_name=}")
             city_id = await self.get_city_id(city_name)
             if city_id > 0:
 
+                # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
 				# *** Указан существующий город, работаем.
                 now: dtime.datetime = dtime.datetime.now()
                 date_str: str = ""
@@ -371,7 +377,7 @@ class CMeteorolog(basis.CBasis):
 
                 res.raise_for_status()
                 data = await res.json()
-                print(f"+++ Mtrl +++ reqw +++ {data=}")
+                # rint(f"+++ Mtrl +++ reqw +++ {data=}")
                 answer = parse_weather(data, prequest_date.date())
                 #temp = data["main"]["temp"]
                 #description = data["weather"][0]["description"]
