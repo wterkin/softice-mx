@@ -90,7 +90,7 @@ class CStarGazer(basis.CBasis):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + STARGAZER_FOLDER
-
+        print("Звездочёт стартовал.")
 
     def additional_info(self, pnow_date):
         """Возвращает дополнительные сведения об указанном дне."""
@@ -298,5 +298,6 @@ class CStarGazer(basis.CBasis):
                 answer += item[6:] + "\n"
         if not answer:
 
-            answer = f"{now_date.day:02}/{now_date.month:02} В этот день ничего не произошло."
-        return answer[:-1:]
+            #{now_date.day:02}/{now_date.month:02}     
+            answer = f"В этот день ничего не произошло."
+        return answer # [:-1:]

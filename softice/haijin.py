@@ -184,7 +184,7 @@ class CHaijin(basis.CBasis):
 
                     text += "(автор не  известен)"
                 self.hokku.append(text)
-                answer = (f"Спасибо, {self.parse_nick(puser_name)},"
+                answer = (f"Спасибо, {puser_name},"
                            " хокку добавлено под номером "
                           f"{len(self.hokku)}")
             elif command == DELETE_COMMANDS:
@@ -198,8 +198,8 @@ class CHaijin(basis.CBasis):
 
                     # *** ... но не тут-то было...
                     print("> Haijin: Запрос на удаление хокку от "
-                          f"нелегитимного лица {self.parse_nick(puser_name)}.")
-                    answer = (f"Извини, {self.parse_nick(puser_name)}, "
+                          f"нелегитимного лица {puser_name}.")
+                    answer = (f"Извини, {puser_name}, "
                               f"только {self.config.master} может удалять хокку")
             if answer:
 

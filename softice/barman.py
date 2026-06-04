@@ -299,7 +299,7 @@ class CBarman(basis.CBasis):
 
                     arguments.append(random.choice(self.bar_content[item[ID_KEY]][prop]))
                 # *** Предпоследний аргумент - имя пользователя
-                arguments.append(self.parse_nick(puser_name))
+                arguments.append(puser_name)
                 # *** Последний аргумент - это эмоджи
                 arguments.append(item[EMODJI_KEY])
                 # *** Ок, формируем ответ

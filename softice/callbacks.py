@@ -1,4 +1,3 @@
-#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 """Основной модуль управления ботом."""
 import logging
@@ -29,8 +28,9 @@ from softice.collector import CCollector
 from softice.gambler import CGambler
 from softice.haijin import CHaijin
 from softice.librarian import CLibrarian
-from softice.manager import CManager
 from softice.majordomo import CMajordomo
+from softice.manager import CManager
+from softice.stargazer import CStarGazer
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class Callbacks:
         self.librarian: CLibrarian = CLibrarian(self.config)
         self.majordomo: CMajordomo = CMajordomo(self.config)
         self.manager: CManager = CManager(self.config, self.client)
-
+        self.stargazer: CStarGazer = CStarGazer(self.config)
         self.first_run: bool = True
 
 
@@ -135,7 +135,8 @@ class Callbacks:
             # message = Message(self.client, self.store, self.config, msg, room, event)
             # await message.process()
             # async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
-            local_name: str = get_display_name_in_room(self.client, room_id, event.sender)
+            local_name: str = await self.get_display_name_in_room(room.room_id, event.sender)
+            print(f"***** {local_name=}")
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
             if has_command_prefix:
@@ -178,7 +179,11 @@ class Callbacks:
 
                     # *** Менеджеру есть что сказать?
                     answer = await self.manager.manager(room.name, room.room_id,
-                                                        local_name, message)
+                                                        event.sender, message)
+                if not answer:
+
+                    # *** Звездочёту есть что сказать?
+                    answer = await self.stargazer.stargazer(room.name, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 
@@ -269,6 +274,10 @@ class Callbacks:
 
             answer += result + "\n"
         result = self.majordomo.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.stargazer.get_hint(pchat_title)
         if result:
 
             answer += result + "\n"
@@ -382,30 +391,33 @@ class Callbacks:
         logger.debug(
             f"Got unknown event with type to {event.type} from {event.sender} in {room.room_id}."
         ) # noqa
-        
-    async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
-        """Получить локальный displayname пользователя в комнате."""
+
+
+    async def get_display_name_in_room(self, room_id: str, user_id: str) -> str:
+        """ Функция возвращает локальное имя пользователя в заданной комнате. """
+
+        assert room_id is not None, \
+            "Assert: [callbacks.get_display_name_in_room] No <room_id> parameter specified!"
+        assert user_id is not None, \
+            "Assert: [callbacks.get_display_name_in_room] No <user_id> parameter specified!"
+
+        fallback_name = user_id.split(":")[0][1:]
 
         try:
-        
-            # Запрашиваем power levels — но на самом деле нам нужен m.room.member
-            response = await client.joined_members(room_id)
-            if hasattr(response, "members"):
 
-                for member in response.members:
+            state_resp = await self.client.room_get_state_event(room_id, "m.room.member", user_id)
+            if hasattr(state_resp, 'content') and isinstance(state_resp.content, dict):
 
-                    if member.user_id == user_id:
+                # Пробуем все возможные ключи, которые использует Matrix
+                local_name = (
+                    state_resp.content.get("displayname") or
+                    state_resp.content.get("display_name")
+                )
+                if local_name:
 
-                        # Локальный displayname в комнате
-                        if member.display_name:
-
-                            return member.display_name
-                        else:
-                            # Если не задан — используем локальную часть MXID
-                            return user_id.split(":")[0][1:]  # убираем @
-            # Fallback: запросим профиль (глобальный)
-            profile = await client.get_profile(user_id)
-            return profile.display_name or user_id.split(":")[0][1:]
+                    return local_name
         except Exception as e:
-            print(f"Ошибка получения displayname: {e}")
-            return user_id.split(":")[0][1:]        
+            print(f"[DEBUG] Ошибка запроса state: {e}")
+
+        # Fallback
+        return fallback_name
