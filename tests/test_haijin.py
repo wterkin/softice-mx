@@ -76,7 +76,7 @@ class CTestHaijin(TestCase):
         
         hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, f"!hk+ {hokku}"))
-        self.assertIn("Спасибо, Namo, хокку добавлено под номером 2", result)
+        self.assertIn("Спасибо,@namo:sibnsk.net, хокку добавлено под номером 2", result)
         
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk- 2"))
         self.assertIn("Хокку 2 удалена.", result)

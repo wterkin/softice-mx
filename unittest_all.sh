@@ -23,6 +23,9 @@ echo %%%%%%%%%%%%%%%%%%%%%% Librarian %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.
 echo %%%%%%%%%%%%%%%%%%%%%% Majordomo %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Majordomo %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_majordomo.py" -vv  >> unittest.log 2>> unittest2.log
+echo %%%%%%%%%%%%%%%%%%%%%% Meteorolog %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
+echo %%%%%%%%%%%%%%%%%%%%%% Meteorolog %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
+/home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_meteorolog.py" -vv  >> unittest.log 2>> unittest2.log
 echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_stargazer.py" -vv  >> unittest.log 2>> unittest2.log

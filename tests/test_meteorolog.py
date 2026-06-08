@@ -47,7 +47,7 @@ class CTestMeterolog(TestCase):
             item["weather"]: list = []
             item["weather"].append(weather)
             
-        result: str = "Темп.: 15  -  30 °C,  давл.: 710 - 740 мм.рт.ст.,  влажн.: 70 - 100 %,  ветер: 10 м/с - 40 м/c сев. - юг Ясно. \u2600\ufe0f Облачно. \u2601 "
+        result: str = "Темп.: 15  -  30 °C,  давл.: 690 - 710 мм.рт.ст.,  влажн.: 70 - 100 %,  ветер: 10 м/с сев.  - 40 м/c юг Ясно. \u2600\ufe0f Облачно. \u2601 "
         self.assertEqual(meteorolog.parse_weather(data, now.date()), result)
 
 

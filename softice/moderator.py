@@ -35,29 +35,37 @@ def replace_bad_words(pbad_word: str, ptext: str) -> str:
     return " ".join(words)
 
 
-class CModerator(prototype.CPrototype):
+class CModerator(basis.CBasis):
     """Класс модератора."""
 
-    def __init__(self, pbot, pconfig, pdata_path: str):
+    def __init__(self, pclient: AsyncClient, pconfig: dict):
 
-        super().__init__()
-        self.config = pconfig
-        self.data_path: str = pdata_path + DATA_FOLDER + "/"
-        self.bot = pbot
+        super().__init__(pconfig)
+        self.data_path: str = self.config.data_folder + DATA_FOLDER
+        self.client = pclient
         self.bad_words: list = []
-        self.reload()
 
 
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        """Возвращает True, если модуль может обработать команду."""
+    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        word_list: list = func.parse_input(pmessage_text)
-        return self.is_enabled(pchat_title) and ((word_list[0] in RELOAD_BAD_WORDS)
-                                                 or (word_list[0] in HINT))
+        assert pchat_title is not None, \
+            "Assert: [moderator.can_process_command] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+            "Assert: [moderator.can_process_command] " \
+            "Пропущен параметр <pmessage> !"
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
     def check_bad_words_ex(self, pmessage: str) -> str:
         """Проверяет сообщение на наличие мата."""
+
+        assert pmessage is not None, \
+            "Assert: [moderator.check_bad_words_ex] " \
+            "Пропущен параметр <pmessage> !"
+
 
         answer: str = ""
         detected: bool = False
@@ -83,28 +91,24 @@ class CModerator(prototype.CPrototype):
         return answer
 
 
-    def control_talking(self, prec) -> str:
+    def control_talking(self, pchat_title: str, pmessage: str) -> str:
         """Следит за матершинниками."""
 
+        assert pchat_title is not None, \
+            "Assert: [moderator.control_talking] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+            "Assert: [moderator.control_talking] " \
+            "Пропущен параметр <pmessage> !"
+
         answer: str = ""
-        source_text: str
         text: str
+        if self.is_enabled(pchat_title):
 
-        if prec[cn.MCONTENT_TYPE] == "text":
-
-            source_text = prec[cn.MTEXT]
-        else:
-
-            source_text = prec[cn.MCAPTION]
-        if self.is_enabled(prec[cn.MCHAT_TITLE]):
-
-            text = self.check_bad_words_ex(source_text)
+            text = self.check_bad_words_ex(pmessage)
             if text:
 
-                # *** Если это не тестовый запуск - удаляем сообщение
-                if not ("testing" in self.config and self.config["testing"] == "1"):
-
-                    self.bot.delete_message(chat_id=prec[cn.MCHAT_ID],
+                self.bot.delete_message(chat_id=prec[cn.MCHAT_ID],
                                             message_id=prec[cn.MMESSAGE_ID])
                 answer = prec[cn.MUSER_TITLE]
                 if prec[cn.MUSER_LASTNAME]:
