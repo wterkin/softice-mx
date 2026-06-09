@@ -197,3 +197,62 @@ class CModerator(basis.CBasis):
         self.bad_words = func.load_from_file(str(data_path))
         print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
               "регэкспов матерных выражений.")
+"""
+import re
+import nio
+from nio import RoomMessageText, RoomRedactResponse
+
+class ProfanityFilter:
+    def __init__(self, client):
+        self.client = client
+        
+        # Список запрещённых слов (в нижнем регистре)
+        # Лучше использовать основы слов или точные совпадения
+        self.bad_words = ["плохое_слово", "сквернословие", "нецензурно"]
+        
+        # Компилируем регулярное выражение для точного совпадения слов.
+        # \b означает границу слова, чтобы не удалять "класс" из-за "лас"
+        # Флаг re.IGNORECASE делает проверку нечувствительной к регистру
+        pattern = r"\b(" + "|".join(self.bad_words) + r")\b"
+        self.bad_word_regex = re.compile(pattern, re.IGNORECASE)
+
+    async def on_message(self, room: nio.MatrixRoom, event: RoomMessageText):
+        # 1. Игнорируем сообщения самого бота, чтобы не уйти в бесконечный цикл
+        if event.sender == self.client.user:
+            return
+
+        # 2. Игнорируем системные сообщения или изменения состояния комнаты
+        if not isinstance(event, RoomMessageText):
+            return
+
+        # 3. Проверяем текст сообщения
+        if self.bad_word_regex.search(event.body):
+            print(f"⚠️ Обнаружен мат от {event.sender} в комнате {room.room_id}")
+            
+            # 4. УДАЛЯЕМ (редактируем) исходное сообщение
+            reason = "Сообщение удалено автоматическим фильтром чата."
+            response = await self.client.room_redact(room.room_id, event.event_id, reason)
+            
+            # 5. Проверяем результат и реагируем
+            if isinstance(response, RoomRedactResponse):
+                print(f"✅ Сообщение {event.event_id} успешно удалено.")
+                
+                # Опционально: отправить предупреждение нарушителю или в чат
+                warning_text = (
+                    f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
+                    "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
+                )
+                await self.client.room_send(
+                    room_id=room.room_id,
+                    message_type="m.room.message",
+                    content={"msgtype": "m.text", "body": warning_text}
+                )
+            else:
+                print(f"❌ Не удалось удалить сообщение. Ответ сервера: {response}")
+                # Частая причина: у бота нет прав на redact (нужен уровень 50)
+
+Поскольку логика у тебя уже готова, тебе нужно лишь заменить в коде:
+bot.delete_message(chat_id, message_id)
+на
+await client.room_redact(room.room_id, event.event_id, "Нарушение правил чата")
+"""
