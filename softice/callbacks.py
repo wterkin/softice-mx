@@ -31,6 +31,7 @@ from softice.librarian import CLibrarian
 from softice.majordomo import CMajordomo
 from softice.manager import CManager
 from softice.meteorolog import CMeteorolog
+from softice.moderator import CModerator
 from softice.stargazer import CStarGazer
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,7 @@ class Callbacks:
         self.majordomo: CMajordomo = CMajordomo(self.config)
         self.manager: CManager = CManager(self.config, self.client)
         self.meteorolog: CMeteorolog = CMeteorolog(self.config)
+        self.moderator: CModerator = CModerator(self.config, self.client)
         self.stargazer: CStarGazer = CStarGazer(self.config)
         self.first_run: bool = True
 
@@ -84,7 +86,7 @@ class Callbacks:
             await self.haijin.reload()
             await self.librarian.reload()
             await self.majordomo.reload()
-
+            await self.moderator.reload()
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
         """Возвращает True, если разница между временем события и текущим 
@@ -186,6 +188,10 @@ class Callbacks:
 
                     # *** Метеорологу есть что сказать?
                     answer = await self.meteorolog.meteorolog(room.name, message)
+                if not answer:
+
+                    # *** Модератору есть что сказать?
+                    answer = await self.moderator.moderator(room, event)
                 if not answer:
 
                     # *** Звездочёту есть что сказать?

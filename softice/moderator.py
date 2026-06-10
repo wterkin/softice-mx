@@ -5,6 +5,8 @@
 import re
 from pathlib import Path
 from softice import basis
+from nio import MatrixRoom, RoomMessageText,
+
 
 RELOAD_BAD_WORDS: list = ["bwreload", "bwrl"]
 HINT = ["адм", "adm"]
@@ -38,7 +40,7 @@ def replace_bad_words(pbad_word: str, ptext: str) -> str:
 class CModerator(basis.CBasis):
     """Класс модератора."""
 
-    def __init__(self, pclient: AsyncClient, pconfig: dict):
+    def __init__(self, pconfig: dict, pclient: AsyncClient):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + DATA_FOLDER
@@ -66,7 +68,6 @@ class CModerator(basis.CBasis):
             "Assert: [moderator.check_bad_words_ex] " \
             "Пропущен параметр <pmessage> !"
 
-
         answer: str = ""
         detected: bool = False
         if pmessage:
@@ -77,17 +78,18 @@ class CModerator(basis.CBasis):
                 result: bool = True
                 while result:
 
-                    result = re.match(bad_word, text) is not None
+                    # result = re.match(bad_word, text) is not None
+                    result: re.Match = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
                     if result:
 
+                        
                         print(f"bad word detected. {bad_word=} {text=}")
                         detected = True
-                        text = replace_bad_words(bad_word, text)
-
+                        count: int = result.end()-result.start()
+                        text[result.start():result.end()+1] = "*"*count
             if detected:
 
                 answer = text
-
         return answer
 
 
@@ -108,8 +110,7 @@ class CModerator(basis.CBasis):
             text = self.check_bad_words_ex(pmessage)
             if text:
 
-                self.bot.delete_message(chat_id=prec[cn.MCHAT_ID],
-                                            message_id=prec[cn.MMESSAGE_ID])
+                self.delete_message()
                 answer = prec[cn.MUSER_TITLE]
                 if prec[cn.MUSER_LASTNAME]:
 
@@ -118,6 +119,31 @@ class CModerator(basis.CBasis):
                 print(f"Он сказал: {source_text}")
                 answer += f" хотел сказать \"{text}\""
         return answer
+
+
+    await def delete_message(proom: MatrixRoom, pevent: RoomMessageText):
+        """Удаляет сообщение с матом."""
+
+        response = await self.client.room_redact(proom.room_id, pevent.event_id, reason)
+            
+            # 5. Проверяем результат и реагируем
+            if isinstance(response, RoomRedactResponse):
+                print(f"✅ Сообщение {event.event_id} успешно удалено.")
+                	
+                # Опционально: отправить предупреждение нарушителю или в чат
+                warning_text = (
+                    f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
+                    "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
+                )
+                await self.client.room_send(
+                    room_id=room.room_id,
+                    message_type="m.room.message",
+                    content={"msgtype": "m.text", "body": warning_text}
+                )
+            else:
+                print(f"❌ Не удалось удалить сообщение. Ответ сервера: {response}")
+                # Частая причина: у бота нет прав на redact (нужен уровень 50)
+        
 
 
     def get_help(self, pchat_title: str) -> str:
@@ -158,6 +184,7 @@ class CModerator(basis.CBasis):
 
         # *** Проверим, всё ли в порядке в чате
         answer: str = self.control_talking(prec)
+        # message = event.body
         if not answer:
 
             if prec[cn.MTEXT] is not None:
