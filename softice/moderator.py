@@ -85,7 +85,7 @@ class CModerator(basis.CBasis):
                     # result = re.match(bad_word, text) is not None
                     # rint(f"+++ Mod +++ CBW +++ {bad_word=}")
 
-                    result: re.Search = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
+                    result: re.search = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
                     # rint(f"+++ Mod +++ CBW +++ {result=}")
                     if result:
 
@@ -100,8 +100,6 @@ class CModerator(basis.CBasis):
                         text_answer = text[:result.start()]+ "*" * count + text[result.end():]
                         text = text_answer
                         # rint(f"+++ Mod +++ CBW +++ {text_answer=}")
-                       
-                        # text[result.start():result.end()+1] = "*"*count
             if detected:
 
                 answer = text_answer
@@ -158,7 +156,8 @@ class CModerator(basis.CBasis):
             print(f"Не удалось удалить сообщение. Ответ сервера: {response}")
 
 
-    async def moderator(self, pchat_title: str, pmessage: str, plocal_name: str, puser_name: str) -> str:
+    async def moderator(self, pchat_title: str, pmessage: str,
+                        plocal_name: str, puser_name: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \

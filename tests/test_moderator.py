@@ -45,43 +45,9 @@ class CTestModerator(TestCase):
         self.assertNotIn("*", self.moderator.check_bad_words_ex("enjoy"))
         self.assertNotIn("*", self.moderator.check_bad_words_ex("благодарю"))
         self.assertNotIn("*", self.moderator.check_bad_words_ex("плохо"))
-    """    
-    def test_control_talking(self):
-        
-        record: dict = {}
-        record[cn.MCONTENT_TYPE] = "text"
-        record[cn.MTEXT] = "мля"
-        record[cn.MCAPTION] = "мля"
-        record[cn.MCHAT_TITLE] = test_softice.TESTPLACE_CHAT_NAME
-        record[cn.MCHAT_ID] = test_softice.TESTPLACE_CHAT_ID
-        record[cn.MMESSAGE_ID] = 0
-        record[cn.MUSER_TITLE] = self.config["master_name"]
-        record[cn.MUSER_LASTNAME] = ""
-        # def __init__(self, room_id: str, own_user_id: str, encrypted: bool = False) -> None:
-        # def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText, plocal_name: str) -> str:
-        room = MatrixRoom('111', self.config.master)
-        event = RoomMessageText()
-        self.assertIn("*", self.moderator.control_talking(record))
-
-        record[cn.MTEXT] = "абырвалг"
-        self.assertEqual(self.moderator.control_talking(record), "")
-
-        # *** Если сообщение пустое - не обрабатывается
-        record[cn.MTEXT] = ""
-        self.assertEqual(self.moderator.control_talking(record), "")
-
-        # *** Проверка разрешенных чатов
-        record[cn.MCHAT_TITLE] = "fakechat"
-        record[cn.MTEXT] = "мля"
-        self.assertEqual(self.moderator.control_talking(record), "")
-
-        record[cn.MCHAT_TITLE] = "emptychat"
-        self.assertEqual(self.moderator.control_talking(record), "")
-    """    
         
 
     def test_moderator(self): 
-       
 
         result = asyncio.run(self.moderator.moderator(self.config.test_chat, "абырвалг", "Хозяин", self.config.master))
         self.assertEqual(result, "")

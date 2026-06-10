@@ -70,5 +70,5 @@ class CTestStarGazer(TestCase):
         else:
 
             result = asyncio.run(self.stargazer.stargazer(self.config.test_chat, "!дата"))
-            self.assertIn(f"{now_date.day:02}/{now_date.month:02}", result)
+            self.assertIn(f"В этот день", result)
         

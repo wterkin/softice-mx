@@ -168,15 +168,8 @@ def parse_weather(pdata, preq_date) -> str:
         answer = answer + f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} "
     else:
 
-        answer = answer + f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} - {round(max_wind_speed)} м/c {max_wind_dir} "
-    """
-    if min_wind_dir == max_wind_dir:
-
-        answer = answer + f"{min_wind_dir}"
-    else:
-
-        answer = answer + f"{min_wind_dir}- {max_wind_dir} "
-    """    
+        answer = answer + (f" ветер: {round(min_wind_speed)} м/с {min_wind_dir} - "
+                           f"{round(max_wind_speed)} м/c {max_wind_dir} ")
     for icon in weather:
 
         answer += ICON_CONVERT[icon] + " "

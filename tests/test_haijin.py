@@ -76,13 +76,13 @@ class CTestHaijin(TestCase):
         
         hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, f"!hk+ {hokku}"))
-        self.assertIn("Спасибо,@namo:sibnsk.net, хокку добавлено под номером 2", result)
+        self.assertIn("Спасибо, @namo:sibnsk.net, хокку добавлено под номером 2", result)
         
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk- 2"))
         self.assertIn("Хокку 2 удалена.", result)
         
         # Запрос на удаление от нелегитимного лица
-        answer = "Извини, User, только @namo:sibnsk.net может удалять хокку"
+        answer = "Извини, user, только @namo:sibnsk.net может удалять хокку"
         result = result = asyncio.run(self.haijin.haijin(self.config.test_chat, "user", "!hk- 1"))
         self.assertIn(answer, result)
 

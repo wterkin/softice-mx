@@ -289,7 +289,7 @@ class CStarGazer(basis.CBasis):
     async def search_in_calendar(self, pcalendar: str, ptoday: str):
         """Ищет заданную дату в заданном календаре."""
         calendar: list = await self.load_from_file_async(self.data_path + pcalendar)
-        now_date: date = date.today()
+        # now_date: date = date.today()
         answer: str = ""
         for item in calendar:
 
@@ -298,6 +298,5 @@ class CStarGazer(basis.CBasis):
                 answer += item[6:] + "\n"
         if not answer:
 
-            #{now_date.day:02}/{now_date.month:02}     
-            answer = f"В этот день ничего не произошло."
+            answer = "В этот день ничего не произошло."
         return answer # [:-1:]

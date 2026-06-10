@@ -12,8 +12,6 @@ from softice.config import Config
 from softice import basis
 
 # pylint: disable=too-many-nested-blocks
-    
-
 # *** Команда перегрузки текстов
 COMMANDS: tuple = ("blreload", "blrl")
 # *** Ключ для списка доступных чатов в словаре конфига
