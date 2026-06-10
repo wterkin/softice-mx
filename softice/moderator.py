@@ -4,8 +4,8 @@
 
 import re
 from pathlib import Path
+from nio import MatrixRoom, AsyncClient, RoomMessageText, RoomRedactResponse
 from softice import basis
-from nio import MatrixRoom, RoomMessageText, RoomRedactResponse
 
 
 RELOAD_GROUP: int = 0
@@ -83,7 +83,7 @@ class CModerator(basis.CBasis):
                     result: re.Match = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
                     if result:
 
-                        
+
                         print(f"bad word detected. {bad_word=} {text=}")
                         detected = True
                         count: int = result.end()-result.start()
@@ -109,19 +109,20 @@ class CModerator(basis.CBasis):
 
         answer: str = ""
         text: str
-        if self.is_enabled(room.name, UNIT_ID):
+        if self.is_enabled(proom.name, UNIT_ID):
 
             text = self.check_bad_words_ex(pevent.body)
             if text:
+                if self.client:
 
-                self.delete_message(proom, pevent)
-                print(f"Пользователь {plocal_name} матерился в чате {room_name}.")
+                    self.delete_message(proom, pevent)
+                print(f"Пользователь {plocal_name} матерился в чате {proom.name}.")
                 print(f"Он сказал: {text}")
                 answer = f"{plocal_name} хотел сказать \"{text}\""
         return answer
 
 
-    await def delete_message(proom: MatrixRoom, pevent: RoomMessageText):
+    async def delete_message(self, proom: MatrixRoom, pevent: RoomMessageText):
         """Удаляет сообщение с матом."""
 
         response = await self.client.room_redact(proom.room_id, pevent.event_id, "(мат)")
@@ -140,9 +141,9 @@ class CModerator(basis.CBasis):
             #    )
         else:
             print(f"Не удалось удалить сообщение. Ответ сервера: {response}")
-        
 
-    def moderator(self, pchat_title: str, pmessage: str, plocal_name: str, puser_name: str) -> str:
+
+    async def moderator(self, pchat_title: str, pmessage: str, plocal_name: str, puser_name: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \
@@ -158,16 +159,17 @@ class CModerator(basis.CBasis):
             "Assert: [moderator.moderator] " \
             "Пропущен параметр <puser_name> !"
 
+        answer: str = ""
         if pmessage:
 
             # *** Порядок. Возможно, запрошена команда. Мы ее умеем?
             if self.can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS):
 
                 # *** Пользователь хочет перезагрузить словарь мата.
-                can_reload, answer = self.is_master(puser_name)
+                can_reload = self.is_master(puser_name)
                 if can_reload:
 
-                    self.reload()
+                    await self.reload()
                     answer = "Словарь мата обновлен"
                 else:
 
@@ -179,72 +181,13 @@ class CModerator(basis.CBasis):
         return answer
 
 
-    def reload(self):
+    async def reload(self):
         """Загружает словарь антимата."""
 
         # *** Собираем пути
         assert Path(self.data_path).is_dir(), f"{DATA_FOLDER} must be folder"
         data_path = Path(self.data_path) / BAD_WORDS_FILE
         self.bad_words.clear()
-        self.bad_words = func.load_from_file(str(data_path))
+        self.bad_words = await self.load_from_file_async(str(data_path))
         print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
               "регэкспов матерных выражений.")
-"""
-import re
-import nio
-from nio import RoomMessageText, RoomRedactResponse
-
-class ProfanityFilter:
-    def __init__(self, client):
-        self.client = client
-        
-        # Список запрещённых слов (в нижнем регистре)
-        # Лучше использовать основы слов или точные совпадения
-        self.bad_words = ["плохое_слово", "сквернословие", "нецензурно"]
-        
-        # Компилируем регулярное выражение для точного совпадения слов.
-        # \b означает границу слова, чтобы не удалять "класс" из-за "лас"
-        # Флаг re.IGNORECASE делает проверку нечувствительной к регистру
-        pattern = r"\b(" + "|".join(self.bad_words) + r")\b"
-        self.bad_word_regex = re.compile(pattern, re.IGNORECASE)
-
-    async def on_message(self, room: nio.MatrixRoom, event: RoomMessageText):
-        # 1. Игнорируем сообщения самого бота, чтобы не уйти в бесконечный цикл
-        if event.sender == self.client.user:
-            return
-
-        # 2. Игнорируем системные сообщения или изменения состояния комнаты
-        if not isinstance(event, RoomMessageText):
-            return
-
-        # 3. Проверяем текст сообщения
-        if self.bad_word_regex.search(event.body):
-            print(f"⚠️ Обнаружен мат от {event.sender} в комнате {room.room_id}")
-            
-            # 4. УДАЛЯЕМ (редактируем) исходное сообщение
-            reason = "Сообщение удалено автоматическим фильтром чата."
-            response = await self.client.room_redact(room.room_id, event.event_id, reason)
-            
-            # 5. Проверяем результат и реагируем
-            if isinstance(response, RoomRedactResponse):
-                print(f"✅ Сообщение {event.event_id} успешно удалено.")
-                
-                # Опционально: отправить предупреждение нарушителю или в чат
-                warning_text = (
-                    f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
-                    "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
-                )
-                await self.client.room_send(
-                    room_id=room.room_id,
-                    message_type="m.room.message",
-                    content={"msgtype": "m.text", "body": warning_text}
-                )
-            else:
-                print(f"❌ Не удалось удалить сообщение. Ответ сервера: {response}")
-                # Частая причина: у бота нет прав на redact (нужен уровень 50)
-
-Поскольку логика у тебя уже готова, тебе нужно лишь заменить в коде:
-bot.delete_message(chat_id, message_id)
-на
-await client.room_redact(room.room_id, event.event_id, "Нарушение правил чата")
-"""

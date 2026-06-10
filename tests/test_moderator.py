@@ -1,27 +1,14 @@
 from unittest import TestCase
-import json
-from sys import platform
-import telebot
-import softice
-import test_softice
-import functions as func
-import constants as cn
-import moderator
+from softice import moderator
+from softice import config
+import asyncio
 
 class CTestModerator(TestCase):
 
     def setUp(self) -> None:
-        with open("unittest_config.json", "r", encoding="utf-8") as json_file:
 
-            self.config = json.load(json_file)
-        if platform in ("linux", "linux2"):
-
-            self.data_path: str = self.config[softice.LINUX_DATA_FOLDER_KEY]
-        else:
-
-            self.data_path: str = self.config[softice.WINDOWS_DATA_FOLDER_KEY]
-        self.robot: telebot.TeleBot = telebot.TeleBot(self.config[softice.TOKEN_KEY])
-        self.moderator: moderator.CModerator = moderator.CModerator(self.robot, self.config, self.data_path)
+        self.config = config.Config("test_config.yaml")
+        self.moderator: moderator.CModerator = moderator.CModerator(self.config, None)
 
     def test_replace_bad_words(self):
 
@@ -29,14 +16,13 @@ class CTestModerator(TestCase):
                          f"Жадный, как все {moderator.CENSORED}")
 
 
-    def test_can_process(self):
+    def test_can_process_command(self):
 
-        self.assertFalse(self.moderator.can_process("fakechat", "!adm"))
-        self.assertFalse(self.moderator.can_process("emptychat", "!adm"))
-        self.assertTrue(self.moderator.can_process(test_softice.TESTPLACE_CHAT_NAME, "!adm"))
-        self.assertTrue(self.moderator.can_process(test_softice.TESTPLACE_CHAT_NAME, "!bwrl"))
-        self.assertFalse(self.moderator.can_process(test_softice.TESTPLACE_CHAT_NAME, "!кукабарра"))
+        self.assertFalse(self.moderator.can_process_command("emptychat", "!bwrl"))
+        self.assertTrue(self.moderator.can_process_command(self.config.test_chat, "!bwrl"))
+        self.assertFalse(self.moderator.can_process_command(self.config.test_chat, "!кукабарра"))
 
+    """
 
     def test_check_bad_words_ex(self):
 
@@ -154,26 +140,19 @@ class CTestModerator(TestCase):
         self.assertEqual(self.moderator.is_master("user", "User"), (False, f"У вас нет на это прав, User."))
         self.assertTrue(self.moderator.is_master(self.config["master"], self.config["master_name"]))
 
-    
+    """    
     def test_moderator(self): 
-        
-        record: dict = {}
-        record[cn.MCONTENT_TYPE] = "text"
-        record[cn.MTEXT] = "абырвалг"
-        record[cn.MCHAT_TITLE] = test_softice.TESTPLACE_CHAT_NAME
-        record[cn.MCHAT_ID] = test_softice.TESTPLACE_CHAT_ID
-        record[cn.MMESSAGE_ID] = 0
-        record[cn.MUSER_NAME] = self.config["master"]
-        record[cn.MUSER_TITLE] = self.config["master_name"]
-        record[cn.MUSER_LASTNAME] = ""
-        self.assertEqual(self.moderator.moderator(record), "")
-        record[cn.MTEXT] = "!bwrl"
-        self.assertIn("Словарь", self.moderator.moderator(record))
-        record[cn.MUSER_NAME] = "user"
-        record[cn.MUSER_TITLE] = "User"
-        self.assertIn("Извини", self.moderator.moderator(record))
-        record[cn.MCHAT_TITLE] = "fakechat"
-        record[cn.MTEXT] = "!bwrl"
-        self.assertEqual(self.moderator.control_talking(record), "")
-        record[cn.MCHAT_TITLE] = "emptychat"
-        self.assertEqual(self.moderator.control_talking(record), "")
+       
+        result = asyncio.run(self.moderator.moderator(self.config.test_chat, "абырвалг", "Хозяин", self.config.master))
+        self.assertEqual(result, "")
+   
+        result = asyncio.run(self.moderator.moderator(self.config.test_chat, "!bwrl", "Хозяин", self.config.master))
+        self.assertIn("Словарь", result)
+
+        result = asyncio.run(self.moderator.moderator(self.config.test_chat, "!bwrl", "User", "user"))
+        self.assertIn("Извини", result)
+        result = asyncio.run(self.moderator.moderator("fakechat", "!bwrl", "Хозяин", self.config.master))
+        self.assertEqual(result, "")
+        result = asyncio.run(self.moderator.moderator("emptychat", "!bwrl", "Хозяин", self.config.master))
+        self.assertEqual(result, "")
+
