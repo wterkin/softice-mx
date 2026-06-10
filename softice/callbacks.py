@@ -191,7 +191,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Модератору есть что сказать?
-                    answer = await self.moderator.moderator(room, event)
+                    answer = await self.moderator.moderator(room_name, message, local_name, event.sender)
                 if not answer:
 
                     # *** Звездочёту есть что сказать?
@@ -208,7 +208,10 @@ class Callbacks:
                 # def talk(self, proom: str, pmessage: str) -> str:
                 # ToDo: Вот тут вывести картинку, если есть
                 # rint(f"+++ Cllb +++ 2 +++ {answer=}")
-                answer, file_name = await self.babbler.talk(room.name, message)
+                answer = self.moderator.control_talking(room, event, local_name)
+                if not answer:
+
+                    answer, file_name = await self.babbler.talk(room.name, message)
             if answer:
 
                 # answer = answer.strip()

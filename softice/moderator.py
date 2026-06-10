@@ -5,11 +5,12 @@
 import re
 from pathlib import Path
 from softice import basis
-from nio import MatrixRoom, RoomMessageText,
+from nio import MatrixRoom, RoomMessageText, RoomRedactResponse
 
 
-RELOAD_BAD_WORDS: list = ["bwreload", "bwrl"]
-HINT = ["адм", "adm"]
+RELOAD_GROUP: int = 0
+COMMANDS: tuple = (("bwreload", "bwrl"))
+
 UNIT_ID = "moderator"
 DATA_FOLDER: str = "moderator"
 BAD_WORDS_FILE: str = "bad_words.txt"
@@ -93,124 +94,88 @@ class CModerator(basis.CBasis):
         return answer
 
 
-    def control_talking(self, pchat_title: str, pmessage: str) -> str:
+    def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText, plocal_name: str) -> str:
         """Следит за матершинниками."""
 
-        assert pchat_title is not None, \
+        assert proom is not None, \
             "Assert: [moderator.control_talking] " \
-            "Пропущен параметр <pchat_title> !"
-        assert pmessage is not None, \
+            "Пропущен параметр <proom> !"
+        assert pevent is not None, \
             "Assert: [moderator.control_talking] " \
-            "Пропущен параметр <pmessage> !"
+            "Пропущен параметр <pevent> !"
+        assert plocal_name is not None, \
+            "Assert: [moderator.control_talking] " \
+            "Пропущен параметр <plocal_name> !"
 
         answer: str = ""
         text: str
-        if self.is_enabled(pchat_title):
+        if self.is_enabled(room.name, UNIT_ID):
 
-            text = self.check_bad_words_ex(pmessage)
+            text = self.check_bad_words_ex(pevent.body)
             if text:
 
-                self.delete_message()
-                answer = prec[cn.MUSER_TITLE]
-                if prec[cn.MUSER_LASTNAME]:
-
-                    answer += " " + prec[cn.MUSER_LASTNAME]
-                print(f"Пользователь {answer} матерился в чате {prec[cn.MCHAT_TITLE]}.")
-                print(f"Он сказал: {source_text}")
-                answer += f" хотел сказать \"{text}\""
+                self.delete_message(proom, pevent)
+                print(f"Пользователь {plocal_name} матерился в чате {room_name}.")
+                print(f"Он сказал: {text}")
+                answer = f"{plocal_name} хотел сказать \"{text}\""
         return answer
 
 
     await def delete_message(proom: MatrixRoom, pevent: RoomMessageText):
         """Удаляет сообщение с матом."""
 
-        response = await self.client.room_redact(proom.room_id, pevent.event_id, reason)
-            
-            # 5. Проверяем результат и реагируем
-            if isinstance(response, RoomRedactResponse):
-                print(f"✅ Сообщение {event.event_id} успешно удалено.")
-                	
-                # Опционально: отправить предупреждение нарушителю или в чат
-                warning_text = (
-                    f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
-                    "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
-                )
-                await self.client.room_send(
-                    room_id=room.room_id,
-                    message_type="m.room.message",
-                    content={"msgtype": "m.text", "body": warning_text}
-                )
-            else:
-                print(f"❌ Не удалось удалить сообщение. Ответ сервера: {response}")
-                # Частая причина: у бота нет прав на redact (нужен уровень 50)
+        response = await self.client.room_redact(proom.room_id, pevent.event_id, "(мат)")
+        # *** Проверяем результат и реагируем
+        if isinstance(response, RoomRedactResponse):
+
+            print(f"Сообщение удалено. Ответ сервера: {response}")
+            #warning_text = (
+            #        f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
+            #        "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
+            #    )
+            #    await self.client.room_send(
+            #        room_id=room.room_id,
+            #        message_type="m.room.message",
+            #        content={"msgtype": "m.text", "body": warning_text}
+            #    )
+        else:
+            print(f"Не удалось удалить сообщение. Ответ сервера: {response}")
         
 
-
-    def get_help(self, pchat_title: str) -> str:
-        """Возвращает список команд модуля, доступных пользователю."""
-
-        return ""
-
-
-    def get_hint(self, pchat_title: str) -> str:
-        """Возвращает команду верхнего уровня, в ответ на которую
-           модуль возвращает полный список команд, доступных пользователю."""
-
-        return ", ".join(HINT)
-
-
-    def is_enabled(self, pchat_title: str) -> bool:
-        """Возвращает True, если на этом канале этот модуль разрешен."""
-
-        if pchat_title in self.config["chats"]:
-
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False
-
-    def is_master(self, puser_name, puser_title):
-        """Проверяет, является ли пользователь хозяином бота."""
-
-        if puser_name == self.config["master"]:
-
-            return True, ""
-        # *** Низзя
-        print("> Moderator: Запрос на перезагрузку регэкспов "
-              f"матерных выражений от нелегитимного лица {puser_title}.")
-        return False, f"У вас нет на это прав, {puser_title}."
-
-
-    def moderator(self, prec) -> str:
+    def moderator(self, pchat_title: str, pmessage: str, plocal_name: str, puser_name: str) -> str:
         """Процедура разбора запроса пользователя."""
 
-        # *** Проверим, всё ли в порядке в чате
-        answer: str = self.control_talking(prec)
-        # message = event.body
-        if not answer:
+        assert pchat_title is not None, \
+            "Assert: [moderator.moderator] " \
+            "Пропущен параметр <pchat_title> !"
+        assert pmessage is not None, \
+            "Assert: [moderator.moderator] " \
+            "Пропущен параметр <pmessage> !"
+        assert plocal_name is not None, \
+            "Assert: [moderator.moderator] " \
+            "Пропущен параметр <plocal_name> !"
+        assert puser_name is not None, \
+            "Assert: [moderator.moderator] " \
+            "Пропущен параметр <puser_name> !"
 
-            if prec[cn.MTEXT] is not None:
+        if pmessage:
 
-                # *** Порядок. Возможно, запрошена команда. Мы ее умеем?
-                if self.can_process(prec[cn.MCHAT_TITLE], prec[cn.MTEXT]):
+            # *** Порядок. Возможно, запрошена команда. Мы ее умеем?
+            if self.can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS):
 
-                    # *** Да. Возможно, запросили перезагрузку.
-                    word_list: list = func.parse_input(prec[cn.MTEXT])
-                    if word_list[0] in RELOAD_BAD_WORDS:
+                # *** Пользователь хочет перезагрузить словарь мата.
+                can_reload, answer = self.is_master(puser_name)
+                if can_reload:
 
-                        # *** Пользователь хочет перезагрузить словарь мата.
-                        can_reload, answer = self.is_master(prec[cn.MUSER_NAME],
-                                                            prec[cn.MUSER_TITLE])
-                        if can_reload:
+                    self.reload()
+                    answer = "Словарь мата обновлен"
+                else:
 
-                            self.reload()
-                            answer = "Словарь мата обновлен"
-                        else:
-
-                            # *** ... но не тут-то было...
-                            print(f"> Moderator: Запрос на перегрузку словаря мата от "
-                                  f"нелегитимного лица {prec[cn.MUSER_TITLE]}.")
-                            answer = (f"Извини, {prec[cn.MUSER_TITLE]}, "
-                                      f"только {self.config['master_name']} может "
-                                      "перегружать словарь мата!")
+                    # *** ... но не тут-то было...
+                    print(f"> Moderator: Запрос на перегрузку словаря мата от "
+                          f"нелегитимного лица {plocal_name}.")
+                    answer = (f"Извини, {plocal_name}, "
+                              f"только {self.config.master} может перегружать словарь мата!")
         return answer
 
 
