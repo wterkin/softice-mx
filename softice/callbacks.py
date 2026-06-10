@@ -88,6 +88,7 @@ class Callbacks:
             await self.majordomo.reload()
             await self.moderator.reload()
 
+
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
         """Возвращает True, если разница между временем события и текущим 
            равна OBSOLETE_PERIOD и больше. """
@@ -148,7 +149,6 @@ class Callbacks:
                 # rint(f":::: 1 {message}")
                 # *** Может, запросили помощь?
                 if "!help" in message:
-
 
                     answer = self.send_hints(room.name)
                 if not answer:

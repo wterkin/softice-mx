@@ -69,28 +69,43 @@ class CModerator(basis.CBasis):
             "Assert: [moderator.check_bad_words_ex] " \
             "Пропущен параметр <pmessage> !"
 
+        # rint(f"+++ Mod +++ CBW +++ {pmessage=}")
         answer: str = ""
         detected: bool = False
+        text_answer: str = ""
         if pmessage:
 
             text: str = pmessage.lower()
+            # rint(f"+++ Mod +++ CBW +++ {text=}")
             for bad_word in self.bad_words:
 
                 result: bool = True
                 while result:
 
                     # result = re.match(bad_word, text) is not None
-                    result: re.Match = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
+                    # rint(f"+++ Mod +++ CBW +++ {bad_word=}")
+
+                    result: re.Search = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
+                    # rint(f"+++ Mod +++ CBW +++ {result=}")
                     if result:
 
-
-                        print(f"bad word detected. {bad_word=} {text=}")
                         detected = True
+                        # rint(f"+++ Mod +++ CBW +++ Detected!!! ")
                         count: int = result.end()-result.start()
-                        text[result.start():result.end()+1] = "*"*count
+                        # rint(f"+++ Mod +++ CBW +++ {result.start()=}")
+                        # rint(f"+++ Mod +++ CBW +++ {result.end()=}")
+                        # rint(f"+++ Mod +++ CBW +++ {count=} ")
+                        # rint(f"+++ Mod +++ CBW +++ {text[:result.start()]=}")
+                        # rint(f"+++ Mod +++ CBW +++ {text[result.end():]=}")
+                        text_answer = text[:result.start()]+ "*" * count + text[result.end():]
+                        text = text_answer
+                        # rint(f"+++ Mod +++ CBW +++ {text_answer=}")
+                       
+                        # text[result.start():result.end()+1] = "*"*count
             if detected:
 
-                answer = text
+                answer = text_answer
+        print(f"+++ Mod +++ CBW +++ {answer=}")
         return answer
 
 
