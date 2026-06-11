@@ -34,7 +34,7 @@ class CTestStarGazer(TestCase):
 
 
     def test_can_process_command(self):
-        
+
         self.assertTrue(self.stargazer.can_process_command(self.config.test_chat, '!пасха'))
         self.assertTrue(self.stargazer.can_process_command(self.config.test_chat, '!нг'))
         self.assertFalse(self.stargazer.can_process_command('fakechat', '!день'))
@@ -50,7 +50,7 @@ class CTestStarGazer(TestCase):
     def test_get_hint(self):
 
         self.assertIn("календарь, кл", self.stargazer.get_hint(self.config.test_chat))
-    
+
 
     def test_stargazer(self):
 
@@ -71,4 +71,4 @@ class CTestStarGazer(TestCase):
 
             result = asyncio.run(self.stargazer.stargazer(self.config.test_chat, "!дата"))
             self.assertIn(f"В этот день", result)
-        
+

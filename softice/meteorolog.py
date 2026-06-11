@@ -61,8 +61,8 @@ def get_wind_direction(pdegree) -> str:
     """Возвращает направление ветра."""
 
     assert pdegree is not None, \
-		"Assert: [meteorolog.get_wind_direction] " \
-		"Пропущен параметр <pdegree> !"
+        "Assert: [meteorolog.get_wind_direction] " \
+        "Пропущен параметр <pdegree> !"
 
     result: str = ""
     for i in range(0, 8):
@@ -83,11 +83,11 @@ def parse_weather(pdata, preq_date) -> str:
     """Парсит данные погоды и формирует строку погоды."""
 
     assert pdata is not None, \
-		"Assert: [meteorolog.parse_weather] " \
-		"Пропущен параметр <pdata> !"
+        "Assert: [meteorolog.parse_weather] " \
+        "Пропущен параметр <pdata> !"
     assert preq_date is not None, \
-		"Assert: [meteorolog.parse_weather] " \
-		"Пропущен параметр <preq_date> !"
+        "Assert: [meteorolog.parse_weather] " \
+        "Пропущен параметр <preq_date> !"
 
     min_temperature: int = 100
     max_temperature: int = -100
@@ -148,13 +148,15 @@ def parse_weather(pdata, preq_date) -> str:
         answer = f"Темп.: {round(min_temperature)} °C, "
     else:
         answer = f"Темп.: {round(min_temperature)}  -  {round(max_temperature)} °C, "
-    if min_pressure == max_pressure:
+    # rint(f"+++ Mtrl +++ PW +++ {min_pressure=} {max_pressure=}")
+    min_pressure_mmhg: int = round((min_pressure * 0.75) / PRESSURE_COEFF)
+    max_pressure_mmhg: int = round((max_pressure * 0.75) / PRESSURE_COEFF)
+    if min_pressure_mmhg == max_pressure_mmhg:
 
-        answer = answer + f" давл.: {round((min_pressure * 0.75) / PRESSURE_COEFF)} мм.рт.ст., "
+        answer = answer + f" давл.: {min_pressure_mmhg} мм.рт.ст., "
     else:
 
-        answer = answer + (f" давл.: {round((min_pressure * 0.75) / PRESSURE_COEFF)} - "
-                           f"{round((max_pressure * 0.75) / PRESSURE_COEFF)} мм.рт.ст., ")
+        answer = answer + f" давл.: {min_pressure_mmhg} - {max_pressure_mmhg} мм.рт.ст., "
     if min_humidity == max_humidity:
 
         answer = answer + f" влажн.: {round(min_humidity)} %, "

@@ -191,7 +191,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Модератору есть что сказать?
-                    answer = await self.moderator.moderator(room_name, message, local_name, event.sender)
+                    answer = await self.moderator.moderator(room.name, message, local_name, event.sender)
                 if not answer:
 
                     # *** Звездочёту есть что сказать?
