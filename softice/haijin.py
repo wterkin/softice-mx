@@ -12,10 +12,10 @@ HAIJIN_FILE_NAME: str = "hokku.txt"
 
 COMMANDS: tuple = (("hokkureload", "hkrl"),
                    ("hokkusave", "hksv"),
-                   ("хк", "hk"),
-                   ("хк+", "hk+"),
-                   ("хк-", "hk-"),
-                   ("хокку", "hokku"))
+                   ("хокку", "hokku", "хк", "hk"),
+                   ("хокку+", "hokku+", "хк+", "hk+"),
+                   ("хокку-", "hokku-", "хк-", "hk-"),
+                   ("хайдзин", "haijin", "хд", "hj"))
 
 RELOAD_COMMANDS: int = 0
 SAVE_COMMANDS: int = 1
@@ -26,10 +26,10 @@ HINT_COMMANDS: int = 5
 
 DESCRIPTIONS: tuple = ("",
                        "",
-                       ("хк/hk [номер] [строка] : получить случайное хокку,"
+                       ("хокку/hokku/хк/hk [номер] [строка] : получить случайное хокку,"
                        " либо с с заданным номером, либо содержащее заданную строку"),
-                       "хк+/hk+ : добавить в базу новое хокку ",
-                       "хк-/hk- : удалить хокку из базы")
+                       "хокку+/hokku+/хк+/hk+ : добавить в базу новое хокку ",
+                       "хокку-/hokku-/хк-/hk- : удалить хокку из базы")
 USER_RIGHTS: tuple = (False, False, True, True, False)
 
 UNIT_ID = "haijin"

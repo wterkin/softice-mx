@@ -10,7 +10,7 @@ from softice import basis
 UNIT_ID = "majordomo"
 
 COMMANDS: tuple = (("greet", "gt", "привет", "пт"),
-                   ("мажордом", "majordomo"))
+                   ("мажордом", "majordomo", "мж", "mj"))
 
 MAJORDOMO_COMMAND: int = 0
 HINT_COMMANDS: int = 1

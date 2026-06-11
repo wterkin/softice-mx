@@ -17,7 +17,7 @@ COMMANDS: tuple = (("камень", "кам", "rock", "rk"),
                    ("ящерица", "ящер", "lizard", "lz"),
                    ("спок", "спок", "spock", "sp"),
                    ("монета", "мон", "coin", "co"),
-                   ("игры", "games"))
+                   ("игры", "games", "иг", "gm"))
 
 ROCK_COMMANDS: int = 0
 SCISSORS_COMMANDS: int = 1

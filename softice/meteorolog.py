@@ -21,7 +21,7 @@ FORECAST_GROUP: int = 1
 HINT_GROUP: int = 2
 COMMANDS: tuple = (("погода", "пг", "weather", "wt"),
                    ("прогноз", "пр", "forecast", "fr"),
-                   ("метео", "meteo"))
+                   ("метео", "meteo", "мт", "mt"))
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[WEATHER_GROUP])} город - "
                          "получить сводку погоды по указанному городу на сегодня"),
                        (f"{', '.join(COMMANDS[FORECAST_GROUP])} город -"
