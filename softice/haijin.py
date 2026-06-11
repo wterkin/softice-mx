@@ -26,10 +26,10 @@ HINT_COMMANDS: int = 5
 
 DESCRIPTIONS: tuple = ("",
                        "",
-                       ("хокку/hokku/хк/hk [номер] [строка] : получить случайное хокку,"
-                       " либо с с заданным номером, либо содержащее заданную строку"),
-                       "хокку+/hokku+/хк+/hk+ : добавить в базу новое хокку ",
-                       "хокку-/hokku-/хк-/hk- : удалить хокку из базы")
+                       (f"{', '.join(COMMANDS[ASK_COMMANDS])} [номер] [строка] : получить случайное хокку,"
+                        f" либо с с заданным номером, либо содержащее заданную строку"),
+                       f"{', '.join(COMMANDS[ADD_COMMANDS])} : добавить в базу новое хокку ",
+                       f"{', '.join(COMMANDS[DELETE_COMMANDS])} : удалить хокку из базы")
 USER_RIGHTS: tuple = (False, False, True, True, False)
 
 UNIT_ID = "haijin"
