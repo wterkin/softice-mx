@@ -28,6 +28,29 @@ UNIT_ID: str = "statistic"
 SORTED_BY: tuple = ("фраз", "слов", "стикеров", "картинок",
                     "звуковых сообщений", "видео сообщений")
 
+    """
+       content_dict = parsed_dict["content"]
+
+        if content_dict["msgtype"] == "m.text":
+            event = RoomMessageText.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.emote":
+            event = RoomMessageEmote.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.notice":
+            event = RoomMessageNotice.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.image":
+            event = RoomMessageImage.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.audio":
+            event = RoomMessageAudio.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.video":
+            event = RoomMessageVideo.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.file":
+            event = RoomMessageFile.from_dict(parsed_dict)
+        else:
+            event = RoomMessageUnknown.from_dict(parsed_dict)
+
+    """
+
+
 
 class CStatistic(basis.CBasis):
     """Класс статистика."""
