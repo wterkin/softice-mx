@@ -192,7 +192,72 @@ class CStat(CAncestor):
 
         assert pletters > 0, \
             "Количество букв не может быть отрицательным"
-        self.__letters = pletters
+        self.__fletters = pletters
+
+    @property
+    def words(self):
+        """Words"""
+        return self.__fwords
+
+    @words.setter
+    def words(self, pwords):
+        """Words"""
+
+        assert pwords > 0, \
+            "Количество слов не может быть отрицательным"
+        self.__fwords = pwords
+
+    @property
+    def phrases(self):
+        """Phrases"""
+        return self.__fphrases
+
+    @phrases.setter
+    def phrases(self, pphrases):
+        """Phrases"""
+
+        assert pphrases > 0, \
+            "Количество предложений не может быть отрицательным"
+        self.__fphrases = pphrases
+
+    @property
+    def emotes(self):
+        """Emotes"""
+        return self.__femotes
+
+    @emotes.setter
+    def emotes(self, pemotes):
+        """Emotes"""
+
+        assert pemotes > 0, \
+            "Количество эмоций не может быть отрицательным"
+        self.__femotes = pemotes
+
+    @property
+    def notices(self):
+        """Notices"""
+        return self.__fnotices
+
+    @notices.setter
+    def notices(self, pnotices):
+        """Notices"""
+
+        assert pnotices > 0, \
+            "Количество примечаний не может быть отрицательным"
+        self.__fnotices = pnotices
+
+    @property
+    def images(self):
+        """Images"""
+        return self.__fimages
+
+    @images.setter
+    def images(self, pimages):
+        """Images"""
+
+        assert pimages > 0, \
+            "Количество изображений не может быть отрицательным"
+        self.__fimages = pimages
 
     def __repr__(self):
         """Repr"""
@@ -228,25 +293,6 @@ class CStat(CAncestor):
             event = RoomMessageUnknown.from_dict(parsed_dict)
     """
 
-    """
-    def get_all_fields(self):
-        ""Возвращает словарь с данными класса.""
-        fields_dict: dict = {STATUSERID: self.fuserid, STATLETTERS: self.fletters,
-                             STATWORDS: self.fwords, STATPHRASES: self.fphrases,
-                             STATPICTURES: self.fpictures, STATSTICKERS: self.fstickers,
-                             STATAUDIOS: self.faudios, STATVIDEOS: self.fvideos}
-        return fields_dict
-
-    def set_all_fields(self, pdata_dict):
-        ""Присваивает полям записи данные из словаря.""
-        self.fletters = pdata_dict[STATLETTERS]
-        self.fwords = pdata_dict[STATWORDS]
-        self.fphrases = pdata_dict[STATPHRASES]
-        self.fstickers = pdata_dict[STATSTICKERS]
-        self.fpictures = pdata_dict[STATPICTURES]
-        self.faudios = pdata_dict[STATAUDIOS]
-        self.fvideos = pdata_dict[STATVIDEOS]
-    """
 
 class CRights(CAncestor):
     """Класс модели таблицы прав пользователей."""
