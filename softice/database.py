@@ -74,6 +74,7 @@ class CAncestor(Base):
         """Repr"""
         return f"""ID:{self.id},
                    Status:{self.fstatus}"""
+
     def __str__(self):
         """Str"""
     
@@ -143,7 +144,7 @@ class CUser(CAncestor):
 
         ancestor_repr = super().__repr__()
         return f"""{ancestor_repr},
-                   TG user ID:{self.fmatrixuserid},
+                    Matrix user ID:{self.fmatrixuserid},
                     User name:{self.fusername}"""
 
     def __str__(self):
@@ -161,24 +162,26 @@ class CStat(CAncestor):
 
     __tablename__ = 'tbl_stat'
     fuserid = Column(Integer, ForeignKey(CUser.id))
-    fchatid = Column(Integer, ForeignKey(CChat.id))
-    fletters = Column(Integer, default=0)
-    fwords = Column(Integer, default=0)
-    fphrases = Column(Integer, default=0)
-    fstickers = Column(Integer, default=0)
-    fpictures = Column(Integer, default=0)
-    faudios = Column(Integer, default=0)
-    fvideos = Column(Integer, default=0)
+    froomid = Column(Integer, ForeignKey(CChat.id))
+    fletters = Column(Integer, default=0)   # m.text
+    fwords = Column(Integer, default=0)     # m.text
+    fphrases = Column(Integer, default=0)   # m.text
+    femotes = Column(Integer, default=0)    # m.emote
+    fnotices = Column(Integer, default=0)   # m.notice
+    fimages = Column(Integer, default=0)    # m.image
+    faudios = Column(Integer, default=0)    # m.audio
+    fvideos = Column(Integer, default=0)    # m.video
 
-    def __init__(self, puserid: int, pchatid: int, pdata_dict: dict):
+    def __init__(self, puser_id: int, proom_id: int, pdata_dict: dict):
         """Конструктор"""
 
         super().__init__()
-        self.fuserid = puserid
-        self.fchatid = pchatid
+        self.fuserid = puser_id
+        self.fchatid = pchat_id
         self.set_all_fields(pdata_dict)
 
     def __repr__(self):
+        """Repr"""
 
         ancestor_repr = super().__repr__()
         return f"""{ancestor_repr},
@@ -190,7 +193,29 @@ class CStat(CAncestor):
                    Pictures: {self.fpictures},
                    Audios: {self.faudios},
                    Videos: {self.fvideos}"""
+    """
+       content_dict = parsed_dict["content"]
 
+        if content_dict["msgtype"] == "m.text":
+            event = RoomMessageText.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.emote":
+            event = RoomMessageEmote.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.notice":
+            event = RoomMessageNotice.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.image":
+            event = RoomMessageImage.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.audio":
+            event = RoomMessageAudio.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.video":
+            event = RoomMessageVideo.from_dict(parsed_dict)
+        elif content_dict["msgtype"] == "m.file":
+            event = RoomMessageFile.from_dict(parsed_dict)
+        else:
+            event = RoomMessageUnknown.from_dict(parsed_dict)
+    """
+
+    @property
+    
     def get_all_fields(self):
         """Возвращает словарь с данными класса."""
         fields_dict: dict = {STATUSERID: self.fuserid, STATLETTERS: self.fletters,
