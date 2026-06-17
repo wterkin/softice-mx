@@ -6,7 +6,7 @@ from time import sleep
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, Boolean, MetaData, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, MetaData, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import exc
 from sqlalchemy.sql import func
@@ -18,14 +18,14 @@ DATABASE_NAME: str = "softice.db"
 STATUS_ACTIVE: int = 1
 STATUS_INACTIVE: int = 0
 
-STAT_USERID: str = "userid"
-STAT_LETTERS: str = "letters"
-STAT_WORDS: str = "words"
-STAT_PHRASES: str = "phrases"
-STAT_PICTURES: str = "pictures"
-STAT_STICKERS: str = "stickers"
-STAT_AUDIOS: str = "audios"
-STAT_VIDEOS: str = "videos"
+#STAT_USERID: str = "userid"
+#STAT_LETTERS: str = "letters"
+#STAT_WORDS: str = "words"
+#STAT_PHRASES: str = "phrases"
+#STAT_PICTURES: str = "pictures"
+#STAT_STICKERS: str = "stickers"
+#STAT_AUDIOS: str = "audios"
+#STAT_VIDEOS: str = "videos"
 
 MUTE_PENALTY = 1
 BAN_PENALTY = 2
@@ -47,6 +47,7 @@ convention = {
 meta_data = MetaData(naming_convention=convention)
 Base = declarative_base(metadata=meta_data)
 
+# pylint: disable=not-callable
 class CAncestor(Base):
     """Класс-предок всех классов-моделей таблиц SQLAlchemy."""
 
@@ -77,7 +78,7 @@ class CAncestor(Base):
 
     def __str__(self):
         """Str"""
-    
+
         return f"* Ancest: {self.id} * {self.fstatus} *"
 
     def null(self):
@@ -112,7 +113,7 @@ class CRoom(CAncestor):
 
     def __str__(self):
         """Str"""
-    
+
         return f"* Room: {self.id} * {self.fstatus} * {self.froomid} * {self.froomname} *"
 
     def null(self):
@@ -149,7 +150,7 @@ class CUser(CAncestor):
 
     def __str__(self):
         """Str"""
-    
+
         return (f"* User: {self.id} * {self.fstatus} * {self.fmatrixuserid}"
                 f" * {self.fusername} *")
 
@@ -161,24 +162,37 @@ class CStat(CAncestor):
     """Класс статистики."""
 
     __tablename__ = 'tbl_stat'
-    fuserid = Column(Integer, ForeignKey(CUser.id))
-    froomid = Column(Integer, ForeignKey(CChat.id))
-    fletters = Column(Integer, default=0)   # m.text
-    fwords = Column(Integer, default=0)     # m.text
-    fphrases = Column(Integer, default=0)   # m.text
-    femotes = Column(Integer, default=0)    # m.emote
-    fnotices = Column(Integer, default=0)   # m.notice
-    fimages = Column(Integer, default=0)    # m.image
-    faudios = Column(Integer, default=0)    # m.audio
-    fvideos = Column(Integer, default=0)    # m.video
+    __fuserid = Column(Integer, ForeignKey(CUser.id))
+    __froomid = Column(Integer, ForeignKey(CRoom.id))
+    __fletters = Column(Integer, default=0)   # m.text
+    __fwords = Column(Integer, default=0)     # m.text
+    __fphrases = Column(Integer, default=0)   # m.text
+    __femotes = Column(Integer, default=0)    # m.emote
+    __fnotices = Column(Integer, default=0)   # m.notice
+    __fimages = Column(Integer, default=0)    # m.image
+    __faudios = Column(Integer, default=0)    # m.audio
+    __fvideos = Column(Integer, default=0)    # m.video
 
     def __init__(self, puser_id: int, proom_id: int, pdata_dict: dict):
         """Конструктор"""
 
         super().__init__()
         self.fuserid = puser_id
-        self.fchatid = pchat_id
+        self.froomid = proom_id
         self.set_all_fields(pdata_dict)
+
+    @property
+    def letters(self):
+        """Letters"""
+        return self.__fletters
+
+    @letters.setter
+    def letters(self, pletters):
+        """Letters"""
+
+        assert pletters > 0, \
+            "Количество букв не может быть отрицательным"
+        self.__letters = pletters
 
     def __repr__(self):
         """Repr"""
@@ -214,10 +228,9 @@ class CStat(CAncestor):
             event = RoomMessageUnknown.from_dict(parsed_dict)
     """
 
-    @property
-    
+    """
     def get_all_fields(self):
-        """Возвращает словарь с данными класса."""
+        ""Возвращает словарь с данными класса.""
         fields_dict: dict = {STATUSERID: self.fuserid, STATLETTERS: self.fletters,
                              STATWORDS: self.fwords, STATPHRASES: self.fphrases,
                              STATPICTURES: self.fpictures, STATSTICKERS: self.fstickers,
@@ -225,7 +238,7 @@ class CStat(CAncestor):
         return fields_dict
 
     def set_all_fields(self, pdata_dict):
-        """Присваивает полям записи данные из словаря."""
+        ""Присваивает полям записи данные из словаря.""
         self.fletters = pdata_dict[STATLETTERS]
         self.fwords = pdata_dict[STATWORDS]
         self.fphrases = pdata_dict[STATPHRASES]
@@ -233,14 +246,14 @@ class CStat(CAncestor):
         self.fpictures = pdata_dict[STATPICTURES]
         self.faudios = pdata_dict[STATAUDIOS]
         self.fvideos = pdata_dict[STATVIDEOS]
-
+    """
 
 class CRights(CAncestor):
     """Класс модели таблицы прав пользователей."""
 
     __tablename__ = 'tbl_rights'
     fuserid = Column(Integer, ForeignKey(CUser.id))
-    fchatid = Column(Integer, ForeignKey(CChat.id))
+    fchatid = Column(Integer, ForeignKey(CRoom.id))
     fkarma = Column(Integer, default=1000)
     fadmin = Column(Boolean, default=True)
 
@@ -318,7 +331,7 @@ class CDataBase:
             if delayed > 0:
 
                 print(f"* Commit paused for {delayed//10} second.")
-        except SQLAlchemyError:
+        except exc.SQLAlchemyError:
 
             print("Ошибка!!!")
         finally:
