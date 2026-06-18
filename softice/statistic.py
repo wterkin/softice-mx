@@ -6,11 +6,11 @@
 from sqlalchemy.exc import SQLAlchemyError
 
 #import prototype
-import database as db
 #import functions as func
 #import constants as cn
 
 from softice import basis
+from softice import database as db
 
 TOP_10_GROUP: int = 0
 TOP_25_GROUP: int = 1
@@ -23,10 +23,14 @@ COMMANDS: tuple = (("пер10", "top10"),
                    ("пер50", "top50"), 
                    ("личные", "pers"),
                    ("статистика", "стат", "statistic", "stat"))
+
 UNIT_ID: str = "statistic"
 # FOREIGN_BOTS: str = "foreign_bots"
+
 SORTED_BY: tuple = ("фраз", "слов", "стикеров", "картинок",
                     "звуковых сообщений", "видео сообщений")
+
+DATABASE_NAME: str = "softice.db"
 
     """
        content_dict = parsed_dict["content"]
@@ -58,15 +62,14 @@ class CStatistic(basis.CBasis):
     def __init__(self, pconfig: dict):
 
         super().__init__(pconfig)
-        self.data_path: str = self.config.data_folder + HAIJIN_FOLDER
-        file_name =  Path(self.data_path) / "softice.db"
-        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path)
+        self.data_path: str = self.config.data_folder
+        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, DATABASE_NAME)
+        file_name =  Path(self.data_path) / DATABASE_NAME
         if not file_name.is_file():
 
             self.database.create()
-            print("Create!")
+            print("База данных создана.")
         print("Статистик стартовал.")
-        
 
 
     def add_chat_to_base(self, ptg_chat_id: int, ptg_chat_title: str) -> int:

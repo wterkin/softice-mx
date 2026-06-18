@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, Boolean, MetaData, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy import exc
 from sqlalchemy.sql import func
 # py lint: disable=C0301
@@ -31,6 +32,12 @@ MUTE_PENALTY = 1
 BAN_PENALTY = 2
 RUSSIAN_DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
 WAITING_TIME: float = 0.1
+
+ENGINE: str = "postgresql+asyncpg"
+DB_USER: str = "softice"
+DB_PASSWORD: str = "qz7$tEr" 
+DB_HOST: str = "localhost"
+DATABASE: str = "softice"
 
 convention = {
     "all_column_names": lambda constraint, table: "_".join([
@@ -394,7 +401,6 @@ class CDataBase:
             # *** Разлочим базу
             self.busy = False
 
-
     def connect(self):
         """Устанавливает соединение с БД."""
 
@@ -402,9 +408,11 @@ class CDataBase:
         try:
             alchemy_echo: bool = self.config["alchemy_echo"] == "1"
             # print(f"{alchemy_echo=} {self.config['alchemy_echo']=}")
-            self.engine = create_engine('sqlite:///' + self.data_path + self.database_name,
-                                        echo=alchemy_echo,
-                                        connect_args={'check_same_thread': False})
+            self.engine = create_async_engine(f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DATABASE}",
+                                              echo=alchemy_echo,
+                                              pool_size=10,
+                                              max_overflow=20,
+                                              connect_args={'check_same_thread': False})
             session = sessionmaker()
             session.configure(bind=self.engine)
             self.session = session()
