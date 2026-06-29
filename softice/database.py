@@ -5,12 +5,13 @@ from pathlib import Path
 from time import sleep
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, Boolean, MetaData, ForeignKey, DateTime
+# from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession  #, async_sessionmaker
 from sqlalchemy import exc
 from sqlalchemy.sql import func
+from sqlalchemy.orm import sessionmaker
 # py lint: disable=C0301
 # py lint: disable=line-too-long
 
@@ -35,9 +36,10 @@ WAITING_TIME: float = 0.1
 
 ENGINE: str = "postgresql+asyncpg"
 DB_USER: str = "softice"
-DB_PASSWORD: str = "qz7$tEr" 
+DB_PASSWORD: str = "qz7$tEr"
 DB_HOST: str = "localhost"
 DATABASE: str = "softice"
+DB_STRING: str = f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DATABASE}"
 
 convention = {
     "all_column_names": lambda constraint, table: "_".join([
@@ -208,7 +210,7 @@ class CStat(CAncestor):
     def roomid(self):
         """Room ID"""
 
-    return self.__froomid
+        return self.__froomid
 
 
     @roomid.setter
@@ -224,7 +226,7 @@ class CStat(CAncestor):
     def letters(self):
         """Letters"""
 
-    return self.__fletters
+        return self.__fletters
 
 
     @letters.setter
@@ -367,8 +369,7 @@ class CDataBase:
         self.application_folder = Path.cwd()
         self.config: dict = pconfig
         self.data_path: str = pdata_path
-        self.session = None
-        self.engine = None
+        self.AsyncSessionLocal = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
         self.connect()
@@ -388,8 +389,12 @@ class CDataBase:
         # *** Сохраняем данные
         try:
 
-            self.session.add(obj)
-            self.session.commit()
+            async with self.AsyncSessionLocal as session:
+                
+                async with session.begin:
+
+                    self.session.add(obj)
+                    self.session.commit()
             if delayed > 0:
 
                 print(f"* Commit paused for {delayed//10} second.")
@@ -406,17 +411,15 @@ class CDataBase:
 
         result: bool = False
         try:
-            alchemy_echo: bool = self.config["alchemy_echo"] == "1"
-            # print(f"{alchemy_echo=} {self.config['alchemy_echo']=}")
-            self.engine = create_async_engine(f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DATABASE}",
-                                              echo=alchemy_echo,
-                                              pool_size=10,
-                                              max_overflow=20,
-                                              connect_args={'check_same_thread': False})
-            session = sessionmaker()
-            session.configure(bind=self.engine)
-            self.session = session()
-            Base.metadata.bind = self.engine
+            
+            engine = create_async_engine(DB_STRING,
+                                         echo=True,
+                                         pool_size=10,
+                                         max_overflow=20,
+                                         pool_pre_ping=True,
+                                         connect_args={'check_same_thread': False})
+            self.AsyncSessionLocal = async_sessionmaker(bind=engine, 
+                                                        expire_on_commit=False)
             result = True
         except exc.SQLAlchemyError:
 
@@ -443,10 +446,11 @@ class CDataBase:
         return Path(self.data_path + self.database_name).exists()
 
 
-    def get_session(self):
+    async def get_session(self):
 
         """Возвращает экземпляр session."""
-        return self.session
+        async with self.AsyncSessionLocal() as session:
+        return session
 
 
     def query_data(self, cls):
@@ -461,7 +465,8 @@ class CDataBase:
 
             # *** Теперь сами её залочим.
             self.busy = True
-            query = self.session.query(cls)
+            session = await self.get_session()
+            query = await session.execute(select(cls))
         finally:
 
             # *** Разлочим базу
