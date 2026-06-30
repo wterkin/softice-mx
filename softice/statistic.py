@@ -5,10 +5,6 @@
 
 from sqlalchemy.exc import SQLAlchemyError
 
-#import prototype
-#import functions as func
-#import constants as cn
-
 from softice import basis
 from softice import database as db
 
@@ -18,14 +14,13 @@ TOP_50_GROUP: int = 2
 PERSONAL_GROUP: int = 3
 HINT_GROUP: int = 4
 
-COMMANDS: tuple = (("пер10", "top10"), 
-                   ("пер25", "top25"), 
-                   ("пер50", "top50"), 
+COMMANDS: tuple = (("пер10", "top10"),
+                   ("пер25", "top25"),
+                   ("пер50", "top50"),
                    ("личные", "pers"),
                    ("статистика", "стат", "statistic", "stat"))
 
 UNIT_ID: str = "statistic"
-# FOREIGN_BOTS: str = "foreign_bots"
 
 SORTED_BY: tuple = ("фраз", "слов", "стикеров", "картинок",
                     "звуковых сообщений", "видео сообщений")
@@ -81,7 +76,7 @@ class CStatistic(basis.CBasis):
             self.database.commit_changes(chat)
             return chat.id
         except SQLAlchemyError:
-            
+
             return cn.ERROR_CODE
 
 
@@ -94,7 +89,7 @@ class CStatistic(basis.CBasis):
             self.database.commit_changes(stat)
             return stat.id
         except SQLAlchemyError:
-            
+
             return cn.ERROR_CODE
 
 
@@ -102,14 +97,14 @@ class CStatistic(basis.CBasis):
         """Добавляет нового пользователя в БД и возвращает его ID."""
 
         try:
-        
+
             user = db.CUser(ptg_user_id, ptg_user_title)
             self.database.commit_changes(user)
             return user.id
         except SQLAlchemyError:
-            
+
             return cn.ERROR_CODE
-            
+
 
     def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
         """Возвращает True, если модуль может обработать команду, иначе False."""
@@ -125,7 +120,7 @@ class CStatistic(basis.CBasis):
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
         try:
-          
+
             query = self.database.query_data(db.CChat)
             query = query.filter_by(fchatid=ptg_chat_id)
             chat = query.first()
@@ -134,7 +129,7 @@ class CStatistic(basis.CBasis):
                 return chat.id
             return cn.ERROR_CODE
         except SQLAlchemyError:
-            
+
             return cn.ERROR_CODE
 
 
@@ -283,7 +278,7 @@ class CStatistic(basis.CBasis):
             else:
 
                 message_text: str = pevent[cn.MCAPTION]
-            # *** Получим остальные данные    
+            # *** Получим остальные данные
             tg_chat_id: int = pevent[cn.MCHAT_ID]
             tg_chat_title: str = pevent[cn.MCHAT_TITLE]
             tg_user_id: int = pevent[cn.MUSER_ID]
@@ -361,7 +356,7 @@ class CStatistic(basis.CBasis):
                 result = True
         return result
 
-        
+
     def statistic(self, pchat_id: int, pchat_title: str, puser_title, pmessage_text: str):
         """Обработчик команд."""
 
@@ -387,7 +382,7 @@ class CStatistic(basis.CBasis):
                         if order_by < 1 or order_by > 6:
 
                             order_by = 1
-                        # print(f"********** {order_by=}")    
+                        # print(f"********** {order_by=}")
                     if command in TOP_10_COMMAND:
 
                         answer = self.get_statistic(pchat_id, 10, order_by)

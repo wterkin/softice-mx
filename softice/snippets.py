@@ -27,12 +27,12 @@ class Base(DeclarativeBase):
 
 class User(Base):
     __tablename__ = "users"
-    
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), 
+        DateTime(timezone=True),
         server_default=func.now()
     )
 
@@ -142,13 +142,13 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
 class UserRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
-    
+
     async def get_by_id(self, user_id: int) -> User | None:
         result = await self.session.execute(
             select(User).where(User.id == user_id)
         )
         return result.scalar_one_or_none()
-    
+
     async def create(self, username: str, email: str) -> User:
         user = User(username=username, email=email)
         self.session.add(user)
@@ -196,15 +196,6 @@ async with AsyncSessionLocal() as session:
         user = User(username="test")
         session.add(user)
 
-
-async def init_db():
-    async with engine.begin() as conn:
-        # Создать все таблицы
-        await conn.run_sync(Base.metadata.create_all)
-        
-        # Или удалить и создать заново (для разработки)
-        # await conn.run_sync(Base.metadata.drop_all)
-        # await conn.run_sync(Base.metadata.create_all)
 
 # Запуск
 asyncio.run(init_db())

@@ -2,16 +2,15 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль функций, связанных с БД."""
 from pathlib import Path
-from time import sleep
+# from time import sleep
 
-from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession  #, async_sessionmaker
-from sqlalchemy import exc
+# from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select
 from sqlalchemy.sql import func
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
+# from sqlalchemy.orm import sessionmaker
+
 # py lint: disable=C0301
 # py lint: disable=line-too-long
 
@@ -361,83 +360,80 @@ class CStat(CAncestor):
                    Audios: {self.faudios},
                    Videos: {self.fvideos}"""
 
+
 class CDataBase:
-    """Класс."""
+    """Класс для работы с базой данных."""
 
     def __init__(self, pconfig, pdata_path, pdatabase_name=DATABASE_NAME):
         """Конструктор класса."""
-        self.application_folder = Path.cwd()
+        # self.application_folder = Path.cwd()
         self.config: dict = pconfig
         self.data_path: str = pdata_path
         self.AsyncSessionLocal = None
+        self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
         self.connect()
 
 
-    def commit_changes(self, obj):
+    async def commit_changes(self, obj):
         """Сохраняет изменения в БД."""
 
-        # *** Если база залочена - подождем.
-        delayed: int = 0
-        while self.busy:
-
-            sleep(WAITING_TIME)
-            delayed += 1
-        # *** Теперь сами её залочим.
-        self.busy = True
         # *** Сохраняем данные
         try:
 
-            async with self.AsyncSessionLocal as session:
-                
+            async with self.AsyncSessionLocal() as session:
+
                 async with session.begin:
 
-                    self.session.add(obj)
-                    self.session.commit()
-            if delayed > 0:
+                    session.add(obj)
 
-                print(f"* Commit paused for {delayed//10} second.")
         except exc.SQLAlchemyError:
 
-            print("Ошибка!!!")
-        finally:
+            print("Database error! * database.commit_changes")
 
-            # *** Разлочим базу
-            self.busy = False
 
-    def connect(self):
+    async def connect(self):
         """Устанавливает соединение с БД."""
 
         result: bool = False
         try:
-            
-            engine = create_async_engine(DB_STRING,
-                                         echo=True,
-                                         pool_size=10,
-                                         max_overflow=20,
-                                         pool_pre_ping=True,
-                                         connect_args={'check_same_thread': False})
-            self.AsyncSessionLocal = async_sessionmaker(bind=engine, 
+
+            self.engine = create_async_engine(DB_STRING,
+                                              echo=True,
+                                              pool_size=10,
+                                              max_overflow=20,
+                                              pool_pre_ping=True,
+                                              connect_args={'check_same_thread': False})
+            self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
                                                         expire_on_commit=False)
             result = True
         except exc.SQLAlchemyError:
 
-            print("Ошибка подключения к БД!")
+            print("Database error! * database.connect")
         return result
 
 
-    def create(self):
+    async def create(self) -> bool:
         """Создает или изменяет БД в соответствии с описанной в классах структурой."""
 
-        Base.metadata.create_all(self.engine)
+        try:
+
+            async with self.engine.begin() as conn:
+
+                # Создать все таблицы
+                await conn.run_sync(Base.metadata.create_all)
+                return True
+        except exc.SQLAlchemyError:
+
+            print("Database error! * database.create")
+            return False
 
 
-    def disconnect(self):
-
+    async def disconnect(self):
         """Разрывает соединение с БД."""
-        self.session.close()
-        self.engine.dispose()
+
+        await self.engine.dispose()
 
 
     def exists(self):
@@ -449,26 +445,23 @@ class CDataBase:
     async def get_session(self):
 
         """Возвращает экземпляр session."""
-        async with self.AsyncSessionLocal() as session:
-        return session
+        #async with self.AsyncSessionLocal() as session:
+        #return session
+        return self.AsyncSessionLocal
 
 
-    def query_data(self, cls):
+    async def query_data(self, cls):
         """Возвращает выборку заданнного класса."""
-
-        # *** Если база залочена - подождем.
-        while self.busy:
-
-            sleep(WAITING_TIME)
 
         try:
 
             # *** Теперь сами её залочим.
-            self.busy = True
-            session = await self.get_session()
-            query = await session.execute(select(cls))
-        finally:
+            async_session_class = await self.get_session()
+            async with async_session_class() as session:
 
-            # *** Разлочим базу
-            self.busy = False
-        return query
+                return await session.execute(select(cls))
+
+        except exc.SQLAlchemyError:
+
+            print("Database error! * database.query_data")
+        return None
