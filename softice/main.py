@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 #
 import asyncio
@@ -14,6 +15,12 @@ from nio import (
     LoginError,
     MegolmEvent,
     RoomMessageText,
+    RoomMessageEmote,
+    RoomMessageNotice,
+    RoomMessageImage,
+    RoomMessageAudio,
+    RoomMessageVideo,
+    RoomMessageFile,
     UnknownEvent,
 )
 
@@ -32,12 +39,12 @@ async def main():
 
     # *** Если в командной строке указан иной конфиг..
     if len(sys.argv) > 1:
-    	
-      	# *** ... берём его.
+
+        # *** ... берём его.
         config_path = sys.argv[1]
     else:
-    
-    	# *** ...иначе берём стандартный
+
+        # *** ...иначе берём стандартный
         config_path = CONFIG_FILE
     # *** Читаем конфиг, парсим его и создаем объект, хранящий конфигурацию.
     config = Config(config_path)
@@ -48,7 +55,7 @@ async def main():
         max_limit_exceeded=0,
         max_timeouts=0,
         store_sync_tokens=True,
-        encryption_enabled=False, 
+        encryption_enabled=False,
     )
     # *** Создаем основной объект бота типа AsyncClient
     client = AsyncClient(
@@ -60,14 +67,21 @@ async def main():
     )
     # *** Если есть токен пользователя - используем его.
     if config.user_token:
-    
+
         client.access_token = config.user_token
         client.user_id = config.user_id
 
     # *** Вешаем обработчики событий
     callbacks = Callbacks(client, store, config)
     # Обработчик сообщений
-    client.add_event_callback(callbacks.message, (RoomMessageText,))
+    #client.add_event_callback(callbacks.message, (RoomMessageText, ))
+    client.add_event_callback(callbacks.message, (RoomMessageText,
+                                                  RoomMessageEmote,
+                                                  RoomMessageNotice,
+                                                  RoomMessageImage,
+                                                  RoomMessageAudio,
+                                                  RoomMessageVideo,
+                                                  RoomMessageFile))
     # Обработчик приглашений
     client.add_event_callback(
         callbacks.invite_event_filtered_callback, (InviteMemberEvent,)
@@ -92,10 +106,10 @@ async def main():
 
     # *** Бесконечный цикл попыток подключения.
     while True:
-    
+
         try:
-	
-    	    # *** Если есть токен пользователя...
+
+            # *** Если есть токен пользователя...
             if config.user_token:
 
                 # *** непонятно
@@ -103,14 +117,14 @@ async def main():
 
                 # *** Если клиент должен выгрузить ключи...
                 if client.should_upload_keys:
-                    
+
                     # *** Ожидаем выгрузки
                     await client.keys_upload()
             else:
-            
+
                 # *** Логинимся с использованием имени пользователя и пароля
                 try:
-                    
+
                     # *** Ждём ответа от сервера.
                     login_response = await client.login(
                         password=config.user_password,
@@ -118,7 +132,7 @@ async def main():
                     )
                     # *** Если залогиниться не удалось, пишем в лог.
                     if type(login_response) == LoginError:
-                    
+
                         logger.error("Failed to login: %s", login_response.message)
                         return False
                 except LocalProtocolError as e:

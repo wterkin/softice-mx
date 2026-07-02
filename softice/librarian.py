@@ -14,13 +14,13 @@ LIBRARIAN_FOLDER: str = "librarian/"
 QUOTES_FILE_NAME: str = "quotes.txt"
 
 
-COMMANDS: tuple = (("цитата", "цт", "quote", "qt"),
-                   ("цитиск", "цт?", "quotefind", "qt?"),
-                   ("цитдоб", "цт+", "quoteadd", "qt+"),
-                   ("цитудал", "цт-", "quotedel", "qt-"),
+COMMANDS: tuple = (("цитата", "quote", "цт", "qt"),
+                   ("цитиск", "quotefind", "цт?", "qt?"),
+                   ("цитдоб", "quoteadd", "цт+", "qt+"),
+                   ("цитудал", "quotedel", "цт-", "qt-"),
                    ("lbreload", "lbrl"),
                    ("lbsave", "lbsv"),
-                   ("библиотека", "биб", "library", "lib")
+                   ("библиотека", "library", "биб", "lib")
                   )
 
 ASK_QUOTE_COMMAND: int = 0

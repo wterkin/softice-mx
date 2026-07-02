@@ -112,6 +112,7 @@ class Config:
         self.babbler = self._get_cfg(["matrix", "babbler"], required=True)
         # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
         self.test_chat = self._get_cfg(["matrix", "test_chat"], required=True)
+        self.debug = self._get_cfg(["matrix", "debug"], required=True)
         """
         !!!!!!!!!!!!!!!!!!!!!!!!! self.chats={'Арда': 'babbler', 'Ботовка': 'babbler'}
         !!!!!!!!!!!!!!!!!!!!!!!!! self.meteorolog={'api_key': '3c15fe44d0d0d93e28fd81b00a8e46bf'}

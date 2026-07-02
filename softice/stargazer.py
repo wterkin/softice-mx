@@ -22,7 +22,7 @@ COMMANDS: tuple = (("пасха", "easter"),
                    ("дата", "date"),
                    ("день", "day"),
                    ("новыйгод", "newyear", "нг", "ny"),
-                   ("календарь", "кл", "calendar", "cl")
+                   ("календарь", "calendar", "кл", "cl")
                   )
 
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[EASTER_GROUP])} [год] - "

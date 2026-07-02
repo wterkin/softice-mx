@@ -55,17 +55,41 @@ ERROR_CODE: int = -1
         event = RoomMessageEmote.from_dict(parsed_dict)
     elif content_dict["msgtype"] == "m.notice":
         event = RoomMessageNotice.from_dict(parsed_dict)
-    elif content_dict["msgtype"] == "m.image":
-        event = RoomMessageImage.from_dict(parsed_dict)
-    elif content_dict["msgtype"] == "m.audio":
-        event = RoomMessageAudio.from_dict(parsed_dict)
-    elif content_dict["msgtype"] == "m.video":
-        event = RoomMessageVideo.from_dict(parsed_dict)
-    elif content_dict["msgtype"] == "m.file":
-        event = RoomMessageFile.from_dict(parsed_dict)
     else:
         event = RoomMessageUnknown.from_dict(parsed_dict)
 
+RoomMessageVideo(source={'unsigned': {'membership': 'join'}, 'content': {'body': 'we_and_penguin.mp4', 'info': {'duration': 5459, 'h': 768, 'mimetype': 'video/mp4', 'size': 511978, 'thumbnail_info': {'h': 600, 'mimetype': 'image/jpeg', 'size': 175495, 'w': 400}, 'thumbnail_url': 'mxc://sibnsk.net/OGFIGpTYtfhHoeQZsKdSdjMU', 'w': 512, 'xyz.amorgan.blurhash': 'TpJ8kaRP?b-;M{Rj~qWBM{t7t7ax'}, 'm.mentions': {}, 'msgtype': 'm.video', 'url': 'mxc://sibnsk.net/idvjZMIwupHYsEgndCyrEpas'}, 'origin_server_ts': 1782996328242, 'sender': '@namo:sibnsk.net', 'type': 'm.room.message', 'event_id': '$jRckPbSoq8PIIb84k7oAExq2ugoxJY7Y4fEz07y0PjQ'}, event_id='$jRckPbSoq8PIIb84k7oAExq2ugoxJY7Y4fEz07y0PjQ', sender='@namo:sibnsk.net', server_timestamp=1782996328242, decrypted=False, verified=False, sender_key=None, session_id=None, transaction_id=None, url='mxc://sibnsk.net/idvjZMIwupHYsEgndCyrEpas', body='we_and_penguin.mp4')
+RoomMessageImage(source={'unsigned': {'membership': 'join'}, 'content': {'body': 'getImage.gif', 'info': {'h': 720, 'mimetype': 'image/gif', 'org.matrix.msc4230.is_animated': False, 'size': 23346, 'w': 938, 'xyz.amorgan.blurhash': 'LCSF;LWA%M_3-;?bIU9Z~qNGM{WA'}, 'm.mentions': {}, 'msgtype': 'm.image', 'url': 'mxc://sibnsk.net/oekOtgYvuWqSwZNWDatKLHcO'}, 'origin_server_ts': 1782996112426, 'sender': '@namo:sibnsk.net', 'type': 'm.room.message', 'event_id': '$42UhlIsI-depk-UfEfW4bofEm73X7-OiVgs-fzDJl9c'}, event_id='$42UhlIsI-depk-UfEfW4bofEm73X7-OiVgs-fzDJl9c', sender='@namo:sibnsk.net', server_timestamp=1782996112426, decrypted=False, verified=False, sender_key=None, session_id=None, transaction_id=None, url='mxc://sibnsk.net/oekOtgYvuWqSwZNWDatKLHcO', body='getImage.gif')
+RoomMessageAudio(source={'unsigned': {'membership': 'join'}, 'content': {'body': 'forest_sounds.flac', 'info': {'duration': 243294, 'mimetype': 'audio/flac', 'size': 31217543}, 'm.mentions': {}, 'msgtype': 'm.audio', 'url': 'mxc://sibnsk.net/zwYAqRoIKqNCeEFCrcKCGscb'}, 'origin_server_ts': 1782996432895, 'sender': '@namo:sibnsk.net', 'type': 'm.room.message', 'event_id': '$3klkKhwO8KdkNaWvJpf62bc2J8xvhO8u7REySdcY2do'}, event_id='$3klkKhwO8KdkNaWvJpf62bc2J8xvhO8u7REySdcY2do', sender='@namo:sibnsk.net', server_timestamp=1782996432895, decrypted=False, verified=False, sender_key=None, session_id=None, transaction_id=None, url='mxc://sibnsk.net/zwYAqRoIKqNCeEFCrcKCGscb', body='forest_sounds.flac')
+RoomMessageFile(source={'unsigned': {'membership': 'join'}, 'content': {'body': 'pgsocworkpay-flask_20260609_1704.7z', 'info': {'mimetype': 'application/x-7z-compressed', 'size': 2961234}, 'm.mentions': {}, 'msgtype': 'm.file', 'url': 'mxc://sibnsk.net/VonMMDvUDefrZMRHMftHipyh'}, 'origin_server_ts': 1782996768265, 'sender': '@namo:sibnsk.net', 'type': 'm.room.message', 'event_id': '$ibi4BGDj544zkTGhY0-q-GZb-JweFvOyRJXBUIVYsPw'}, event_id='$ibi4BGDj544zkTGhY0-q-GZb-JweFvOyRJXBUIVYsPw', sender='@namo:sibnsk.net', server_timestamp=1782996768265, decrypted=False, verified=False, sender_key=None, session_id=None, transaction_id=None, url='mxc://sibnsk.net/VonMMDvUDefrZMRHMftHipyh', body='pgsocworkpay-flask_20260609_1704.7z')
+RoomMessageAudio(source={'unsigned': {'membership': 'join'}, 'content': {'body': 'Voice message', 'info': {'duration': 6931, 'mimetype': 'audio/ogg', 'size': 12004}, 'm.mentions': {}, 'msgtype': 'm.audio', 'org.matrix.msc1767.audio': {'duration': 6931, 'waveform': [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0]}, 'org.matrix.msc1767.file': {'mimetype': 'audio/ogg', 'name': 'Voice message.ogg', 'size': 12004, 'url': 'mxc://sibnsk.net/IocSSaMvXDkCZOgQHqTJmvez'}, 'org.matrix.msc1767.text': 'Voice message', 'org.matrix.msc3245.voice': {}, 'url': 'mxc://sibnsk.net/IocSSaMvXDkCZOgQHqTJmvez'}, 'origin_server_ts': 1782996912468, 'sender': '@namo:sibnsk.net', 'type': 'm.room.message', 'event_id': '$KagU_DTSXfo5e642aFOkSALvHHBK5-9-bqbNtINnLbA'}, event_id='$KagU_DTSXfo5e642aFOkSALvHHBK5-9-bqbNtINnLbA', sender='@namo:sibnsk.net', server_timestamp=1782996912468, decrypted=False, verified=False, sender_key=None, session_id=None, transaction_id=None, url='mxc://sibnsk.net/IocSSaMvXDkCZOgQHqTJmvez', body='Voice message'
+async def on_message(room: nio.MatrixRoom, event):
+    # Игнорируем сообщения бота
+    if event.sender == self.client.user:
+        return
+
+    # Различаем типы через isinstance
+    if isinstance(event, nio.RoomMessageText):
+        self.stats["text"] += 1
+        # event.body — это строка с текстом
+        print(f"📝 Текст ({len(event.body)} символов)")
+
+    elif isinstance(event, nio.RoomMessageImage):
+        self.stats["image"] += 1
+        # event.url — ссылка на картинку
+        print(f"🖼️ Картинка")
+
+    elif isinstance(event, nio.RoomMessageAudio):
+        self.stats["audio"] += 1
+        print(f"🎵 Аудио")
+
+    elif isinstance(event, nio.RoomMessageVideo):
+        self.stats["video"] += 1
+        print(f"🎬 Видео")
+
+    elif isinstance(event, nio.RoomMessageFile):
+        self.stats["file"] += 1
+        print(f"📎 Файл")
 """
 
 
@@ -104,25 +128,6 @@ class CStatistic(basis.CBasis):
         except SQLAlchemyError:
 
             return ERROR_CODE
-
-    """
-    if content_dict["msgtype"] == "m.text":
-                event = RoomMessageText.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.emote":
-                event = RoomMessageEmote.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.notice":
-                event = RoomMessageNotice.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.image":
-                event = RoomMessageImage.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.audio":
-                event = RoomMessageAudio.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.video":
-                event = RoomMessageVideo.from_dict(parsed_dict)
-            elif content_dict["msgtype"] == "m.file":
-                event = RoomMessageFile.from_dict(parsed_dict)
-            else:
-                event = RoomMessageUnknown.from_dict(parsed_dict)
-    """
 
 
     def add_user_stat(self, puser_id: int, proom_id: int, pstatfields: dict):

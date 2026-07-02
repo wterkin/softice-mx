@@ -12,7 +12,10 @@ from nio import (
     MatrixRoom,
     MegolmEvent,
     RoomGetEventError,
+    RoomMessage,
     RoomMessageText,
+    RoomMessageImage,
+
     UnknownEvent,
 )  # noqa
 # pylint: enable=import-error
@@ -39,7 +42,10 @@ logger = logging.getLogger(__name__)
 # pylint: disable=logging-fstring-interpolation
 
 MINIMUM_USER_QUANTITY: int = 2
-OBSOLETE_PERIOD: int = 3000
+#if config.debug:
+OBSOLETE_PERIOD: int = 50000
+#else:
+#    OBSOLETE_PERIOD: int = 3000
 HELP_MESSAGE: str = ("Все команды к боту должны начинаться с ! (восклицательного знака). "
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
@@ -90,7 +96,7 @@ class Callbacks:
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
-        """Возвращает True, если разница между временем события и текущим 
+        """Возвращает True, если разница между временем события и текущим
            равна OBSOLETE_PERIOD и больше. """
         now_time: int = int(datetime.now().timestamp()*1000)
         delta: int = now_time - pevent.server_timestamp
@@ -104,6 +110,17 @@ class Callbacks:
             room: The room the event came from.
             event: The event defining the message.
         """
+        print(f"Тип event: {type(event)}")
+        print(f"Класс event: {event.__class__.__name__}")
+        print(f"Это строка? {isinstance(event, str)}")
+        print(f"Это RoomMessage? {isinstance(event, RoomMessage)}")
+        print(f"Это RoomMessageText? {isinstance(event, RoomMessageText)}")
+        print(f"Это RoomMessageImage? {isinstance(event, RoomMessageImage)}")
+        print("-" * 40)
+
+        if self.config.debug:
+
+            print(":: clbk.message :: z ::")
         # *** Вызываем процедуру, которая выполняется один раз.
         await self.run_once()
         answer: str = ""
@@ -125,11 +142,17 @@ class Callbacks:
             # *** Получим текст сообщения
             message: str = event.body
 
+            #if self.config.debug:
+
+            #    print(f":: clbk.message :: i :: {message}")
             # *** Выведем в лог отладочное сообщение
             logger.debug(
                 f"Bot message received for room {room.display_name} | "
                 f"{room.user_name(event.sender)}: {message}"
             )
+            if self.config.debug:
+
+                print(f":: clbk.message :: evn :: {event}")
 
             # Process as message if in a public room without command prefix
             # room.is_group is often a DM, but not always.
@@ -143,12 +166,14 @@ class Callbacks:
             local_name: str = await self.get_display_name_in_room(room.room_id, event.sender)
             # rint(f"***** {local_name=}")
             has_command_prefix = message.startswith(self.command_prefix)
+            #if self.config.debug:
+
+            #    print(f":: clbk.message :: cp :: {self.command_prefix}")
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
-                # rint(f":::: 1 {message}")
                 # *** Может, запросили помощь?
-                if "!help" in message:
+                if "help" in message:
 
                     answer = self.send_hints(room.name)
                 if not answer:
@@ -217,7 +242,16 @@ class Callbacks:
                 # answer = answer.strip()
 
                 # rint(f"+++ Cllb +++ 3 +++ {answer=}")
+                if self.config.debug:
+
+                    print(f":: clbk.message :: s :: {answer}")
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
+            return
+
+        else:
+            if self.config.debug:
+
+                print(":: clbk.message :: O ::")
             return
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,
@@ -237,10 +271,8 @@ class Callbacks:
 
     async def invite(self, room: MatrixRoom, event: InviteMemberEvent) -> None:
         """Callback for when an invite is received. Join the room specified in the invite.
-
         Args:
             room: The room that we are invited to.
-
             event: The invite event.
         """
         logger.debug(f"Got invite to {room.room_id} from {event.sender}.")
