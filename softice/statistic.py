@@ -5,9 +5,12 @@
 
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from nio import RoomMessageText
+
+from nio import RoomMessageText, RoomMessageVideo, RoomMessageAudio,\
+                RoomMessageImage, RoomMessageFile
 
 from softice import basis
 from softice import database as db
@@ -90,15 +93,15 @@ class CStatistic(basis.CBasis):
         print("Статистик стартовал.")
 
 
-    def add_chat_to_base(self, proom_name: str, proom_id: int) -> int:
+    def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
         """Добавляет новую комнату в БД и возвращает его ID."""
 
-        assert proom_name is not None, \
-            "Assert: [statistic.add_chat_to_base] " \
-            "Пропущен параметр <proom_name> !"
         assert proom_id is not None, \
             "Assert: [statistic.add_chat_to_base] " \
             "Пропущен параметр <proom_id> !"
+        assert proom_name is not None, \
+            "Assert: [statistic.add_chat_to_base] " \
+            "Пропущен параметр <proom_name> !"
 
         try:
 
@@ -110,7 +113,7 @@ class CStatistic(basis.CBasis):
             return ERROR_CODE
 
 
-    def add_user_stat(self, puser_id: int, proom_id: int, pstatfields: dict):
+    def add_user_stat(self, puser_id: int, proom_id: int, pstat: db.CStat) -> int:
         """Добавляет новую запись статистики по человеку."""
 
         assert puser_id is not None, \
@@ -122,9 +125,8 @@ class CStatistic(basis.CBasis):
 
         try:
 
-            stat = db.CStat(puser_id, proom_id, pstatfields)
-            self.database.commit_changes(stat)
-            return stat.id
+            self.database.commit_changes(pstat)
+            return pstat.id
         except SQLAlchemyError:
 
             return ERROR_CODE
@@ -163,7 +165,7 @@ class CStatistic(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_room_id(self, proom_id) -> int:
+    def get_room_by_id(self, proom_id) -> int:
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
         assert proom_id is not None, \
@@ -204,8 +206,15 @@ class CStatistic(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    def get_personal_information(self, proom_id: int, puser_name: str):
+    def get_personal_information(self, proom_id: int, puser_name: str) -> str:
         """Возвращает информацию о пользователе"""
+
+        assert proom_id is not None, \
+            "Assert: [statistic.get_personal_information] " \
+            "Пропущен параметр <proom_id> !"
+        assert puser_name is not None, \
+            "Assert: [statistic.get_personal_information] " \
+            "Пропущен параметр <puser_name> !"
 
         answer: str = ""
         query = self.database.query_data(db.CUser)
@@ -225,57 +234,70 @@ class CStatistic(basis.CBasis):
                 stat = query.first()
                 if stat is not None:
 
-                    answer = f"{puser_name} наболтал {stat.fphrases} фраз, " \
-                             f"{stat.fwords} слов, {stat.fletters} букв, запостил " \
-                             f"{0 if stat.fstickers is None else stat.fstickers} стик., " \
-                             f"{0 if stat.fpictures is None else stat.fpictures} фоток, " \
-                             f"{0 if stat.faudios is None else stat.faudios} аудио и " \
-                             f"{0 if stat.fvideos is None else stat.fvideos} видео,"
+                    answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
+                             f"{stat.words} слов, {stat.letters} букв, запостил " \
+                             f"{0 if stat.images is None else stat.images} фоток, " \
+                             f"{0 if stat.audios is None else stat.audios} аудио и " \
+                             f"{0 if stat.videos is None else stat.videos} видео," \
+                             f"{0 if stat.files is None else stat.files} файлов"
 
         return answer
 
 
-    def get_statistic(self, ptg_chat_id: int, pcount: int, porder_by: int):
+    def get_statistic(self, proom_id: int, pcount: int, porder_by: int) -> str:
         """Получает из базы статистику по самым говорливым юзерам."""
 
-        session = self.database.get_session()
-        query = session.query(db.CRoom, db.CStat, db.CUser)
-        query = query.filter_by(fchatid=ptg_chat_id)
-        query = query.join(db.CStat, db.CStat.fchatid == db.CChat.id)
+        assert proom_id is not None, \
+            "Assert: [statistic.get_statistic] " \
+            "Пропущен параметр <proom_id> !"
+        assert pcount is not None, \
+            "Assert: [statistic.get_statistic] " \
+            "Пропущен параметр <pcount> !"
+        assert porder_by is not None, \
+            "Assert: [statistic.get_statistic] " \
+            "Пропущен параметр <porder_by> !"
+
+        # session = self.database.get_session()
+        query = select(db.CRoom, db.CStat, db.CUser)
+        query = query.filter_by(froomid=proom_id)
+        query = query.join(db.CStat, db.CStat.froomid == db.CRoom.id)
         query = query.join(db.CUser, db.CUser.id == db.CStat.fuserid)
         # print(f"0 {porder_by}")
         if porder_by == 1:
 
-            query = query.order_by(db.CStat.fphrases.desc())
+            query = query.order_by(db.CStat.phrases.desc())
         elif porder_by == 2:
 
-            query = query.order_by(db.CStat.fwords.desc())
+            query = query.order_by(db.CStat.words.desc())
+        #elif porder_by == 3:
+
+        #    query = query.order_by(db.CStat.fstickers.desc())
         elif porder_by == 3:
 
-            query = query.order_by(db.CStat.fstickers.desc())
+            query = query.order_by(db.CStat.images.desc())
         elif porder_by == 4:
 
-            query = query.order_by(db.CStat.fpictures.desc())
+            query = query.order_by(db.CStat.audios.desc())
         elif porder_by == 5:
 
-            query = query.order_by(db.CStat.faudios.desc())
+            query = query.order_by(db.CStat.videos.desc())
         elif porder_by == 6:
 
-            query = query.order_by(db.CStat.fvideos.desc())
+            query = query.order_by(db.CStat.files.desc())
         else:
 
-            query = query.order_by(db.CStat.fphrases.desc())
+            query = query.order_by(db.CStat.phrases.desc())
         stat = query.limit(pcount).all()
-        answer = "Самые говорливые:\n"
+        answer = "Самые общительные:\n"
         for number, item in enumerate(stat):
 
             # print(f"{number} {porder_by}")
-            answer += f"{number + 1} : {item[2].fusername} : {item[1].fphrases}" \
+            answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
                       f" фраз, {item[1].fwords} слов, " \
-                      f"{0 if item[1].fstickers is None else item[1].fstickers} стик., " \
-                      f"{0 if item[1].fpictures is None else item[1].fpictures} фоток, " \
-                      f"{0 if item[1].faudios is None else item[1].faudios} звук. и " \
-                      f"{0 if item[1].fvideos is None else item[1].fvideos} вид. \n"
+                      f"{0 if item[1].files is None else item[1].files} файл., " \
+                      f"{0 if item[1].images is None else item[1].images} картин., " \
+                      f"{0 if item[1].audios is None else item[1].audios} звук. и " \
+                      f"{0 if item[1].videos is None else item[1].videos} вид. \n"
         answer += f"Отсортировано по количеству {SORTED_BY[porder_by-1]}. \n"
         return answer
 
@@ -297,19 +319,24 @@ class CStatistic(basis.CBasis):
         return None
 
 
-    def get_user_stat(self, pchat_id: int, puser_id: int) -> tuple:
+    def get_user_stat(self, proom_id: int, puser_id: int) -> tuple:
         """Получает из базы статистику пользователя и возвращает её."""
 
+        assert proom_id is not None, \
+            "Assert: [statistic.get_user_stat] " \
+            "Пропущен параметр <proom_id> !"
+        assert puser_id is not None, \
+            "Assert: [statistic.get_user_stat] " \
+            "Пропущен параметр <puser_id> !"
+
+
+
         query = self.database.query_data(db.CStat)
-        query = query.filter_by(fuserid=puser_id, fchatid=pchat_id)
+        query = query.filter_by(fuserid=puser_id, froomid=proom_id)
         return query.first()
 
 
-    def reload(self):
-        """Вызывает перезагрузку внешних данных модуля."""
-
-
-    def save_all_type_of_messages(self, proom_id: int,  proom_name: str,
+    def save_all_type_of_messages(self, proom_id: int, proom_name: str,
                                         puser_id: int, puser_name: str,
                                         pevent: RoomMessageText) -> bool:
         """Учитывает стикеры, видео, аудиосообщения."""
@@ -334,11 +361,11 @@ class CStatistic(basis.CBasis):
             if puser_name not in self.config.alien_bots:
 
                 # Проверить, нет ли уже этого чата в таблице чатов
-                room_id = self.get_room_id(proom_id)
+                room_id = self.get_room_by_id(proom_id)
                 if room_id is None:
 
                     # *** Нету еще, новый чат - добавить, и получить id
-                    room_id = self.add_room_to_base(proom_id, proom_title)
+                    room_id = self.add_room_to_base(proom_id, proom_name)
                 # *** Проверить, нет ли юзера в таблице тг юзеров
                 user_id = self.get_user_id(puser_id)
                 # print(f"**** stat:sav 03 {user_id=}")
@@ -350,36 +377,37 @@ class CStatistic(basis.CBasis):
                 user_stat = self.get_user_stat(room_id, user_id)
                 if user_stat is not None:
 
-                # *** Изменяем статистику юзера в зависимости от типа сообщения
-                if isinstance(event, nio.RoomMessageText):
+                    # *** Изменяем статистику юзера в зависимости от типа сообщения
+                    if isinstance(pevent, RoomMessageText):
 
-                    if pevent.body.strip()[0] <> config.command_prefix:
+                        text: str = pevent.body.strip()
+                        if text[0] != self.config.command_prefix:
 
-                        user_stat.phrases += 1
-                        user_stat.letters += len(pevent.body)
-                        user_stat.words += len(message_text.split(" "))
-                elif isinstance(event, nio.RoomMessageVideo):
+                            user_stat.phrases += 1
+                            user_stat.letters += len(text)
+                            user_stat.words += len(text.split(" "))
+                    elif isinstance(pevent, RoomMessageVideo):
 
-                    user_stat.videos += 1
-                elif isinstance(event, nio.RoomMessageAudio):
+                        user_stat.videos += 1
+                    elif isinstance(pevent, RoomMessageAudio):
 
-                    user_stat.audios += 1
-                elif isinstance(event, nio.RoomMessageImage):
+                        user_stat.audios += 1
+                    elif isinstance(pevent, RoomMessageImage):
 
-                    user_stat.audios += 1
-                elif isinstance(event, nio.RoomMessageFile):
+                        user_stat.audios += 1
+                    elif isinstance(pevent, RoomMessageFile):
 
-                    user_stat.files += 1
-                # *** Если информации о юзере нет в базе, добавляем, иначе апдейтим
-                if user_stat is None:
+                        user_stat.files += 1
+                    # *** Если информации о юзере нет в базе, добавляем, иначе апдейтим
+                    if user_stat is None:
 
-                    self.add_user_stat(user_id, room_id, user_stat)
+                        self.add_user_stat(user_id, room_id, user_stat)
 
-                else:
+                    else:
 
-                    self.update_user_stat(user_id, room_id, user_stat)
+                        self.update_user_stat(user_id, room_id, user_stat)
 
-                result = True
+                    result = True
         return result
 
 
@@ -405,11 +433,11 @@ class CStatistic(basis.CBasis):
         answer: str = ""
         order_by: int = 0
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_process_command(proom_title, pmessage_text, UNIT_ID, COMMANDS):
+        if self.can_process_command(proom_name, pmessage_text, UNIT_ID, COMMANDS):
 
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
-                answer = self.get_commands(pchat_title)
+                answer = self.get_commands(proom_name)
 
             else:
 
@@ -423,27 +451,27 @@ class CStatistic(basis.CBasis):
                         if order_by < 1 or order_by > 6:
 
                             order_by = 1
-                    if command in TOP_10_GROUP:
+                    if command == TOP_10_GROUP:
 
-                        answer = self.get_statistic(pchat_id, 10, order_by)
-                    elif command in TOP_25_GROUP:
+                        answer = self.get_statistic(proom_id, 10, order_by)
+                    elif command == TOP_25_GROUP:
 
-                        answer = self.get_statistic(pchat_id, 25, order_by)
-                    elif command in TOP_50_GROUP:
+                        answer = self.get_statistic(proom_id, 25, order_by)
+                    elif command == TOP_50_GROUP:
 
-                        answer = self.get_statistic(pchat_id, 50, order_by)
-                    elif command in PERSONAL_GROUP:
+                        answer = self.get_statistic(proom_id, 50, order_by)
+                    elif command == PERSONAL_GROUP:
 
-                        answer = self.get_personal_information(pchat_id, puser_title)
+                        answer = self.get_personal_information(proom_id, puser_name)
         return answer
 
 
-    def update_user_stat(self, puser_id: int, pchat_id: int, pstatfields: dict):
+    def update_user_stat(self, puser_id: int, proom_id: int, pstatfields: dict):
         """Изменяет запись статистики по человеку."""
 
         query = self.database.query_data(db.CStat)
         query = query.filter_by(fuserid=puser_id)
-        query = query.filter_by(fchatid=pchat_id)
+        query = query.filter_by(fchatid=proom_id)
         stat: db.CStat = query.first()
         if stat:
 

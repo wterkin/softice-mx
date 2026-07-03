@@ -348,13 +348,13 @@ class CStat(CAncestor):
         self.__fvideos = pvideos
 
     @property
-    def filess(self):
+    def files(self):
         """Audios"""
 
         return self.__ffiles
 
 
-    @audios.setter
+    @files.setter
     def files(self, pfiles):
         """Files"""
 
