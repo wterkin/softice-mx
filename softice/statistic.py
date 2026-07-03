@@ -7,6 +7,8 @@ from pathlib import Path
 
 from sqlalchemy.exc import SQLAlchemyError
 
+from nio import RoomMessageText
+
 from softice import basis
 from softice import database as db
 
@@ -68,28 +70,6 @@ async def on_message(room: nio.MatrixRoom, event):
     if event.sender == self.client.user:
         return
 
-    # Различаем типы через isinstance
-    if isinstance(event, nio.RoomMessageText):
-        self.stats["text"] += 1
-        # event.body — это строка с текстом
-        print(f"📝 Текст ({len(event.body)} символов)")
-
-    elif isinstance(event, nio.RoomMessageImage):
-        self.stats["image"] += 1
-        # event.url — ссылка на картинку
-        print(f"🖼️ Картинка")
-
-    elif isinstance(event, nio.RoomMessageAudio):
-        self.stats["audio"] += 1
-        print(f"🎵 Аудио")
-
-    elif isinstance(event, nio.RoomMessageVideo):
-        self.stats["video"] += 1
-        print(f"🎬 Видео")
-
-    elif isinstance(event, nio.RoomMessageFile):
-        self.stats["file"] += 1
-        print(f"📎 Файл")
 """
 
 
@@ -122,7 +102,7 @@ class CStatistic(basis.CBasis):
 
         try:
 
-            room = db.CRoom(ptg_chat_id, ptg_chat_title)
+            room = db.CRoom(proom_id, proom_name)
             self.database.commit_changes(room)
             return room.id
         except SQLAlchemyError:
@@ -139,14 +119,10 @@ class CStatistic(basis.CBasis):
         assert proom_id is not None, \
             "Assert: [statistic.add_user_stat] " \
             "Пропущен параметр <proom_id> !"
-        assert puser_id is not None, \
-            "Assert: [statistic.add_user_stat] " \
-            "Пропущен параметр <puser_id> !"
-
 
         try:
 
-            stat = db.CStat(puser_id, pchat_id, pstatfields)
+            stat = db.CStat(puser_id, proom_id, pstatfields)
             self.database.commit_changes(stat)
             return stat.id
         except SQLAlchemyError:
@@ -154,12 +130,19 @@ class CStatistic(basis.CBasis):
             return ERROR_CODE
 
 
-    def add_user_to_base(self, ptg_user_id: int, ptg_user_title: str):
+    def add_user_to_base(self, puser_id: int, puser_name: str) -> int:
         """Добавляет нового пользователя в БД и возвращает его ID."""
+
+        assert puser_id is not None, \
+            "Assert: [statistic.add_user_to_base] " \
+            "Пропущен параметр <puser_id> !"
+        assert puser_name is not None, \
+            "Assert: [statistic.add_user_to_base] " \
+            "Пропущен параметр <puser_name> !"
 
         try:
 
-            user = db.CUser(ptg_user_id, ptg_user_title)
+            user = db.CUser(puser_id, puser_name)
             self.database.commit_changes(user)
             return user.id
         except SQLAlchemyError:
@@ -180,17 +163,21 @@ class CStatistic(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_chat_id(self, ptg_chat_id):
+    def get_room_id(self, proom_id) -> int:
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
+
+        assert proom_id is not None, \
+            "Assert: [statistic.get_room_id] " \
+            "Пропущен параметр <proom_id> !"
 
         try:
 
-            query = self.database.query_data(db.CChat)
-            query = query.filter_by(fchatid=ptg_chat_id)
-            chat = query.first()
-            if chat is not None:
+            query = self.database.query_data(db.CRoom)
+            query = query.filter_by(froomid=proom_id)
+            room = query.first()
+            if room is not None:
 
-                return chat.id
+                return room.id
             return ERROR_CODE
         except SQLAlchemyError:
 
@@ -214,31 +201,31 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    def get_personal_information(self, ptg_chat_id: int, puser_title: str):
+    def get_personal_information(self, proom_id: int, puser_name: str):
         """Возвращает информацию о пользователе"""
 
         answer: str = ""
         query = self.database.query_data(db.CUser)
-        query = query.filter_by(fusername=puser_title)
+        query = query.filter_by(fusername=puser_name)
         user = query.first()
         if user is not None:
 
             # *** Получим ID чата в базе
-            query = self.database.query_data(db.CChat)
-            query = query.filter_by(fchatid=ptg_chat_id)
-            chat = query.first()
-            if chat is not None:
+            query = self.database.query_data(db.CRoom)
+            query = query.filter_by(froomid=proom_id)
+            room = query.first()
+            if room is not None:
 
                 query = self.database.query_data(db.CStat)
                 query = query.filter_by(fuserid=user.id)
-                query = query.filter_by(fchatid=chat.id)
+                query = query.filter_by(fchatid=room.id)
                 stat = query.first()
                 if stat is not None:
 
-                    answer = f"{puser_title} наболтал {stat.fphrases} фраз, " \
+                    answer = f"{puser_name} наболтал {stat.fphrases} фраз, " \
                              f"{stat.fwords} слов, {stat.fletters} букв, запостил " \
                              f"{0 if stat.fstickers is None else stat.fstickers} стик., " \
                              f"{0 if stat.fpictures is None else stat.fpictures} фоток, " \
@@ -252,7 +239,7 @@ class CStatistic(basis.CBasis):
         """Получает из базы статистику по самым говорливым юзерам."""
 
         session = self.database.get_session()
-        query = session.query(db.CChat, db.CStat, db.CUser)
+        query = session.query(db.CRoom, db.CStat, db.CUser)
         query = query.filter_by(fchatid=ptg_chat_id)
         query = query.join(db.CStat, db.CStat.fchatid == db.CChat.id)
         query = query.join(db.CUser, db.CUser.id == db.CStat.fuserid)
@@ -293,11 +280,16 @@ class CStatistic(basis.CBasis):
         return answer
 
 
-    def get_user_id(self, ptg_user_id):
+    def get_user_id(self, puser_id) -> int:
         """Если пользователь уже есть в базе, возвращает его ID, если нет - None."""
 
+        assert puser_id is not None, \
+            "Assert: [statistic.get_user_id] " \
+            "Пропущен параметр <puser_id> !"
+
+
         query = self.database.query_data(db.CUser)
-        query = query.filter_by(ftguserid=ptg_user_id)
+        query = query.filter_by(fuserid=puser_id)
         user = query.first()
         if user is not None:
 
@@ -305,7 +297,7 @@ class CStatistic(basis.CBasis):
         return None
 
 
-    def get_user_stat(self, pchat_id: int, puser_id: int):
+    def get_user_stat(self, pchat_id: int, puser_id: int) -> tuple:
         """Получает из базы статистику пользователя и возвращает её."""
 
         query = self.database.query_data(db.CStat)
@@ -317,108 +309,103 @@ class CStatistic(basis.CBasis):
         """Вызывает перезагрузку внешних данных модуля."""
 
 
-    def save_all_type_of_messages(self, pevent: dict) -> bool:
+    def save_all_type_of_messages(self, proom_id: int,  proom_name: str,
+                                        puser_id: int, puser_name: str,
+                                        pevent: RoomMessageText) -> bool:
         """Учитывает стикеры, видео, аудиосообщения."""
 
-        # print(f"**** stat:sav 00 {pevent[cn.MCHAT_TITLE]= }")
+        assert proom_id is not None, \
+            "Assert: [statistic.save_all_type_of_messages] " \
+            "Пропущен параметр <proom_id> !"
+        assert proom_name is not None, \
+            "Assert: [statistic.save_all_type_of_messages] " \
+            "Пропущен параметр <proom_name> !"
+        assert puser_id is not None, \
+            "Assert: [statistic.save_all_type_of_messages] " \
+            "Пропущен параметр <puser_id> !"
+        assert puser_name is not None, \
+            "Assert: [statistic.save_all_type_of_messages] " \
+            "Пропущен параметр <puser_name> !"
+
         result: bool = False
-        if self.is_enabled(pevent[cn.MCHAT_TITLE]):
+        if self.is_enabled(proom_name, UNIT_ID):
 
-            # print(f"**** stat:sav 01 {pevent[cn.MUSER_NAME]= }")
-            # *** Получим текстовое сообщение из события
-            if cn.MTEXT in pevent:
-
-                message_text: str = pevent[cn.MTEXT]
-            else:
-
-                message_text: str = pevent[cn.MCAPTION]
-            # *** Получим остальные данные
-            tg_chat_id: int = pevent[cn.MCHAT_ID]
-            tg_chat_title: str = pevent[cn.MCHAT_TITLE]
-            tg_user_id: int = pevent[cn.MUSER_ID]
-            tg_user_name: str = ""
-            # *** Если есть имя пользователя (а может не быть?) - берем его
-            if cn.MUSER_NAME in pevent:
-
-                tg_user_name = pevent[cn.MUSER_NAME]
-            # print(f"**** stat:sav 01 {tg_user_name= }")
-
-            # *** Создаём пустой словарь для статистических данных
-            statfields: dict = {db.STATUSERID: 0,
-                                db.STATLETTERS: 0,
-                                db.STATWORDS: 0,
-                                db.STATPHRASES: 0,
-                                db.STATPICTURES: 0,
-                                db.STATSTICKERS: 0,
-                                db.STATAUDIOS: 0,
-                                db.STATVIDEOS: 0}
-            # *** Получаем другие имеющиеся имена пользователя
-            tg_user_title = extract_user_name(pevent)
             # *** Это не бот написал? Чужой бот, не наш?
-            if tg_user_name not in self.config[FOREIGN_BOTS]:
+            if puser_name not in self.config.alien_bots:
 
-                # print("**** stat:sav 02")
                 # Проверить, нет ли уже этого чата в таблице чатов
-                chat_id = self.get_chat_id(tg_chat_id)
-                if chat_id is None:
+                room_id = self.get_room_id(proom_id)
+                if room_id is None:
 
                     # *** Нету еще, новый чат - добавить, и получить id
-                    chat_id = self.add_chat_to_base(tg_chat_id, tg_chat_title)
+                    room_id = self.add_room_to_base(proom_id, proom_title)
                 # *** Проверить, нет ли юзера в таблице тг юзеров
-                user_id = self.get_user_id(tg_user_id)
+                user_id = self.get_user_id(puser_id)
                 # print(f"**** stat:sav 03 {user_id=}")
                 if user_id is None:
 
                     # *** Нету, новый пользователь
-                    user_id = self.add_user_to_base(tg_user_id, tg_user_title)
+                    user_id = self.add_user_to_base(puser_id, puser_name)
                 # *** Имеется ли в БД статистика по этому пользователю?
-                user_stat = self.get_user_stat(chat_id, user_id)
+                user_stat = self.get_user_stat(room_id, user_id)
                 if user_stat is not None:
 
-                    statfields = user_stat.get_all_fields()  # !!! тут
                 # *** Изменяем статистику юзера в зависимости от типа сообщения
-                if pevent[cn.MCONTENT_TYPE] in ["video", "video_note"]:
+                if isinstance(event, nio.RoomMessageText):
 
-                    statfields[db.STATVIDEOS] += 1
-                elif pevent[cn.MCONTENT_TYPE] in ["audio", "voice"]:
+                    if pevent.body.strip()[0] <> config.command_prefix:
 
-                    statfields[db.STATAUDIOS] += 1
-                elif pevent[cn.MCONTENT_TYPE] == "photo":
+                        user_stat.phrases += 1
+                        user_stat.letters += len(pevent.body)
+                        user_stat.words += len(message_text.split(" "))
+                elif isinstance(event, nio.RoomMessageVideo):
 
-                    statfields[db.STATPICTURES] += 1
-                elif pevent[cn.MCONTENT_TYPE] == "sticker":
+                    user_stat.videos += 1
+                elif isinstance(event, nio.RoomMessageAudio):
 
-                    statfields[db.STATSTICKERS] += 1
-                elif pevent[cn.MCONTENT_TYPE] == "text":
+                    user_stat.audios += 1
+                elif isinstance(event, nio.RoomMessageImage):
 
-                    # *** Если это не команда боту...
-                    if message_text[0] != "!":
+                    user_stat.audios += 1
+                elif isinstance(event, nio.RoomMessageFile):
 
-                        statfields[db.STATLETTERS] += len(message_text)
-                        statfields[db.STATWORDS] += len(message_text.split(" "))
-                        statfields[db.STATPHRASES] += 1
-
+                    user_stat.files += 1
                 # *** Если информации о юзере нет в базе, добавляем, иначе апдейтим
                 if user_stat is None:
 
-                    self.add_user_stat(user_id, chat_id, statfields)
+                    self.add_user_stat(user_id, room_id, user_stat)
 
                 else:
 
-                    self.update_user_stat(user_id, chat_id, statfields)
+                    self.update_user_stat(user_id, room_id, user_stat)
 
                 result = True
         return result
 
 
-    def statistic(self, pchat_id: int, pchat_title: str, puser_title, pmessage_text: str):
+    def statistic(self, proom_id: int, proom_name: str, puser_name, pmessage_text: str) -> str:
         """Обработчик команд."""
+
+
+        assert proom_id is not None, \
+            "Assert: [statistic.statistic] " \
+            "Пропущен параметр <proom_id> !"
+        assert proom_name is not None, \
+            "Assert: [statistic.statistic] " \
+            "Пропущен параметр <proom_name> !"
+        assert puser_name is not None, \
+            "Assert: [statistic.statistic] " \
+            "Пропущен параметр <puser_name> !"
+        assert pmessage_text is not None, \
+            "Assert: [statistic.statistic] " \
+            "Пропущен параметр <pmessage_text> !"
+
 
         command: int
         answer: str = ""
         order_by: int = 0
-        word_list: list = func.parse_input(pmessage_text)
-        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS):
+        word_list: list = self.parse_input(pmessage_text)
+        if self.can_process_command(proom_title, pmessage_text, UNIT_ID, COMMANDS):
 
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -436,16 +423,16 @@ class CStatistic(basis.CBasis):
                         if order_by < 1 or order_by > 6:
 
                             order_by = 1
-                    if command in TOP_10_COMMAND:
+                    if command in TOP_10_GROUP:
 
                         answer = self.get_statistic(pchat_id, 10, order_by)
-                    elif command in TOP_25_COMMAND:
+                    elif command in TOP_25_GROUP:
 
                         answer = self.get_statistic(pchat_id, 25, order_by)
-                    elif command in TOP_50_COMMAND:
+                    elif command in TOP_50_GROUP:
 
                         answer = self.get_statistic(pchat_id, 50, order_by)
-                    elif command in PERS_COMMAND:
+                    elif command in PERSONAL_GROUP:
 
                         answer = self.get_personal_information(pchat_id, puser_title)
         return answer

@@ -180,6 +180,7 @@ class CStat(CAncestor):
     __fimages = Column(Integer, default=0)    # m.image
     __faudios = Column(Integer, default=0)    # m.audio
     __fvideos = Column(Integer, default=0)    # m.video
+    __ffiles = Column(Integer, default=0)    # m.video
 
     def __init__(self, puser_id: int, proom_id: int, pdata_dict: dict):
         """Конструктор"""
@@ -345,6 +346,22 @@ class CStat(CAncestor):
         assert pvideos > 0, \
             "Количество видеозаписей не может быть отрицательным"
         self.__fvideos = pvideos
+
+    @property
+    def filess(self):
+        """Audios"""
+
+        return self.__ffiles
+
+
+    @audios.setter
+    def files(self, pfiles):
+        """Files"""
+
+        assert pfiles > 0, \
+            "Количество файлов не может быть отрицательным"
+        self.__faudios = pfiles
+
 
     def __repr__(self):
         """Repr"""

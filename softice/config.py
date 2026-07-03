@@ -20,7 +20,7 @@ class Config:
     def __init__(self, filepath: str):
         self.filepath = filepath
         if not os.path.isfile(filepath):
-            
+
             raise ConfigError(f"Config file '{filepath}' does not exist")
         print(f"::: Using config file {self.filepath}.")
         # Load in the config file at the given filepath
@@ -113,6 +113,7 @@ class Config:
         # rint(f"!!!!!!!!!!!!!!!!!!!!!!!!! {self.babbler=}")
         self.test_chat = self._get_cfg(["matrix", "test_chat"], required=True)
         self.debug = self._get_cfg(["matrix", "debug"], required=True)
+        self.alien_bots = self._get_cfg(["matrix", "alien_bots"], required=True)
         """
         !!!!!!!!!!!!!!!!!!!!!!!!! self.chats={'Арда': 'babbler', 'Ботовка': 'babbler'}
         !!!!!!!!!!!!!!!!!!!!!!!!! self.meteorolog={'api_key': '3c15fe44d0d0d93e28fd81b00a8e46bf'}
