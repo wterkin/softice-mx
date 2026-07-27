@@ -233,21 +233,16 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <porder_by> !"
 
-        # session = self.database.get_session()
         query = select(db.CRoom, db.CStat, db.CUser)
         query = query.filter_by(froomid=proom_id)
         query = query.join(db.CStat, db.CStat.froomid == db.CRoom.id)
         query = query.join(db.CUser, db.CUser.id == db.CStat.fuserid)
-        # print(f"0 {porder_by}")
         if porder_by == 1:
 
             query = query.order_by(db.CStat.phrases.desc())
         elif porder_by == 2:
 
             query = query.order_by(db.CStat.words.desc())
-        #elif porder_by == 3:
-
-        #    query = query.order_by(db.CStat.fstickers.desc())
         elif porder_by == 3:
 
             query = query.order_by(db.CStat.images.desc())
@@ -267,7 +262,6 @@ class CStatistic(basis.CBasis):
         answer = "Самые общительные:\n"
         for number, item in enumerate(stat):
 
-            # print(f"{number} {porder_by}")
             answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
                       f" фраз, {item[1].fwords} слов, " \
                       f"{0 if item[1].files is None else item[1].files} файл., " \
@@ -304,8 +298,6 @@ class CStatistic(basis.CBasis):
         assert puser_id is not None, \
             "Assert: [statistic.get_user_stat] " \
             "Пропущен параметр <puser_id> !"
-
-
 
         query = self.database.query_data(db.CStat)
         query = query.filter_by(fuserid=puser_id, froomid=proom_id)
@@ -344,7 +336,6 @@ class CStatistic(basis.CBasis):
                     room_id = self.add_room_to_base(proom_id, proom_name)
                 # *** Проверить, нет ли юзера в таблице тг юзеров
                 user_id = self.get_user_id(puser_id)
-                # print(f"**** stat:sav 03 {user_id=}")
                 if user_id is None:
 
                     # *** Нету, новый пользователь
@@ -374,14 +365,6 @@ class CStatistic(basis.CBasis):
                     elif isinstance(pevent, RoomMessageFile):
 
                         user_stat.files += 1
-                    # *** Если информации о юзере нет в базе, добавляем, иначе апдейтим
-                    # if user_stat is None:
-
-                    #    self.add_user_stat(room_id, user_id, user_stat)
-
-                    # else:
-
-                    # self.update_user_stat(room_id, user_id, user_stat)
                     self.database.commit_changes(user_stat)
                     result = True
         return result
@@ -389,7 +372,6 @@ class CStatistic(basis.CBasis):
 
     def statistic(self, proom_id: int, proom_name: str, puser_name, pmessage_text: str) -> str:
         """Обработчик команд."""
-
 
         assert proom_id is not None, \
             "Assert: [statistic.statistic] " \
@@ -403,7 +385,6 @@ class CStatistic(basis.CBasis):
         assert pmessage_text is not None, \
             "Assert: [statistic.statistic] " \
             "Пропущен параметр <pmessage_text> !"
-
 
         command: int
         answer: str = ""
@@ -441,15 +422,4 @@ class CStatistic(basis.CBasis):
                         answer = self.get_personal_information(proom_id, puser_name)
         return answer
 
-"""
-    def update_user_stat(self, proom_id: int, puser_id: int, pstat: db.CStat):
-        ""Изменяет запись статистики по человеку.""
 
-        query = self.database.query_data(db.CStat)
-        query = query.filter_by(fuserid=puser_id)
-        query = query.filter_by(fchatid=proom_id)
-        stat: db.CStat = query.first()
-        if stat:
-
-            self.database.commit_changes(stat)
-"""

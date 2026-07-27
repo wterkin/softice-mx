@@ -2,31 +2,19 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль функций, связанных с БД."""
 from pathlib import Path
-# from time import sleep
 
-# from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
-# from sqlalchemy.orm import sessionmaker
-
 # py lint: disable=C0301
 # py lint: disable=line-too-long
 
 DATABASE_VERSION: int = 1
-DATABASE_NAME: str = "softice.db"
+DATABASE_NAME: str = "softice"
 STATUS_ACTIVE: int = 1
 STATUS_INACTIVE: int = 0
-
-#STAT_USERID: str = "userid"
-#STAT_LETTERS: str = "letters"
-#STAT_WORDS: str = "words"
-#STAT_PHRASES: str = "phrases"
-#STAT_PICTURES: str = "pictures"
-#STAT_STICKERS: str = "stickers"
-#STAT_AUDIOS: str = "audios"
-#STAT_VIDEOS: str = "videos"
+# 'x3pr7d5iH9'
 
 MUTE_PENALTY = 1
 BAN_PENALTY = 2
@@ -383,7 +371,6 @@ class CDataBase:
 
     def __init__(self, pconfig, pdata_path, pdatabase_name=DATABASE_NAME):
         """Конструктор класса."""
-        # self.application_folder = Path.cwd()
         self.config: dict = pconfig
         self.data_path: str = pdata_path
         self.AsyncSessionLocal = None

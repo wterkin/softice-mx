@@ -3,10 +3,6 @@ import json
 from sys import platform
 from pathlib import Path
 
-import softice
-import test_softice
-import functions as func
-import constants as cn
 import database as db
 import statistic
 import datetime as dtime
@@ -17,28 +13,8 @@ class CTestStatistic(TestCase):
 
     def setUp(self) -> None:
 
-        with open("unittest_config.json", "r", encoding="utf-8") as json_file:
-
-            self.config = json.load(json_file)
-        if platform in ("linux", "linux2"):
-
-            self.data_path: str = self.config[softice.LINUX_DATA_FOLDER_KEY]
-        else:
-
-            self.data_path: str = self.config[softice.WINDOWS_DATA_FOLDER_KEY]
-        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path)
-        global first_run    
-        if first_run:
-
-            for file in Path(self.data_path).glob("softice.db"):
-
-               file.unlink()
-            file_name =  Path(self.data_path) / "softice.db"
-            if not file_name.is_file():
-
-                print("Create!")
-                self.database.create()
-            first_run = False    
+        self.config = config.Config("test_config.yaml")
+        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, "test_softice")
         self.statistic: statistic.CStatistic = statistic.CStatistic(self.config, self.database)
 
 
