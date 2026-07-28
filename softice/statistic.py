@@ -56,16 +56,11 @@ ERROR_CODE: int = -1
 class CStatistic(basis.CBasis):
     """Класс статистика."""
 
-    def __init__(self, pconfig: dict):
+    def __init__(self, pconfig: dict, pdatabase_name: str = DATABASE_NAME):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder
-        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, DATABASE_NAME)
-        file_name =  Path(self.data_path) / DATABASE_NAME
-        if not file_name.is_file():
-
-            self.database.create()
-            print("База данных создана.")
+        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, pdatabase_name)
         print("Статистик стартовал.")
 
 

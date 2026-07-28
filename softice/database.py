@@ -434,6 +434,7 @@ class CDataBase:
             return False
 
 
+
     async def disconnect(self):
         """Разрывает соединение с БД."""
 
@@ -469,3 +470,21 @@ class CDataBase:
 
             print("Database error! * database.query_data")
         return None
+
+
+    async def wipe_table(self, class):
+        """Уничтожает данные заданного класса. """
+
+        try:
+
+            async_session_class = await self.get_session()
+            async with async_session_class() as session:
+
+                await session.execute(class.delete())
+                await session.commit()
+        except exc.SQLAlchemyError:
+
+            print("Database error! * database.query_data")
+        return None
+
+

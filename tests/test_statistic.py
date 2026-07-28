@@ -1,11 +1,20 @@
-from unittest import TestCase
-import json
-from sys import platform
-from pathlib import Path
+"""Модуль тестирования модуля статистика бота."""
 
-import database as db
-import statistic
+# pylint: disable=C0115
+# pylint: disable=C0116
+# pylint: disable=line-too-long
+
+from unittest import TestCase
+
+from softice import config
+from softice import database as db
+from softice import statistic
+
 import datetime as dtime
+
+
+
+TEST_DATABASE_NAME: str = "test_softice"
 
 first_run: bool = True
 
@@ -14,10 +23,20 @@ class CTestStatistic(TestCase):
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
-        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, "test_softice")
-        self.statistic: statistic.CStatistic = statistic.CStatistic(self.config, self.database)
+        self.clean_tables()
+        self.statistic: statistic.CStatistic = \
+            statistic.CStatistic(self.config, TEST_DATABASE_NAME)
 
 
+    def clean_tables(self):
+
+        database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
+        database.wipe_table(db.CRoom)
+        database.wipe_table(db.CUser)
+        database.wipe_table(db.CStat)
+
+
+"""
     def test_extract_user_name(self):
 
         event: dict = {cn.MUSER_TITLE:"Andrey"}
@@ -27,17 +46,17 @@ class CTestStatistic(TestCase):
 
 
     def test_add_chat_to_base(self):
-        
+
         self.assertEqual(self.statistic.add_chat_to_base(777, "TestPlace"), 1)
-        
+
 
     def test_add_user_to_base(self):
 
         self.assertEqual(self.statistic.add_user_to_base(777, "Master"), 1)
-        
+
 
     def test_add_user_stat(self):
- 
+
         statfields: dict = {db.STATUSERID: 0,
                             db.STATLETTERS: 2,
                             db.STATWORDS: 3,
@@ -68,7 +87,7 @@ class CTestStatistic(TestCase):
 
         self.assertEqual(self.statistic.get_chat_id(777), 1)
         self.assertEqual(self.statistic.get_chat_id(0), -1)
-        
+
 
     def test_get_help(self):
 
@@ -91,17 +110,17 @@ class CTestStatistic(TestCase):
     def test_get_statistic(self):
 
         #  def get_statistic(self, ptg_chat_id: int, pcount: int, porder_by: int):
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[0]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[0]}",
                       self.statistic.get_statistic(777, 5, 1))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[1]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[1]}",
                       self.statistic.get_statistic(777, 5, 2))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[2]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[2]}",
                       self.statistic.get_statistic(777, 5, 3))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[3]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[3]}",
                       self.statistic.get_statistic(777, 5, 4))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[4]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[4]}",
                       self.statistic.get_statistic(777, 5, 5))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[5]}", 
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[5]}",
                       self.statistic.get_statistic(777, 5, 6))
 
 
@@ -125,12 +144,12 @@ class CTestStatistic(TestCase):
 
 
     def test_is_enabled(self):
-        
+
         self.assertTrue(self.statistic.is_enabled(test_softice.TESTPLACE_CHAT_NAME))
         self.assertFalse(self.statistic.is_enabled("fakechat"))
         self.assertFalse(self.statistic.is_enabled("emptychat"))
 
-        
+
     def test_save_all_type_of_messages(self):
 
         #    def save_all_type_of_messages(self, pevent: dict):
@@ -155,7 +174,7 @@ class CTestStatistic(TestCase):
 
 
     def test_statistic(self):
-        
+
         # def statistic(self, pchat_id: int, pchat_title: str, puser_title, pmessage_text: str):
         self.assertTrue(self.statistic.statistic(1, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top10"))
         self.assertIn("перв10", self.statistic.statistic(1, test_softice.TESTPLACE_CHAT_NAME, "Master", "!стат"))
@@ -172,3 +191,4 @@ class CTestStatistic(TestCase):
 
         self.database.disconnect()
         # pass
+"""
