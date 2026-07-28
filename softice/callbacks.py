@@ -110,17 +110,17 @@ class Callbacks:
             room: The room the event came from.
             event: The event defining the message.
         """
-        print(f"Тип event: {type(event)}")
-        print(f"Класс event: {event.__class__.__name__}")
-        print(f"Это строка? {isinstance(event, str)}")
-        print(f"Это RoomMessage? {isinstance(event, RoomMessage)}")
-        print(f"Это RoomMessageText? {isinstance(event, RoomMessageText)}")
-        print(f"Это RoomMessageImage? {isinstance(event, RoomMessageImage)}")
-        print("-" * 40)
+        # rint(f"Тип event: {type(event)}")
+        # rint(f"Класс event: {event.__class__.__name__}")
+        # rint(f"Это строка? {isinstance(event, str)}")
+        # rint(f"Это RoomMessage? {isinstance(event, RoomMessage)}")
+        # rint(f"Это RoomMessageText? {isinstance(event, RoomMessageText)}")
+        # rint(f"Это RoomMessageImage? {isinstance(event, RoomMessageImage)}")
+        # rint("-" * 40)
 
         if self.config.debug:
 
-            print(":: clbk.message :: z ::")
+            print(":: clbk.message :: message income! ::")
         # *** Вызываем процедуру, которая выполняется один раз.
         await self.run_once()
         answer: str = ""
@@ -153,6 +153,8 @@ class Callbacks:
             if self.config.debug:
 
                 print(f":: clbk.message :: evn :: {event}")
+                print(f":: clbk.message :: {room.room_id=}")
+                print(f":: clbk.message :: {room.name=}")
 
             # Process as message if in a public room without command prefix
             # room.is_group is often a DM, but not always.

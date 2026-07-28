@@ -146,10 +146,16 @@ async def main():
                     )
                     return False
 
+            if config.debug:
+
+                print(":: main.main :: connected! ::")
             # *** Ура, мы залогинились!
             logger.info(f"Logged in as {config.user_id}")
             # *** Ждём синхронизации
             await client.sync_forever(timeout=30000, full_state=True)
+            if config.debug:
+
+                print(":: main.main :: synchronized!! ::")
         except (ClientConnectionError, ServerDisconnectedError):
             # *** Залогиниться не удалось, пишем в лог...
             logger.warning("Unable to connect to homeserver, retrying in 15s...")

@@ -85,12 +85,13 @@ class CRoom(CAncestor):
     """Класс справочника чатов."""
 
     __tablename__ = 'tbl_rooms'
-    froomid = Column(Integer,
+    froomid = Column(String,
                      nullable=False,
                      unique=True,
                      index=True)
     froomname = Column(String,
                        nullable=False,
+                       index=True
                        )
 
     def __init__(self, proom_id: int, proom_name: str):
@@ -377,7 +378,6 @@ class CDataBase:
         self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
-        self.connect()
 
 
     async def commit_changes(self, obj):
@@ -455,7 +455,7 @@ class CDataBase:
         return self.AsyncSessionLocal
 
 
-    async def query_data(self, cls):
+    async def query_data(self, model_class):
         """Возвращает выборку заданнного класса."""
 
         try:
@@ -464,7 +464,7 @@ class CDataBase:
             async_session_class = await self.get_session()
             async with async_session_class() as session:
 
-                return await session.execute(select(cls))
+                return await session.execute(select(model_class))
 
         except exc.SQLAlchemyError:
 
@@ -472,19 +472,18 @@ class CDataBase:
         return None
 
 
-    async def wipe_table(self, class):
+    async def wipe_table(self, model_class):
         """Уничтожает данные заданного класса. """
-
         try:
 
             async_session_class = await self.get_session()
             async with async_session_class() as session:
 
-                await session.execute(class.delete())
+                # Используем новое имя параметра
+                await session.execute(model_class.delete())
                 await session.commit()
         except exc.SQLAlchemyError:
 
-            print("Database error! * database.query_data")
-        return None
-
+            # Тут я позволил себе поправить опечатку в скобке
+            print("Database error! [database.wipe_table]")
 

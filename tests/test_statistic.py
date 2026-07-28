@@ -6,12 +6,13 @@
 
 from unittest import TestCase
 
+import datetime as dtime
+
+import asyncio
+
 from softice import config
 from softice import database as db
 from softice import statistic
-
-import datetime as dtime
-
 
 
 TEST_DATABASE_NAME: str = "test_softice"
@@ -35,6 +36,12 @@ class CTestStatistic(TestCase):
         database.wipe_table(db.CUser)
         database.wipe_table(db.CStat)
 
+    # def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
+    def test_add_room_to_base(self):
+
+        result = asyncio.run(self.statistic.add_room_to_base("botovka", "Ботовка"))
+        self.assertEqual(result, 1)
+
 
 """
     def test_extract_user_name(self):
@@ -43,11 +50,6 @@ class CTestStatistic(TestCase):
         self.assertEqual(statistic.extract_user_name(event), "Andrey")
         event2: dict = {cn.MUSER_LASTNAME:"Petrovich"}
         self.assertEqual(statistic.extract_user_name(event2), " Petrovich")
-
-
-    def test_add_chat_to_base(self):
-
-        self.assertEqual(self.statistic.add_chat_to_base(777, "TestPlace"), 1)
 
 
     def test_add_user_to_base(self):

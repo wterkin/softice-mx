@@ -61,10 +61,11 @@ class CStatistic(basis.CBasis):
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder
         self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, pdatabase_name)
+
         print("Статистик стартовал.")
 
 
-    def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
+    async def add_room_to_base(self, proom_id: str, proom_name: str) -> int:
         """Добавляет новую комнату в БД и возвращает его ID."""
 
         assert proom_id is not None, \
@@ -77,7 +78,7 @@ class CStatistic(basis.CBasis):
         try:
 
             room = db.CRoom(proom_id, proom_name)
-            self.database.commit_changes(room)
+            await self.database.commit_changes(room)
             return room.id
         except SQLAlchemyError:
 
