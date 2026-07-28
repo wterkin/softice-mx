@@ -15,7 +15,7 @@ from softice import database as db
 from softice import statistic
 
 
-TEST_DATABASE_NAME: str = "test_softice"
+TEST_DATABASE_NAME: str = "softice-test"
 
 first_run: bool = True
 
@@ -32,9 +32,11 @@ class CTestStatistic(TestCase):
     def clean_tables(self):
 
         database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
-        database.wipe_table(db.CRoom)
-        database.wipe_table(db.CUser)
-        database.wipe_table(db.CStat)
+        asyncio.run(database.connect())
+        result = asyncio.run(database.wipe_table(db.CRoom))
+        result = asyncio.run(database.wipe_table(db.CUser))
+        result = asyncio.run(database.wipe_table(db.CStat))
+
 
     # def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
     def test_add_room_to_base(self):

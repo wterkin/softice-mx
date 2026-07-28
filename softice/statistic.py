@@ -3,7 +3,7 @@
 
 """Модуль статистики для бота."""
 
-from pathlib import Path
+import asyncio
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -46,7 +46,7 @@ UNIT_ID: str = "statistic"
 SORTED_BY: tuple = ("фраз", "слов", "стикеров", "картинок",
                     "звуковых сообщений", "видео сообщений")
 
-DATABASE_NAME: str = "softice.db"
+DATABASE_NAME: str = "softice"
 
 ERROR_CODE: int = -1
 
@@ -61,7 +61,8 @@ class CStatistic(basis.CBasis):
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder
         self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, pdatabase_name)
-
+        asyncio.run(self.database.connect())
+        asyncio.run(self.database.create())
         print("Статистик стартовал.")
 
 
@@ -104,7 +105,7 @@ class CStatistic(basis.CBasis):
             return ERROR_CODE
     """
 
-    def add_user_to_base(self, puser_id: int, puser_name: str) -> int:
+    async def add_user_to_base(self, puser_id: str, puser_name: str) -> int:
         """"Добавляет нового пользователя в БД и возвращает его ID."""
 
         assert puser_id is not None, \
@@ -117,7 +118,7 @@ class CStatistic(basis.CBasis):
         try:
 
             user = db.CUser(puser_id, puser_name)
-            self.database.commit_changes(user)
+            await self.database.commit_changes(user)
             return user.id
         except SQLAlchemyError:
 
@@ -137,7 +138,7 @@ class CStatistic(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_room_by_id(self, proom_id) -> int:
+    async def get_room_by_id(self, proom_id: str) -> int:
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
         assert proom_id is not None, \
@@ -146,9 +147,9 @@ class CStatistic(basis.CBasis):
 
         try:
 
-            query = self.database.query_data(db.CRoom)
-            query = query.filter_by(froomid=proom_id)
-            room = query.first()
+            query = await self.database.query_data(db.CRoom)
+            query = await query.filter_by(froomid=proom_id)
+            room = await query.first()
             if room is not None:
 
                 return room.id
@@ -178,7 +179,7 @@ class CStatistic(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    def get_personal_information(self, proom_id: int, puser_name: str) -> str:
+    async def get_personal_information(self, proom_id: str, puser_name: str) -> str:
         """Возвращает информацию о пользователе"""
 
         assert proom_id is not None, \
@@ -189,21 +190,21 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <puser_name> !"
 
         answer: str = ""
-        query = self.database.query_data(db.CUser)
-        query = query.filter_by(fusername=puser_name)
-        user = query.first()
+        query = await self.database.query_data(db.CUser)
+        query = await query.filter_by(fusername=puser_name)
+        user = await query.first()
         if user is not None:
 
             # *** Получим ID чата в базе
-            query = self.database.query_data(db.CRoom)
-            query = query.filter_by(froomid=proom_id)
-            room = query.first()
+            query = await self.database.query_data(db.CRoom)
+            query = await query.filter_by(froomid=proom_id)
+            room = await query.first()
             if room is not None:
 
-                query = self.database.query_data(db.CStat)
-                query = query.filter_by(fuserid=user.id)
-                query = query.filter_by(fchatid=room.id)
-                stat = query.first()
+                query = await self.database.query_data(db.CStat)
+                query = await query.filter_by(fuserid=user.id)
+                query = await query.filter_by(fchatid=room.id)
+                stat = await query.first()
                 if stat is not None:
 
                     answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
@@ -216,7 +217,7 @@ class CStatistic(basis.CBasis):
         return answer
 
 
-    def get_statistic(self, proom_id: int, pcount: int, porder_by: int) -> str:
+    def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
         """Получает из базы статистику по самым говорливым юзерам."""
 
         assert proom_id is not None, \
@@ -417,5 +418,3 @@ class CStatistic(basis.CBasis):
 
                         answer = self.get_personal_information(proom_id, puser_name)
         return answer
-
-

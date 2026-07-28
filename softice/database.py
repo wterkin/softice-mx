@@ -3,7 +3,7 @@
 """Модуль функций, связанных с БД."""
 from pathlib import Path
 
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
@@ -87,12 +87,10 @@ class CRoom(CAncestor):
     __tablename__ = 'tbl_rooms'
     froomid = Column(String,
                      nullable=False,
-                     unique=True,
-                     index=True)
+                     unique=True)
     froomname = Column(String,
                        nullable=False,
-                       index=True
-                       )
+                       index=True)
 
     def __init__(self, proom_id: int, proom_name: str):
         """Конструктор"""
@@ -121,10 +119,9 @@ class CUser(CAncestor):
     """Класс модели таблицы справочника ID пользователей телеграмма."""
 
     __tablename__ = 'tbl_users'
-    fmatrixuserid = Column(Integer,
+    fmatrixuserid = Column(String,
                            nullable=False,
-                           unique=True,
-                           index=True)
+                           unique=True)
     fusername = Column(String,
                        nullable=True,
                        default="",
@@ -480,7 +477,7 @@ class CDataBase:
             async with async_session_class() as session:
 
                 # Используем новое имя параметра
-                await session.execute(model_class.delete())
+                await session.execute(delete(model_class))
                 await session.commit()
         except exc.SQLAlchemyError:
 
