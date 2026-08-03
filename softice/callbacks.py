@@ -201,7 +201,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Мажордому есть что сказать?
-                    answer = await self.librarian.librarian(room.name, local_name, message)
+                    answer = await self.librarian.librarian(room.name, local_name, event_sender, message)
                 if not answer:
 
                     # *** Менеджеру есть что сказать?

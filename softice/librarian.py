@@ -228,7 +228,7 @@ class CLibrarian(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
 
 
-    async def librarian(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
+    async def librarian(self, pchat_title, puser_name: str, pevent_sender: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \
@@ -247,7 +247,7 @@ class CLibrarian(basis.CBasis):
             if word_list[0] in COMMANDS[LOAD_COMMAND]:
 
                 # *** Пользователь хочет перезагрузить библиотеку
-                can_reload = self.is_master(puser_name)
+                can_reload: bool = self.is_master(pevent_sender)
                 if can_reload:
 
                     await self.reload()
@@ -262,8 +262,8 @@ class CLibrarian(basis.CBasis):
             elif word_list[0] in COMMANDS[SAVE_COMMAND]:
 
                 # *** Пользователь хочет сохранить книгу хокку
-                can_reload = self.is_master(puser_name)
-                if can_reload:
+                can_save:bool = self.is_master(pevent_sender)
+                if can_save:
 
                     await self.save_to_file_async(self.quotes, self.data_path + QUOTES_FILE_NAME)
                     answer = "Книга сохранена"
