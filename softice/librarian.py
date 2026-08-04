@@ -247,8 +247,8 @@ class CLibrarian(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         if self.can_process_command(pchat_title, pmessage_text):
 
-            print(f"*** Libr:libr * {pevent_sender=}")
-            print(f"*** Libr:libr * {self.config.master=}")
+            # rint(f"*** Libr:libr * {pevent_sender=}")
+            # rint(f"*** Libr:libr * {self.config.master=}")
             # *** Возможно, запросили перезагрузку.
             if word_list[0] in COMMANDS[LOAD_COMMAND]:
 
@@ -256,7 +256,7 @@ class CLibrarian(basis.CBasis):
                 can_reload: bool = self.is_master(pevent_sender)
                 if can_reload:
 
-                    print(f"*** Libr:libr *")
+                    # rint(f"*** Libr:libr *")
                     await self.reload()
                     answer = "Книга обновлена"
                 else:

@@ -144,7 +144,7 @@ class Callbacks:
 
             #if self.config.debug:
 
-            #    print(f":: clbk.message :: i :: {message}")
+            # rint(f":: clbk.message :: i :: {message}")
             # *** Выведем в лог отладочное сообщение
             logger.debug(
                 f"Bot message received for room {room.display_name} | "
@@ -201,7 +201,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Мажордому есть что сказать?
-                    answer = await self.librarian.librarian(room.name, local_name, event_sender, message)
+                    answer = await self.librarian.librarian(room.name, local_name, event.sender, message)
                 if not answer:
 
                     # *** Менеджеру есть что сказать?
@@ -244,16 +244,16 @@ class Callbacks:
                 # answer = answer.strip()
 
                 # rint(f"+++ Cllb +++ 3 +++ {answer=}")
-                if self.config.debug:
+                # if self.config.debug:
 
-                    print(f":: clbk.message :: s :: {answer}")
+                    # rint(f":: clbk.message :: s :: {answer}")
                 await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
             return
 
         else:
-            if self.config.debug:
+            # if self.config.debug:
 
-                print(":: clbk.message :: O ::")
+            #    rint(":: clbk.message :: O ::")
             return
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,

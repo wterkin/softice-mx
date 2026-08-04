@@ -103,7 +103,7 @@ class CModerator(basis.CBasis):
             if detected:
 
                 answer = text_answer
-        print(f"+++ Mod +++ CBW +++ {answer=}")
+        # rint(f"+++ Mod +++ CBW +++ {answer=}")
         return answer
 
 
@@ -203,5 +203,6 @@ class CModerator(basis.CBasis):
         data_path = Path(self.data_path) / BAD_WORDS_FILE
         self.bad_words.clear()
         self.bad_words = await self.load_from_file_async(str(data_path))
+        print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
         print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
               "регэкспов матерных выражений.")
