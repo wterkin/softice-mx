@@ -47,8 +47,8 @@ class CTestStarGazer(TestCase):
         self.assertEqual(self.stargazer.calc_difference(["min",sample_date_str]),
                          f"C указанной даты прошло {difference.total_seconds()*stargazer.SECONDS_IN_MINUTE: } минут")
         self.assertEqual(self.stargazer.calc_difference(["sec",sample_date_str]),
-                         f"C указанной даты прошло {difference.total_seconds(): } секунд")
-
+                         f"C указанной даты прошло {difference.total_seconds()  : } секунд")
+        self.assertEqual(self.stargazer.calc_difference(["yr"]), "А дата где?")
 
 
     def test_can_process_command(self):
@@ -89,4 +89,10 @@ class CTestStarGazer(TestCase):
 
             result = asyncio.run(self.stargazer.stargazer(self.config.test_chat, "!дата"))
             self.assertIn(f"В этот день", result)
+        sample_date_str: str = "19.07.1980"
+        sample_date = dt.strptime(sample_date_str, stargazer.RUSSIAN_DATE_FORMAT).date()
+        difference: dt.timedelta = dt.now().date() - sample_date
+        self.assertEqual(self.stargazer.calc_difference(["yr",sample_date_str]),
+                         f"C указанной даты прошло {self.stargazer.get_diff_in_years(difference): } лет")
+        self.assertEqual(self.stargazer.calc_difference(["yr"]), "А дата где?")
 

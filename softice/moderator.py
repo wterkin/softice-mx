@@ -204,5 +204,4 @@ class CModerator(basis.CBasis):
         self.bad_words.clear()
         self.bad_words = await self.load_from_file_async(str(data_path))
         print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
-        print(f"> Moderator успешно (пере)загрузил {len(self.bad_words)} "
               "регэкспов матерных выражений.")
