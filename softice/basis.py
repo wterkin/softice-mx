@@ -163,6 +163,8 @@ class CBasis(prototype.CPrototype):
 
         assert puser_name is not None, \
             "Assert: [CBasis.is_master] Пропущен параметр <puser_name> !"
+        print(f"+++ Bas:ismast +++ {puser_name,}")
+        print(f"+++ Bas:ismast +++ {self.config.master=}")
 
         return puser_name == self.config.master
 

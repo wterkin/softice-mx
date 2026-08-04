@@ -29,7 +29,7 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.can_process_command(self.config.test_chat, "!hokku"))
         self.assertFalse(self.haijin.can_process_command(self.config.test_chat, "!кукабарра"))
 
-       
+
     def test_format_hokku(self):
 
         asyncio.run(self.haijin.reload())
@@ -38,16 +38,16 @@ class CTestHaijin(TestCase):
                             f"{haijin.AUTHOR_INDENT} <b>Исса</b> {haijin.LEFT_BRACKET}1{haijin.DELIMITER}1{haijin.RIGHT_BRACKET}")
         formatted_text: str = self.haijin.format_hokku(text)
         self.assertEqual(formatted_text, result_text)
-  
-        
+
+
     def test_get_commands(self):
 
-        self.assertIn("\n\nхк/hk [номер] [строка] : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
+        self.assertIn("\n\nхокку, hokku, хк, hk [номер] [строка] : получить случайное хокку", self.haijin.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):
 
-        self.assertIn("хокку, hokku", self.haijin.get_hint(self.config.test_chat))
+        self.assertIn("хайдзин, haijin, хд, hj", self.haijin.get_hint(self.config.test_chat))
 
 
     def test_identify_command(self):
@@ -55,10 +55,10 @@ class CTestHaijin(TestCase):
         self.assertEqual(self.haijin.identify_command("hk", haijin.COMMANDS), haijin.ASK_COMMANDS)
         self.assertEqual(self.haijin.identify_command("hk+", haijin.COMMANDS), haijin.ADD_COMMANDS)
         self.assertEqual(self.haijin.identify_command("hk-", haijin.COMMANDS), haijin.DELETE_COMMANDS)
-      
+
 
     def test_haijin(self):
-    
+
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hkrl"))
         self.assertEqual(result, "Книга загружена")
 
@@ -68,19 +68,19 @@ class CTestHaijin(TestCase):
 
             file.unlink()
         asyncio.run(self.haijin.reload())
-        
+
         # answer = "[1]Печальный мир. / Даже когда расцветают вишни.. / Даже тогда... (Исса)"
         answer = "<i> Печальный мир. \n Даже когда расцветают вишни.. \n Даже тогда...  </i>"
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk"))
         self.assertIn(answer, result)
-        
+
         hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, f"!hk+ {hokku}"))
         self.assertIn("Спасибо, @namo:sibnsk.net, хокку добавлено под номером 2", result)
-        
+
         result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk- 2"))
         self.assertIn("Хокку 2 удалена.", result)
-        
+
         # Запрос на удаление от нелегитимного лица
         answer = "Извини, user, только @namo:sibnsk.net может удалять хокку"
         result = result = asyncio.run(self.haijin.haijin(self.config.test_chat, "user", "!hk- 1"))
@@ -99,4 +99,4 @@ class CTestHaijin(TestCase):
         self.assertTrue(self.haijin.is_master(self.config.master)) #, self.config["master_name"]))
 
 
-        
+

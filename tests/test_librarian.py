@@ -43,27 +43,27 @@ class CTestLibrarian(TestCase):
 
     def test_can_process_command(self):
 
-        self.assertTrue(self.librarian.can_process_command(self.config.test_chat, '!цт'))
-        self.assertFalse(self.librarian.can_process_command('fakechat', '!цт'))
-        self.assertFalse(self.librarian.can_process_command('empttychat', '!хквс'))
+        self.assertTrue(self.librarian.can_process_command(self.config.test_chat, "!цт"))
+        self.assertFalse(self.librarian.can_process_command("fakechat", "!цт"))
+        self.assertFalse(self.librarian.can_process_command("empttychat", "!хквс"))
 
 
     def test_execute_quotes_commands(self):
 
         asyncio.run(self.librarian.reload())
         result = "Мы думаем, что Бог видит нас сверху - но Он видит нас изнутри..."
-        self.assertIn(result, self.librarian.execute_quotes_commands(self.config.master, [""], librarian.ASK_QUOTE_COMMAND))
+        self.assertIn(result, self.librarian.execute_quotes_commands("Петрович", self.config.master, [""], librarian.ASK_QUOTE_COMMAND))
 
         quote = "Нет у тебя, человек, ничего, кроме души. Пифагор"
-        self.assertIn(f"Спасибо, {self.config.master}, цитата добавлена под номером 2",
-                      self.librarian.execute_quotes_commands(self.config.master,
+        self.assertIn(f"Спасибо, Петрович, цитата добавлена под номером 2",
+                      self.librarian.execute_quotes_commands("Петрович", self.config.master,
                                                      ["qt+", quote], librarian.ADD_QUOTE_COMMAND))
         self.assertIn("Цитата 2 удалена",
-                      self.librarian.execute_quotes_commands(self.config.master,
+                      self.librarian.execute_quotes_commands("Петрович", self.config.master,
                       ["hk-", "2"], librarian.DEL_QUOTE_COMMAND))
         # Запрос на удаление от нелегитимного лица
         result = f"Извини, User, только {self.config.master} может удалять цитаты"
-        self.assertIn(result, self.librarian.execute_quotes_commands("User", ["hk-", "1"], librarian.DEL_QUOTE_COMMAND))
+        self.assertIn(result, self.librarian.execute_quotes_commands("User", "@user:matrix.org", ["hk-", "1"], librarian.DEL_QUOTE_COMMAND))
 
 
     def test_get_commands(self):
@@ -82,39 +82,48 @@ class CTestLibrarian(TestCase):
 
     def test_librarian(self):
 
-        result = asyncio.run(self.librarian.librarian('fakechat', 'User', '!lbreload'))
+        result = asyncio.run(self.librarian.librarian("fakechat", "User", "@user:matrix.org", "!lbreload"))
         self.assertEqual(result, "")
-        result = asyncio.run(self.librarian.librarian('emptychat', 'User', '!lbreload'))
+        result = asyncio.run(self.librarian.librarian("emptychat", "User", "@user:matrix.org", "!lbreload"))
         self.assertEqual(result, "")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat,
-                                                      self.config.master, '!lbreload'))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "Петрович",
+                                                      self.config.master, "!lbreload"))
         self.assertEqual(result, "Книга обновлена")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat, 'User', '!lbreload'))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User",
+                                                      "@user:matrix.org", "!lbreload"))
         self.assertEqual(result, f"Извини, User, только {self.config.master} может перегружать цитаты!")
-        result = asyncio.run(self.librarian.librarian('fakechat', 'User', '!lbsave'))
+        result = asyncio.run(self.librarian.librarian("fakechat", "User", "@user:matrix.org", "!lbsave"))
         self.assertEqual(result, "")
-        result = asyncio.run(self.librarian.librarian('emptychat', 'User', '!lbsave'))
+        result = asyncio.run(self.librarian.librarian("emptychat", "User", "@user:matrix.org", "!lbsave"))
         self.assertEqual(result , "")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat,
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "Петрович",
                                                       self.config.master, "!lbsave"))
         self.assertEqual(result, "Книга сохранена")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User", '!lbsave'))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User",
+                                                      "@user:matrix.org", "!lbsave"))
         self.assertEqual(result, f"Извини, User, только {self.config.master} может сохранять цитаты!")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat, 'user', '!библиотека'))
-        self.assertIn("цитата, цт, quote, qt", result)
-        result = asyncio.run(self.librarian.librarian("fakechat", 'user', '!библиотека'))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "user",
+                                                      "@user:matrix.org", "!библиотека"))
+        self.assertIn("цитата, quote, цт, qt", result)
+        result = asyncio.run(self.librarian.librarian("fakechat", "user",
+                                                      "@user:matrix.org", "!библиотека"))
         self.assertEqual(result, "")
-        result = asyncio.run(self.librarian.librarian("emptychat", 'user', '!библиотека'))
+        result = asyncio.run(self.librarian.librarian("emptychat", "user",
+                                                      "@user:matrix.org", "!библиотека"))
         self.assertEqual(result, "")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat,
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "Петрович",
                                                       self.config.master, "!qt+ No fate"))
-        self.assertIn(f"Спасибо, {self.config.master}, цитата добавлена под номером 2", result)
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat,
+        self.assertIn(f"Спасибо, Петрович, цитата добавлена под номером 2", result)
+        print("*****************************************")
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "Петрович",
                                                       self.config.master, "!qt- 2"))
+        print("*****************************************")
         self.assertIn("Цитата 2 удалена", result)
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User", "!qt- 2"))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User",
+                                                      "@user:matrix.org", "!qt- 2"))
         self.assertEqual(result, f"Извини, User, только {self.config.master} может удалять цитаты")
-        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User", "!qt"))
+        result = asyncio.run(self.librarian.librarian(self.config.test_chat, "User",
+                                                      "@user:matrix.org", "!qt"))
         self.assertEqual(result, "[1] Мы думаем, что Бог видит нас сверху - но Он видит нас изнутри...")
 
     def tearDown(self):

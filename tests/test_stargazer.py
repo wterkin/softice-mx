@@ -49,7 +49,7 @@ class CTestStarGazer(TestCase):
 
     def test_get_hint(self):
 
-        self.assertIn("календарь, кл", self.stargazer.get_hint(self.config.test_chat))
+        self.assertIn("календарь, calendar, кл, cl", self.stargazer.get_hint(self.config.test_chat))
 
 
     def test_stargazer(self):

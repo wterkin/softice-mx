@@ -165,12 +165,16 @@ class CLibrarian(basis.CBasis):
 
 
 
-    def execute_quotes_commands(self, puser_name: str, pword_list: list, pcommand: int) -> str:
+    def execute_quotes_commands(self, puser_name: str,pevent_sender: str,
+                                pword_list: list, pcommand: int) -> str:
         """Выполняет команды, касающиеся базы цитат."""
 
         assert puser_name is not None, \
             "Assert: [CLibrarian.execute_quotes_commands] " \
             "Пропущен параметр <puser_name> !"
+        assert pevent_sender is not None, \
+            "Assert: [CLibrarian.execute_quotes_commands] " \
+            "Пропущен параметр <pevent_sender> !"
         assert pword_list is not None, \
             "Assert: [CLibrarian.execute_quotes_commands] " \
             "Пропущен параметр <pword_list> !"
@@ -191,7 +195,7 @@ class CLibrarian(basis.CBasis):
         elif pcommand == DEL_QUOTE_COMMAND:
 
             # *** Пользователь хочет удалить цитату из книги...
-            if self.is_master(puser_name):
+            if self.is_master(pevent_sender):
 
                 del self.quotes[int(pword_list[1])-1]
                 answer = f"Цитата {pword_list[1]} удалена"
@@ -243,6 +247,8 @@ class CLibrarian(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         if self.can_process_command(pchat_title, pmessage_text):
 
+            print(f"*** Libr:libr * {pevent_sender=}")
+            print(f"*** Libr:libr * {self.config.master=}")
             # *** Возможно, запросили перезагрузку.
             if word_list[0] in COMMANDS[LOAD_COMMAND]:
 
@@ -250,6 +256,7 @@ class CLibrarian(basis.CBasis):
                 can_reload: bool = self.is_master(pevent_sender)
                 if can_reload:
 
+                    print(f"*** Libr:libr *")
                     await self.reload()
                     answer = "Книга обновлена"
                 else:
@@ -283,7 +290,7 @@ class CLibrarian(basis.CBasis):
                 command = get_command(word_list[0])
                 if command >= 0:
 
-                    answer = self.execute_quotes_commands(puser_name, word_list, command)
+                    answer = self.execute_quotes_commands(puser_name, pevent_sender, word_list, command)
             if answer:
 
                 print("> Librarian отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
