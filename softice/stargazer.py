@@ -178,7 +178,11 @@ class CStarGazer(basis.CBasis):
             "Assert: [stargazer.get_diff_in_years] " \
             "Пропущен параметр <pdifference> !"
 
-        return int((pdifference.days + pdifference.seconds/86400)/365.2425)
+        print(f"+++ Strg +++ gdiy +++ Sec {pdifference.total_seconds()=}")
+        print(f"+++ Strg +++ gdiy +++ Min {pdifference.total_seconds()/60=}")
+        print(f"+++ Strg +++ gdiy +++ Hour {pdifference.total_seconds()/60=}")
+
+        return int(pdifference.days / 365.2425)
 
 
     def calc_difference(self, pcommands: list) -> str:
@@ -213,13 +217,13 @@ class CStarGazer(basis.CBasis):
                 answer = f"{answer_part} {self.get_diff_in_years(difference): } лет"
             if pcommands[0] in COMMANDS[DAYS_GROUP]:
 
-                answer = f"{answer_part} {difference.total_seconds() * SECONDS_IN_DAY: } дней"
+                answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_DAY): } дней"
             if pcommands[0] in COMMANDS[HOURS_GROUP]:
 
-                answer = f"{answer_part} {difference.total_seconds() * SECONDS_IN_HOUR: } часов"
+                answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_HOUR): } часов"
             if pcommands[0] in COMMANDS[MINUTES_GROUP]:
 
-                answer = f"{answer_part} {difference.total_seconds() * SECONDS_IN_MINUTE: } минут"
+                answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_MINUTE): } минут"
             if pcommands[0] in COMMANDS[SECONDS_GROUP]:
 
                 answer = f"{answer_part} {difference.total_seconds(): } секунд"

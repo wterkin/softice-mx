@@ -41,11 +41,11 @@ class CTestStarGazer(TestCase):
         self.assertEqual(self.stargazer.calc_difference(["yr",sample_date_str]),
                          f"C указанной даты прошло {self.stargazer.get_diff_in_years(difference): } лет")
         self.assertEqual(self.stargazer.calc_difference(["dy",sample_date_str]),
-                         f"C указанной даты прошло {difference.total_seconds()*stargazer.SECONDS_IN_DAY: } дней")
+                         f"C указанной даты прошло {int(difference.total_seconds() / stargazer.SECONDS_IN_DAY): } дней")
         self.assertEqual(self.stargazer.calc_difference(["hr",sample_date_str]),
-                         f"C указанной даты прошло {difference.total_seconds()*stargazer.SECONDS_IN_HOUR: } часов")
+                         f"C указанной даты прошло {int(difference.total_seconds() / stargazer.SECONDS_IN_HOUR): } часов")
         self.assertEqual(self.stargazer.calc_difference(["min",sample_date_str]),
-                         f"C указанной даты прошло {difference.total_seconds()*stargazer.SECONDS_IN_MINUTE: } минут")
+                         f"C указанной даты прошло {int(difference.total_seconds() / stargazer.SECONDS_IN_MINUTE): } минут")
         self.assertEqual(self.stargazer.calc_difference(["sec",sample_date_str]),
                          f"C указанной даты прошло {difference.total_seconds()  : } секунд")
         self.assertEqual(self.stargazer.calc_difference(["yr"]), "А дата где?")
