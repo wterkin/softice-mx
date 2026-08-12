@@ -128,7 +128,7 @@ class CUser(CAncestor):
                        index=True
                        )
 
-    def __init__(self, pmatrix_user_id: int, puser_name: str = ""):
+    def __init__(self, pmatrix_user_id: string, puser_name: str = ""):
         """Конструктор"""
 
         super().__init__()

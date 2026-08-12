@@ -223,8 +223,8 @@ class CMeteorolog(basis.CBasis):
                     async with session.get(
                         FIND_CITY_URL,
                         params={
-                            'q': pcity_name, 
-                            'limit': 1, 
+                            'q': pcity_name,
+                            'limit': 1,
                             'lang': plang,
                             'APPID': api_key
                         },
@@ -305,35 +305,36 @@ class CMeteorolog(basis.CBasis):
             else:
 
                 city_name = "Москва"
-			# *** Получим ID города
+            # *** Получим ID города
             # rint(f"+++ Mtrl +++ mtrl +++ {city_name=}")
             city_id = await self.get_city_id(city_name)
+            print(f"+++ Mtrl +++ mtrl +++ {city_id=}")
             if city_id > 0:
 
                 # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
-				# *** Указан существующий город, работаем.
+                # *** Указан существующий город, работаем.
                 now: dtime.datetime = dtime.datetime.now()
                 date_str: str = ""
                 weather_str: str = ""
-				# *** Прогноз на завтра?
-				# if word_list[0] in ["прогноз", "пр", "forecast", "fr"]:
+                # *** Прогноз на завтра?
+                # if word_list[0] in ["прогноз", "пр", "forecast", "fr"]:
                 if word_list[0] in COMMANDS[FORECAST_GROUP]:
 
-					# *** Да, так и есть.
+                    # *** Да, так и есть.
                     tomorrow: dtime.datetime = now + dtime.timedelta(days=1)
                     date_str = tomorrow.strftime(RUSSIAN_DATE_FORMAT)
                     weather_str = await self.request_weather(city_id, tomorrow)
 
-				# elif word_list[0] in ["погода", "пг", "weather", "wt"]:
+                # elif word_list[0] in ["погода", "пг", "weather", "wt"]:
                 elif word_list[0] in COMMANDS[WEATHER_GROUP]:
 
-					# *** Нет, на сегодня. Еще не поздно?
+                    # *** Нет, на сегодня. Еще не поздно?
                     if now.hour < 21:
 
-						# *** Вполне еще можно
+                        # *** Вполне еще можно
                         date_str = now.strftime(RUSSIAN_DATE_FORMAT)
                         weather_str = await self.request_weather(city_id, now)
-				# *** Если еще не поздно, то выдадим погоду, иначе дадим знать юзеру
+                # *** Если еще не поздно, то выдадим погоду, иначе дадим знать юзеру
                 if now.hour < 21:
 
                     answer = f"{city_name} : {date_str} : {weather_str}"
