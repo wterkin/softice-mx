@@ -59,10 +59,10 @@ class CTestHaijin(TestCase):
 
     def test_haijin(self):
 
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hkrl"))
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, "Айс", self.config.master, "!hkrl"))
         self.assertEqual(result, "Книга загружена")
 
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hksv"))
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, "Айс", self.config.master, "!hksv"))
         self.assertEqual(result, "Книга сохранена")
         for file in Path(self.haijin.data_path).glob("hokku.txt_*"):
 
@@ -71,19 +71,19 @@ class CTestHaijin(TestCase):
 
         # answer = "[1]Печальный мир. / Даже когда расцветают вишни.. / Даже тогда... (Исса)"
         answer = "<i> Печальный мир. \n Даже когда расцветают вишни.. \n Даже тогда...  </i>"
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk"))
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, "Айс", self.config.master, "!hk"))
         self.assertIn(answer, result)
 
         hokku = "Утром / Тихонько упал на землю / С дерева лист. (Кобаяси Исса)"
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, f"!hk+ {hokku}"))
-        self.assertIn("Спасибо, @namo:sibnsk.net, хокку добавлено под номером 2", result)
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, "Айс", self.config.master, f"!hk+ {hokku}"))
+        self.assertIn("Спасибо, Айс, хокку добавлено под номером 2", result)
 
-        result = asyncio.run(self.haijin.haijin(self.config.test_chat, self.config.master, "!hk- 2"))
+        result = asyncio.run(self.haijin.haijin(self.config.test_chat, "Айс", self.config.master, "!hk- 2"))
         self.assertIn("Хокку 2 удалена.", result)
 
         # Запрос на удаление от нелегитимного лица
         answer = "Извини, user, только @namo:sibnsk.net может удалять хокку"
-        result = result = asyncio.run(self.haijin.haijin(self.config.test_chat, "user", "!hk- 1"))
+        result = result = asyncio.run(self.haijin.haijin(self.config.test_chat, "user", "user", "!hk- 1"))
         self.assertIn(answer, result)
 
     def test_is_enabled(self):

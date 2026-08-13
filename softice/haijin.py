@@ -195,7 +195,7 @@ class CHaijin(basis.CBasis):
             elif command == DELETE_COMMANDS:
 
                 # *** Пользователь хочет удалить хокку из книги...
-                if self.is_master(puser_name):
+                if self.is_master(pevent_sender):
 
                     del self.hokku[int(word_list[1]) - 1]
                     answer = f"Хокку {word_list[1]} удалена."
