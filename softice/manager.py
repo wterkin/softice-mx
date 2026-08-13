@@ -2,6 +2,7 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Игровой модуль."""
 import asyncio
+from pathlib import Path
 
 # pylint: disable=import-error
 from nio import AsyncClient
@@ -41,6 +42,13 @@ class CManager(basis.CBasis):
         with open(f"./flags/{pflag_name}", 'tw', encoding='utf-8'):
 
             pass
+
+    def delete_restart_flag(self):
+        """Функция удаляет флвг рестарта при старте программы"""
+
+        for file in Path("./flags/").glob(RESTART_FLAG):
+
+            file.unlink()
 
 
     def get_help(self, pchat_title: str) -> str:
@@ -105,7 +113,7 @@ class CManager(basis.CBasis):
                             answer = "Вам недоступна эта возможность."
                 elif word_list[0] in COMMANDS[RESTART_COMMANDS:]:
 
-                    # rint(f"+++ Mgr +++ 4 +++ Restart")
+                    print(f"+++ Mgr +++ 4 +++ Restart")
                     if self.is_enabled(room_name, UNIT_ID):
 
                         if self.is_master(puser_name):

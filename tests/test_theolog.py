@@ -40,6 +40,21 @@ class CTestTheolog(TestCase):
         self.assertFalse(self.theolog.can_process_book(["вали"]))
 
 
+    def test_find_in_book_async(self):
+        
+        # def find_in_book(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
+                     # poutput_count: int) -> str:  # noqa
+        # print(f"!!!!!!!! {self.data_path=}")
+        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "1", 1))
+        self.assertIn("небо и землю", result)
+        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "2", 1))
+        self.assertIn("и тьма над бездною", result)
+        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "211", 1))
+        self.assertEqual(result, "")
+        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "12", 2))
+        self.assertIn("И был вечер, и было утро", result)
+
+
 """    
     def test_can_process(self):
         
@@ -51,15 +66,6 @@ class CTestTheolog(TestCase):
         self.assertFalse(self.theolog.can_process("empttychat", "!быт 1 1"))
 
 
-    def test_find_in_book(self):
-        
-        # def find_in_book(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
-                     # poutput_count: int) -> str:  # noqa
-        # print(f"!!!!!!!! {self.data_path=}")
-        self.assertIn("небо и землю", self.theolog.find_in_book(0, "Бытие", "1", "", 1))
-        self.assertIn("и тьма над бездною", self.theolog.find_in_book(0, "Бытие", "1", "2", 1))
-        self.assertEqual(self.theolog.find_in_book(0, "Бытие", "1", "211", 1), "")
-        self.assertIn("И был вечер, и было утро", self.theolog.find_in_book(0, "Бытие", "1", "12", 2))
 
     def test_get_help(self):
         

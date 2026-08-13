@@ -115,7 +115,7 @@ class CHaijin(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
-    async def haijin(self, pchat_title, puser_name: str, pmessage_text: str) -> str:
+    async def haijin(self, pchat_title, puser_name: str, pevent_sender: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \
@@ -124,6 +124,9 @@ class CHaijin(basis.CBasis):
         assert puser_name is not None, \
             "Assert: [haijin.haijin] " \
             "Пропущен параметр <puser_name> !"
+        assert pevent_sender is not None, \
+            "Assert: [haijin.haijin] " \
+            "Пропущен параметр <pevent_sender> !"
         assert pmessage_text is not None, \
             "Assert: [haijin.haijin] " \
             "Пропущен параметр <pmessage_text> !"
@@ -146,7 +149,7 @@ class CHaijin(basis.CBasis):
 
                 # rint(f"+++ Hjn +++ 5 +++ Reload")
                 # *** Пользователь хочет перезагрузить книгу хокку
-                if self.is_master(puser_name):
+                if self.is_master(pevent_sender):
 
                     # rint(f"+++ Hjn +++ 6 +++ Master!")
                     await self.reload()
@@ -154,8 +157,10 @@ class CHaijin(basis.CBasis):
             elif command == SAVE_COMMANDS:
 
                 # *** Пользователь хочет сохранить книгу хокку
-                if self.is_master(puser_name):
+                # rint(f"+++ Hjn +++ 7 +++ {puser_name}!")
+                if self.is_master(pevent_sender):
 
+                    # rint(f"+++ Hjn +++ 6 +++ Master!")
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
             elif command == HINT_COMMANDS:

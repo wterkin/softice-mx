@@ -3,6 +3,7 @@
 import logging
 
 from datetime import datetime
+from pathlib import Path
 
 # pylint: disable=import-error
 from nio import (
@@ -78,7 +79,8 @@ class Callbacks:
         self.moderator: CModerator = CModerator(self.config, self.client)
         self.stargazer: CStarGazer = CStarGazer(self.config)
         self.first_run: bool = True
-
+        self.last_message: str = ""
+        self.manager.delete_restart_flag()
 
     async def run_once(self):
         """Функция выполняется один раз в начале работы."""
@@ -179,6 +181,7 @@ class Callbacks:
 
                     answer = self.send_hints(room.name)
                 if not answer:
+
                     # *** Болтуну есть что сказать?
                     answer = await self.babbler.babbler(room.name, local_name, message)
                 if not answer:
@@ -192,19 +195,14 @@ class Callbacks:
                 if not answer:
 
                     # *** Хайдзину есть что сказать?
-                    answer = await self.haijin.haijin(room.name, local_name, message)
+                    answer = await self.haijin.haijin(room.name, local_name, event.sender, message)
                     # rint(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
-                    # *** Библиотекарю есть что сказать?
-                    answer = await self.haijin.haijin(room.name, local_name, message)
-                if not answer:
-
-                    # *** Мажордому есть что сказать?
                     answer = await self.librarian.librarian(room.name, local_name, event.sender, message)
                 if not answer:
 
-                    # *** Менеджеру есть что сказать?
+                    # *** Мажордому есть что сказать?
                     answer = await self.majordomo.majordomo(room.name, message)
                 if not answer:
 
@@ -246,8 +244,11 @@ class Callbacks:
                 # rint(f"+++ Cllb +++ 3 +++ {answer=}")
                 # if self.config.debug:
 
-                    # rint(f":: clbk.message :: s :: {answer}")
-                await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
+                print(f":: clbk.message :: s :: {answer} {self.last_message}")
+                if answer != self.last_message:
+
+                    await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
+                    self.last_message = answer
             return
 
         else:
