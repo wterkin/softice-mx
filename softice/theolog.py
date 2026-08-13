@@ -5,8 +5,7 @@
 import re
 import random
 
-
-import prototype
+from softice import basis
 
 # *** Путь к файлам Библии
 THEOLOG_FOLDER: str = "theolog/"
@@ -27,7 +26,7 @@ FIND_IN_BOOK_ENG: str = "find"
 OLD_TESTAMENT_BOOKS = range(1, 40)
 NEW_TESTAMENT_BOOKS = range(40, 67)
 
-BOOKS_INDEX: tuple = (("бытие", "быт", "Книга Бытия"),
+BOOKS_LIST: tuple = (("бытие", "быт", "Книга Бытия"),
                      ("исход", "исх", "Книга Исход"),
                      ("левит", "лев", "Книга Левит"),
                      ("числа", "числ", "Книга Числа"),
@@ -102,17 +101,18 @@ HINT_GROUP: int = 4
 
 COMMANDS: list = (("найтинз", "нз", "findnew", "fn"),
                   ("найтивз", "вз", "findold", "fo"),
-                  ("'имя книги' глава стих [количество]")
+                  ("'имя книги' глава стих [количество]"),
                   ("книги", "кн", "books", "bk"),
                   ("библия", "бб", "bible", "bb"))
 
+# DESC_FIND_IN_OLD: str = (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза -  найти указанную фразу в Ветхом Завете") 
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - "
                          " найти указанную фразу в Новом Завете"),
-                       (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза - "
-                         " найти указанную фразу в Ветхом Завете")
+                       (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза -  найти указанную фразу в Ветхом Завете"),
+                       #DESC_FIND_IN_OLD,
                        (f"{', '.join(COMMANDS[CYTATE_GROUP])} -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
-                         " Название книги указывается в любом формате из приведенных")
+                         " Название книги указывается в любом формате из приведенных"),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
@@ -145,15 +145,17 @@ def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
     return "\n".join(result_list)
 
 
-class CTheolog(prototype.CPrototype):
+class CTheolog(basis.CBasis):
     """Класс теолога."""
 
-    def __init__(self, pconfig: dict, pdata_path):
+    def __init__(self, pconfig: dict):
         """"Конструктор."""
 
-        super().__init__()
-        self.config: dict = pconfig
-        self.data_path: str = pdata_path + THEOLOG_FOLDER
+        super().__init__(pconfig)
+        # self.config: dict = pconfig
+        self.data_path: str = self.config.data_folder + THEOLOG_FOLDER
+        # self.data_path: str = pdata_path + THEOLOG_FOLDER
+
 
     def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
@@ -165,14 +167,22 @@ class CTheolog(prototype.CPrototype):
         assert pmessage is not None, \
             "Assert: [theolog.can_process_command] " \
             "Пропущен параметр <pmessage> !"
-        result: bool = False    
-        if not super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS):
 
-            for book in BOOKS_INDEX:
+        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        
 
-                if word_list[0].lower() in book:
+    def can_process_book(self, pword_list: list) -> bool:
+        """Процедура определяет, существует ли требуемая книга."""
 
-                    result = True
+        assert pword_list is not None, \
+            "Assert: [theolog.can_process_book] " \
+            "Пропущен параметр <pword_list> !"
+
+        for book in BOOKS_LIST:
+
+            if pword_list[0].lower() in book:
+
+                return True
         return False
         
 
@@ -350,9 +360,9 @@ class CTheolog(prototype.CPrototype):
                 answer = random.choice(result_list)
         return answer
 
-
+    """
     def is_enabled(self, pchat_title: str) -> bool:
-        """Возвращает True, если бармен разрешен на этом канале."""
+        ""Возвращает True, если бармен разрешен на этом канале.""
 
         assert pchat_title is not None, \
             "Assert: [theolog.is_enabled] No <pchat_title> parameter specified!"
@@ -360,7 +370,7 @@ class CTheolog(prototype.CPrototype):
 
             return UNIT_ID in self.config["chats"][pchat_title]
         return False
-
+    """
 
     def reload(self):
         pass
