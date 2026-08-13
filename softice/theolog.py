@@ -4,6 +4,7 @@
 
 import re
 import random
+import asyncio
 
 from softice import basis
 
@@ -125,6 +126,16 @@ FULL_OUTPUT = "-f"
 def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
     """Ищет заданную строку в заданном файле."""
 
+    assert pbook_file is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pbook_file> !"
+    assert pbook_title is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pbook_title> !"
+    assert pphrase is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pphrase> !"
+
     result_list: list = []
     with open(pbook_file, "r", encoding="utf-8") as book_file:
 
@@ -143,6 +154,22 @@ def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
 
                 break
     return "\n".join(result_list)
+
+
+async def search_in_book_async(pbook_file: str, pbook_title: str, pphrase: str):
+    """Асинхронная версия функции."""
+
+    assert pbook_file is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pbook_file> !"
+    assert pbook_title is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pbook_title> !"
+    assert pphrase is not None, \
+        "Assert: [theolog:search_in_book] " \
+        "Пропущен параметр <pphrase> !"
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, search_in_book, pbook_file, pbook_title, pphrase)
 
 
 class CTheolog(basis.CBasis):

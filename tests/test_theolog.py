@@ -1,6 +1,7 @@
 from unittest import TestCase
 import json
 from pathlib import Path
+import asyncio
 
 from softice import config
 from softice import theolog
@@ -8,13 +9,22 @@ from softice import theolog
 class CTestTheolog(TestCase):
 
     def setUp(self) -> None:
-        
+
         self.config = config.Config("test_config.yaml")
         self.theolog: theolog.CTheolog = theolog.CTheolog(self.config)
 
 
+    def test_search_in_book_async(self):
+
+        #def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
+        result = asyncio.run(theolog.search_in_book_async(self.theolog.data_path+"1.txt", "Книга Бытия",
+                             "И совершил Бог к седьмому дню дела Свои".lower()))
+        self.assertIn("и почил в день седьмый",result)
+        #self.assertNotIn("\n", theolog.search_in_book(self.data_path+theolog.THEOLOG_FOLDER+"1.txt", "Книга Бытия", "Пусть бегут неуклюже".lower()))
+
+
     def test_can_process_command(self):
-        
+
         self.assertTrue(self.theolog.can_process_command(self.config.test_chat, "!вз В начале сотворил"))
         self.assertTrue(self.theolog.can_process_command(self.config.test_chat, "!найтинз Блажен читающий"))
         self.assertTrue(self.theolog.can_process_command(self.config.test_chat, "!bible"))
@@ -23,20 +33,14 @@ class CTestTheolog(TestCase):
         self.assertFalse(self.theolog.can_process_command("emptychat", "!книги"))
 
     def test_can_process_book(self):
-    
+
         self.assertTrue(self.theolog.can_process_book(["быт"]))
         self.assertTrue(self.theolog.can_process_book(["откр"]))
         self.assertFalse(self.theolog.can_process_book(["трали"]))
         self.assertFalse(self.theolog.can_process_book(["вали"]))
 
 
-"""
-    def test_search_in_book(self):
-        
-        #def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
-        self.assertIn("и почил в день седьмый", theolog.search_in_book(self.data_path+theolog.THEOLOG_FOLDER+"1.txt", "Книга Бытия", "И совершил Бог к седьмому дню дела Свои".lower()))
-        self.assertNotIn("\n", theolog.search_in_book(self.data_path+theolog.THEOLOG_FOLDER+"1.txt", "Книга Бытия", "Пусть бегут неуклюже".lower()))
-    
+"""    
     def test_can_process(self):
         
         # def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
