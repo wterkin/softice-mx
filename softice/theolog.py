@@ -231,9 +231,6 @@ class CTheolog(basis.CBasis):
         answer: str = ""
         # *** Путь к файлу
         book_file_name: str = f"{self.data_path}{pbook_idx + 1}.txt"
-        ## *** Если номер строки пустой, берем первый
-        #if not pverse.strip():
-        #    pverse = "1"
         line_id: str = f"{pchapter}:{pverse}:"
         # *** Открываем нужную книгу и перебираем её
         with open(book_file_name, "r", encoding="utf-8") as book_file:
@@ -299,7 +296,7 @@ class CTheolog(basis.CBasis):
         books: str = ""
         if self.is_enabled(pchat_title, UNIT_ID):
 
-            for book in BOOK_LIST:
+            for book in BOOKS_LIST:
 
                 if not book[0][0].isdigit():
 
@@ -309,6 +306,7 @@ class CTheolog(basis.CBasis):
                     books += f"{book[0]}({book[1]}), "
         return books
 
+
     def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
@@ -316,7 +314,7 @@ class CTheolog(basis.CBasis):
             "Assert: [haijin.get_hint] " \
             "Пропущен параметр <pchat_title> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
+        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
     def global_search(self, ptestament: str, pphrase: str,

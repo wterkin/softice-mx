@@ -42,9 +42,6 @@ class CTestTheolog(TestCase):
 
     def test_find_in_book_async(self):
         
-        # def find_in_book(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
-                     # poutput_count: int) -> str:  # noqa
-        # print(f"!!!!!!!! {self.data_path=}")
         result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "1", 1))
         self.assertIn("небо и землю", result)
         result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "2", 1))
@@ -55,39 +52,28 @@ class CTestTheolog(TestCase):
         self.assertIn("И был вечер, и было утро", result)
 
 
-"""    
-    def test_can_process(self):
-        
-        # def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        self.assertTrue(self.theolog.can_process(test_softice.TESTPLACE_CHAT_NAME, "!bible"))
-        self.assertTrue(self.theolog.can_process(test_softice.TESTPLACE_CHAT_NAME, "!книги"))
-        self.assertTrue(self.theolog.can_process(test_softice.TESTPLACE_CHAT_NAME, "!найтивз"))
-        self.assertFalse(self.theolog.can_process("fakechat", "!bible"))
-        self.assertFalse(self.theolog.can_process("empttychat", "!быт 1 1"))
+    def test_get_commands(self):
 
-
-
-    def test_get_help(self):
-        
-        # def get_help(self, pchat_title: str) -> str:
-        self.assertIn("книги, books", self.theolog.get_help(test_softice.TESTPLACE_CHAT_NAME))
-        self.assertIsNone(self.theolog.get_help("fakechat"))
-        self.assertIsNone(self.theolog.get_help("emptychat"))        
+        self.assertIn("найтинз, нз, findnew, fn",
+                      self.theolog.get_commands(self.config.test_chat))
+        self.assertEqual(self.theolog.get_commands("fakechat"), "")
+        self.assertEqual(self.theolog.get_commands("emptychat"), "")        
 
     def test_get_books(self):
         
-        # def get_help(self, pchat_title: str) -> str:
-        self.assertIn("Бытие", self.theolog.get_books(test_softice.TESTPLACE_CHAT_NAME))
+        # def get_books(self, pchat_title: str) -> str:
+        self.assertIn("Бытие", self.theolog.get_books(self.config.test_chat))
         self.assertIn("", self.theolog.get_books("fakechat"))
         self.assertIn("", self.theolog.get_books("emptychat"))        
 
-
     def test_get_hint(self):
         
-        # def get_hint(self, pchat_title: str) -> str:  # [arguments-differ]
-        self.assertIn("библия, bible", self.theolog.get_hint(test_softice.TESTPLACE_CHAT_NAME))
+        #    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+        self.assertIn("библия, бб, bible, bb", self.theolog.get_hint(self.config.test_chat))
         self.assertIn("", self.theolog.get_hint("fakechat"))
         self.assertIn("", self.theolog.get_hint("emptychat"))        
+
+"""    
 
 
     def test_global_search(self):
