@@ -18,12 +18,12 @@ LINE_ARG: int = 1
 UNIT_ID = "theolog"
 
 # *** Команды поиска текста по книгам Библии
-NEW_TESTAMENT: str = "найтинз"
-OLD_TESTAMENT: str = "найтивз"
-NEW_TESTAMENT_ENG: str = "findnew"
-OLD_TESTAMENT_ENG: str = "findold"
-FIND_IN_BOOK: str = "найти"
-FIND_IN_BOOK_ENG: str = "find"
+#NEW_TESTAMENT: str = "найтинз"
+#OLD_TESTAMENT: str = "найтивз"
+#NEW_TESTAMENT_ENG: str = "findnew"
+#OLD_TESTAMENT_ENG: str = "findold"
+#FIND_IN_BOOK: str = "найти"
+#FIND_IN_BOOK_ENG: str = "find"
 OLD_TESTAMENT_BOOKS = range(1, 40)
 NEW_TESTAMENT_BOOKS = range(40, 67)
 
@@ -97,23 +97,29 @@ BOOKS_LIST: tuple = (("бытие", "быт", "Книга Бытия"),
 FIND_IN_NEW_GROUP: int = 0
 FIND_IN_OLD_GROUP: int = 1
 CYTATE_GROUP: int = 2
-BOOKS_GROUP: int = 3
-HINT_GROUP: int = 4
+FIND_IN_BOOK_GROUP: int = 3
+BOOKS_GROUP: int = 4
+HINT_GROUP: int = 5
 
 COMMANDS: list = (("найтинз", "нз", "findnew", "fn"),
                   ("найтивз", "вз", "findold", "fo"),
-                  ("'имя книги' глава стих [количество]"),
+                  ("'имя книги'"),
+                  ("найти", "нт", "find", "fn")
                   ("книги", "кн", "books", "bk"),
                   ("библия", "бб", "bible", "bb"))
 
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - "
-                         " найти указанную фразу в Новом Завете"),
+                         " найти указанную фразу в Новом Завете, "
+                         "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза -  "
-                         "найти указанную фразу в Ветхом Завете"),
+                         "найти указанную фразу в Ветхом Завете"
+                         "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        #DESC_FIND_IN_OLD,
-                       (f"{', '.join(COMMANDS[CYTATE_GROUP])} -"
+                       (f"{', '.join(COMMANDS[CYTATE_GROUP])} глава стих [количество] -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
                          " Название книги указывается в любом формате из приведенных"),
+                       (f"{', '.join(COMMANDS[FIND_IN_BOOK_GROUP])} 'имя книги' 'строка'"
+                         "- Найти в указанной книге указанную строку")  
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
@@ -261,6 +267,7 @@ class CTheolog(basis.CBasis):
                         break
         return answer
 
+
     async def find_in_book_async(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
                      poutput_count: int) -> str:  # noqa
         """Ищет заданную строку в файле."""
@@ -325,6 +332,7 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.global_search] No <ptestament> parameter specified!"
         assert pphrase is not None, \
             "Assert: [theolog.global_search] No <pphrase> parameter specified!"
+
         result_list: list = []
         parsed_line: list
         answer: str = ""
@@ -397,8 +405,11 @@ class CTheolog(basis.CBasis):
 
         assert pchat_title is not None, \
             "Assert: [theolog.theolog] No <pchat_title> parameter specified!"
+        assert pmessage_text is not None, \
+            "Assert: [theolog.theolog] No <pmessage_text> parameter specified!"
+
         answer: str = ""
-        word_list: list = func.parse_input(pmessage_text.replace(":", " "))
+        word_list: list = self.parse_input(pmessage_text.replace(":", " "))
         verse: str = ""
         param_count = len(word_list)
         book_name: str
@@ -413,20 +424,19 @@ class CTheolog(basis.CBasis):
             # *** Если есть один параметр, то запрос помощи должен быть это
             if param_count == 1:
 
-                if word_list[COMMAND_ARG] in THEOLOG_HINT:
+                if word_list[COMMAND_ARG] in COMMANDS[HINT_GROUP]:
 
                     return self.get_help(pchat_title)
                 # *** Либо запрос списка книг
-                print(f"@@@ {word_list[COMMAND_ARG]}")
-                print(f"@@@ {THEOLOG_HELP[0:2]}")
-                if word_list[COMMAND_ARG] in THEOLOG_HELP[0:2]:
+                if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
                     return self.get_books(pchat_title)
             # *** Если есть два параметра, то это книга и глава/стих.
             if param_count > 1:
 
                 # *** Если первый параметр - команда поиска...
-                if word_list[0].lower() in [NEW_TESTAMENT, OLD_TESTAMENT]:
+                if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
+                   (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
 
                     # *** ..получим команду.
                     testament = word_list[0]
@@ -435,11 +445,11 @@ class CTheolog(basis.CBasis):
                     for word in word_list:
 
                         full_result = FULL_OUTPUT in word
-                        if full_result:
+                        if full_result and output_count == 1:
 
                             word_list.remove(word)
                             break
-                        if OUTPUT_COUNT in word:
+                        if OUTPUT_COUNT in word and not full result:
 
                             output_count = int(word[2:])
                             word_list.remove(word)
