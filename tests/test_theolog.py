@@ -73,14 +73,12 @@ class CTestTheolog(TestCase):
         self.assertIn("", self.theolog.get_hint("fakechat"))
         self.assertIn("", self.theolog.get_hint("emptychat"))        
 
-"""    
-
-
-    def test_global_search(self):
+    def test_global_search_async(self):
         
         # def global_search(self, ptestament: str, pphrase: str,
                           # pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
+        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "1", 1))
         self.assertIn("глава 22 стих 1 : И показал мне чистую реку воды жизни", \
                       self.theolog.global_search("найтинз", "чистую реку воды жизни"))
         self.assertEqual(self.theolog.global_search("найтинз", "трали-вали"), "")
-"""        
+        

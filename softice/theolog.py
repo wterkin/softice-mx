@@ -293,6 +293,10 @@ class CTheolog(basis.CBasis):
     def get_books(self, pchat_title: str) -> str:
         """Возвращает список книг Библии."""
 
+        assert pchat_title is not None, \
+            "Assert: [theolog.get_books] " \
+            "Пропущен параметр <pchat_title> !"
+
         books: str = ""
         if self.is_enabled(pchat_title, UNIT_ID):
 
@@ -325,6 +329,7 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.global_search] No <ptestament> parameter specified!"
         assert pphrase is not None, \
             "Assert: [theolog.global_search] No <pphrase> parameter specified!"
+
         result_list: list = []
         parsed_line: list
         answer: str = ""
@@ -376,17 +381,19 @@ class CTheolog(basis.CBasis):
                 answer = random.choice(result_list)
         return answer
 
-    """
-    def is_enabled(self, pchat_title: str) -> bool:
-        ""Возвращает True, если бармен разрешен на этом канале.""
 
-        assert pchat_title is not None, \
-            "Assert: [theolog.is_enabled] No <pchat_title> parameter specified!"
-        if pchat_title in self.config["chats"]:
+    async def global_search_async(self, ptestament: str, pphrase: str,
+                      pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
+        """Асинхронная версия функции"""
 
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False
-    """
+        assert ptestament is not None, \
+            "Assert: [theolog.global_search] No <ptestament> parameter specified!"
+        assert pphrase is not None, \
+            "Assert: [theolog.global_search] No <pphrase> parameter specified!"
+        
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.global_search, ptestament, pphrase, pfull_output,  poutput_count)
+
 
     def reload(self):
         pass
