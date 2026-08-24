@@ -136,11 +136,13 @@ class Callbacks:
         """Возвращает True, если разница между временем события и текущим
            равна OBSOLETE_PERIOD и больше. """
 
-        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
-        if not filepath.exists():
-
+        # rint(f":: clbk.is_obsolete :: {self.last_timestamp=}")
+        if self.last_timestamp == 0:
+        
             self.last_timestamp = pevent.server_timestamp
             self.save_timestamp()
+            # rint(f":: clbk.is_obsolete :: время обновлено {self.last_timestamp=}")
+            
             return True        
         else:    
             # server_timestamp (int): Timestamp in milliseconds on originating
@@ -187,9 +189,9 @@ class Callbacks:
         # rint(f"Это RoomMessageImage? {isinstance(event, RoomMessageImage)}")
         # rint("-" * 40)
 
-        if self.config.debug:
+        # if self.config.debug:
 
-            print(":: clbk.message :: message income! ::")
+            # rint(":: clbk.message :: message income! ::")
         # *** Вызываем процедуру, которая выполняется один раз.
         await self.run_once()
         answer: str = ""
@@ -219,11 +221,11 @@ class Callbacks:
                 f"Bot message received for room {room.display_name} | "
                 f"{room.user_name(event.sender)}: {message}"
             )
-            if self.config.debug:
+            # if self.config.debug:
 
-                print(f":: clbk.message :: evn :: {event}")
-                print(f":: clbk.message :: {room.room_id=}")
-                print(f":: clbk.message :: {room.name=}")
+                # rint(f":: clbk.message :: evn :: {event}")
+                # rint(f":: clbk.message :: {room.room_id=}")
+                # rint(f":: clbk.message :: {room.name=}")
 
             # Process as message if in a public room without command prefix
             # room.is_group is often a DM, but not always.
@@ -313,7 +315,7 @@ class Callbacks:
                 # rint(f"+++ Cllb +++ 3 +++ {answer=}")
                 # if self.config.debug:
 
-                print(f":: clbk.message :: s :: {answer} {self.last_message}")
+                # rint(f":: clbk.message :: s :: {answer} {self.last_message}")
                 if answer != self.last_message:
 
                     await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)

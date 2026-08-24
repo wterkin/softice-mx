@@ -5,7 +5,7 @@
 import re
 import random
 import asyncio
-
+import aiofiles
 from softice import basis
 
 # *** Путь к файлам Библии
@@ -101,12 +101,12 @@ FIND_IN_BOOK_GROUP: int = 3
 BOOKS_GROUP: int = 4
 HINT_GROUP: int = 5
 
-COMMANDS: list = (("найтинз", "нз", "findnew", "fn"),
-                  ("найтивз", "вз", "findold", "fo"),
-                  ("'имя книги'"),
-                  ("найти", "нт", "find", "fn")
-                  ("книги", "кн", "books", "bk"),
-                  ("библия", "бб", "bible", "bb"))
+COMMANDS: tuple = (("найтинз", "нз", "findnew", "fn"),
+                   ("найтивз", "вз", "findold", "fo"),
+                   ("<имя книги>"),
+                   ("найти", "нт", "find", "fn"),
+                   ("книги", "кн", "books", "bk"),
+                   ("библия", "бб", "bible", "bb"))
 
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - "
                          " найти указанную фразу в Новом Завете, "
@@ -119,7 +119,7 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
                          " Название книги указывается в любом формате из приведенных"),
                        (f"{', '.join(COMMANDS[FIND_IN_BOOK_GROUP])} 'имя книги' 'строка'"
-                         "- Найти в указанной книге указанную строку")
+                         "- Найти в указанной книге указанную строку"),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
@@ -129,7 +129,7 @@ OUTPUT_COUNT = "-n"
 FULL_OUTPUT = "-f"
 
 
-def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
+async def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):  # ok 
     """Ищет заданную строку в заданном файле."""
 
     assert pbook_file is not None, \
@@ -143,9 +143,9 @@ def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
         "Пропущен параметр <pphrase> !"
 
     result_list: list = []
-    with open(pbook_file, "r", encoding="utf-8") as book_file:
+    async with aiofiles.open(pbook_file, "r", encoding="utf-8") as book_file:
 
-        for line in book_file:
+        async for line in book_file:
 
             lower_line = line.lower()
             parsed_line = re.split(r':', lower_line, maxsplit=2)
@@ -161,9 +161,9 @@ def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
                 break
     return "\n".join(result_list)
 
-
+"""
 async def search_in_book_async(pbook_file: str, pbook_title: str, pphrase: str):
-    """Асинхронная версия функции."""
+    ""Асинхронная версия функции.""
 
     assert pbook_file is not None, \
         "Assert: [theolog:search_in_book_async] " \
@@ -176,7 +176,7 @@ async def search_in_book_async(pbook_file: str, pbook_title: str, pphrase: str):
         "Пропущен параметр <pphrase> !"
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, search_in_book, pbook_file, pbook_title, pphrase)
-
+"""
 
 class CTheolog(basis.CBasis):
     """Класс теолога."""
@@ -284,7 +284,8 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.find_in_book_async] No <pline_count> parameter specified!"
 
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.find_in_book, pbook_idx, pbook_name, pchapter, pverse, poutput_count)
+        return await loop.run_in_executor(None, self.find_in_book, pbook_idx,
+                                          pbook_name, pchapter, pverse, poutput_count)
 
 
     def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
@@ -344,14 +345,14 @@ class CTheolog(basis.CBasis):
         # *** По умолчанию берем Ветхий Завет
         search_range = OLD_TESTAMENT_BOOKS
         # *** Если нужен Новый - выбираем его
-        if ptestament == NEW_TESTAMENT:
+        if ptestament in COMMANDS[FIND_IN_NEW_GROUP]:
 
             search_range = NEW_TESTAMENT_BOOKS
         # *** Перебираем книги в заданном диапазоне
         for book in search_range:
 
             # *** Берем полное наименование книги
-            book_title: str = BIBLE_BOOKS[book-1][2]
+            book_title: str = BOOKS_LIST[book-1][2]
             # *** И название файла книги
             book_name = f"{self.data_path}{book}.txt"
             # *** Открываем файл и экшен!
@@ -378,9 +379,10 @@ class CTheolog(basis.CBasis):
             # *** Или задано количество строк в выдаче...
             elif poutput_count > 0:
 
-                if len(result_list) < poutput_count:
+                poutput_count = min(poutput_count, len(result_list))
+                #if len(result_list) < poutput_count:
 
-                    poutput_count = len(result_list)
+                #    poutput_count = len(result_list)
                 answer = "\n".join(result_list[:poutput_count])
             else:
 
@@ -397,12 +399,13 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.global_search] No <ptestament> parameter specified!"
         assert pphrase is not None, \
             "Assert: [theolog.global_search] No <pphrase> parameter specified!"
-        
+
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.global_search, ptestament, pphrase, pfull_output,  poutput_count)
+        return await loop.run_in_executor(None, self.global_search, ptestament,
+                                          pphrase, pfull_output,  poutput_count)
 
 
-    def reload(self):
+    async def reload(self):
         pass
 
 
@@ -432,12 +435,12 @@ class CTheolog(basis.CBasis):
 
                 if word_list[COMMAND_ARG] in COMMANDS[HINT_GROUP]:
 
-                    return self.get_help(pchat_title)
+                    return self.get_commands(pchat_title)
                 # *** Либо запрос списка книг
                 if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
                     return self.get_books(pchat_title)
-            # *** Если есть больше одного параметра, то это книга и глава/стих.
+            # *** Если есть больше одного параметра, то смотрим, что там запросили
             if param_count > 1:
 
                 # *** Если первый параметр - команда поиска...
@@ -455,7 +458,7 @@ class CTheolog(basis.CBasis):
 
                             word_list.remove(word)
                             break
-                        if OUTPUT_COUNT in word and not full result:
+                        if OUTPUT_COUNT in word and not full_result:
 
                             output_count = int(word[2:])
                             word_list.remove(word)
@@ -463,12 +466,12 @@ class CTheolog(basis.CBasis):
 
                     phrase = " ".join(word_list[1:]).lower()
                     answer = self.global_search(testament, phrase, full_result, output_count)
-                elif word_list[0].lower() == FIND_IN_BOOK:
+                elif word_list[0].lower() in COMMANDS[FIND_IN_BOOK_GROUP]:
 
                     # *** Искать в книге
                     book_name = word_list[1]
                     book_index: int = -1
-                    for index, book in enumerate(BIBLE_BOOKS):
+                    for index, book in enumerate(BOOKS_LIST):
 
                         if book_name.lower() in book:
 
@@ -477,7 +480,7 @@ class CTheolog(basis.CBasis):
                     if book_index >= 0:
 
                         book_file = f"{self.data_path}/{book_index+1}.txt"
-                        answer = search_in_book(book_file, BIBLE_BOOKS[book_index][2],
+                        answer = search_in_book(book_file, BOOKS_LIST[book_index][2],
                                                 " ".join(word_list[2:]))
                 else:
 
@@ -485,7 +488,7 @@ class CTheolog(basis.CBasis):
                     book_name = word_list[0].lower()
                     book_idx: int = 0
                     # *** Переберем всё
-                    for idx, book in enumerate(BIBLE_BOOKS):
+                    for idx, book in enumerate(BOOKS_LIST):
 
                         if book_name in book:
 
@@ -516,7 +519,7 @@ class CTheolog(basis.CBasis):
                         answer = "Нет такой главы и/или стиха в этой книге."
             if len(answer) > 0:
 
-                print(f"Theolog answers: {answer[:func.OUT_MSG_LOG_LEN]}...")
+                print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")
             else:
 
                 answer = "Ничего не нашёл."
