@@ -107,7 +107,7 @@ class CModerator(basis.CBasis):
         return answer
 
 
-    def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText, plocal_name: str) -> str:
+    async def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText, plocal_name: str) -> str:
         """Следит за матершинниками."""
 
         assert proom is not None, \
@@ -128,7 +128,7 @@ class CModerator(basis.CBasis):
             if text:
                 if self.client:
 
-                    self.delete_message(proom, pevent)
+                    await self.delete_message(proom, pevent)
                 print(f"Пользователь {plocal_name} матерился в чате {proom.name}.")
                 print(f"Он сказал: {text}")
                 answer = f"{plocal_name} хотел сказать \"{text}\""

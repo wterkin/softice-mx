@@ -113,7 +113,7 @@ class CManager(basis.CBasis):
                             answer = "Вам недоступна эта возможность."
                 elif word_list[0] in COMMANDS[RESTART_COMMANDS:]:
 
-                    print(f"+++ Mgr +++ 4 +++ Restart")
+                    # rint("+++ Mgr +++ 4 +++ Restart")
                     if self.is_enabled(room_name, UNIT_ID):
 
                         if self.is_master(puser_name):
@@ -126,6 +126,7 @@ class CManager(basis.CBasis):
 
                                 self.last_report = True
                                 await send_text_to_room(self.client, room_id, "Щасвирнус.")
+
                             await self.suicide()
                         else:
 

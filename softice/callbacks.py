@@ -2,8 +2,11 @@
 """Основной модуль управления ботом."""
 import logging
 
-from datetime import datetime
+from typing import Optional
+# from datetime import datetime
 from pathlib import Path
+import json
+import aiofiles
 
 # pylint: disable=import-error
 from nio import (
@@ -44,12 +47,42 @@ logger = logging.getLogger(__name__)
 
 MINIMUM_USER_QUANTITY: int = 2
 #if config.debug:
-OBSOLETE_PERIOD: int = 50000
 #else:
 #    OBSOLETE_PERIOD: int = 3000
 HELP_MESSAGE: str = ("Все команды к боту должны начинаться с ! (восклицательного знака). "
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
+
+OBSOLETE_PERIOD: int = 50000 # millisec
+TIMESTAMP_FILE: str = "timestamp.json"
+TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
+
+async def safe_read_json(filepath: str) -> Optional[dict]:
+    """Безопасное чтение JSON с обработкой ошибок."""
+    try:
+        async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
+            content = await f.read()
+            return json.loads(content)
+    except FileNotFoundError:
+        print(f"Файл {filepath} не найден")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Ошибка парсинга JSON в {filepath}: {e}")
+        return None
+
+async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
+    """Безопасная запись JSON с обработкой ошибок."""
+    try:
+        # Создаём директорию, если её нет
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
+        async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+            content = json.dumps(data, indent=indent, ensure_ascii=False)
+            await f.write(content)
+        return True
+    except Exception as e:
+        print(f"Ошибка записи в {filepath}: {e}")
+        return False
 
 class Callbacks:
     """Класс обратных вызовов."""
@@ -81,6 +114,7 @@ class Callbacks:
         self.first_run: bool = True
         self.last_message: str = ""
         self.manager.delete_restart_flag()
+        self.last_timestamp: int = 0  # in millisec
 
     async def run_once(self):
         """Функция выполняется один раз в начале работы."""
@@ -95,15 +129,48 @@ class Callbacks:
             await self.librarian.reload()
             await self.majordomo.reload()
             await self.moderator.reload()
+            await self.load_timestamp()
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
         """Возвращает True, если разница между временем события и текущим
            равна OBSOLETE_PERIOD и больше. """
-        now_time: int = int(datetime.now().timestamp()*1000)
-        delta: int = now_time - pevent.server_timestamp
-        return delta >= OBSOLETE_PERIOD
 
+        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
+        if not filepath.exists():
+
+            self.last_timestamp = pevent.server_timestamp
+            self.save_timestamp()
+            return True        
+        else:    
+            # server_timestamp (int): Timestamp in milliseconds on originating
+            # homeserver when this event was sent. (c) room_events.py
+            if pevent.server_timestamp - self.last_timestamp > TIMESTAMP_SAVE_PERIOD:
+
+                await self.save_timestamp()
+
+            # now_time: int = int(datetime.now().timestamp()*1000)
+            # delta: int = now_time - pevent.server_timestamp
+            delta: int = self.last_timestamp - pevent.server_timestamp
+            return delta >= OBSOLETE_PERIOD
+
+
+    async def load_timestamp(self) -> None:
+        """Читает из внешнего файла сохранённый timestamp."""
+
+        timestamp_dict: dict = {"timestamp" : "0"}
+        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
+        if filepath.exists():
+
+            timestamp_dict = await safe_read_json(str(filepath))
+        self.last_timestamp = int(timestamp_dict["timestamp"])
+
+
+    async def save_timestamp(self) -> bool:
+        """Сохраняет timestamp"""
+        timestamp_dict: dict = {"timestamp" : str(self.last_timestamp)}
+        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
+        return await safe_write_json(str(filepath), timestamp_dict)
 
     # *** Основная процедура вызывается при каждом пришедшем сообщении
     async def message(self, room: MatrixRoom, event: RoomMessageText) -> None:
@@ -199,7 +266,8 @@ class Callbacks:
                     # rint(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
-                    answer = await self.librarian.librarian(room.name, local_name, event.sender, message)
+                    answer = await self.librarian.librarian(room.name, local_name,
+                                                            event.sender, message)
                 if not answer:
 
                     # *** Мажордому есть что сказать?
@@ -216,7 +284,8 @@ class Callbacks:
                 if not answer:
 
                     # *** Модератору есть что сказать?
-                    answer = await self.moderator.moderator(room.name, message, local_name, event.sender)
+                    answer = await self.moderator.moderator(room.name, message,
+                                                            local_name, event.sender)
                 if not answer:
 
                     # *** Звездочёту есть что сказать?
@@ -233,7 +302,7 @@ class Callbacks:
                 # def talk(self, proom: str, pmessage: str) -> str:
                 # ToDo: Вот тут вывести картинку, если есть
                 # rint(f"+++ Cllb +++ 2 +++ {answer=}")
-                answer = self.moderator.control_talking(room, event, local_name)
+                answer = await self.moderator.control_talking(room, event, local_name)
                 if not answer:
 
                     answer, file_name = await self.babbler.talk(room.name, message)
@@ -249,13 +318,13 @@ class Callbacks:
 
                     await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
                     self.last_message = answer
-            return
+            # return
 
-        else:
+        # else:
             # if self.config.debug:
 
             #    rint(":: clbk.message :: O ::")
-            return
+        return
 
         # Otherwise if this is in a 1-1 with the bot or features a command prefix,
         # treat it as a command

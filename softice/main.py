@@ -103,7 +103,7 @@ async def main():
     # self.statistic: statistic.CStatistic = statistic.CStatistic(self.config,
     # self.stargazer: stargazer.CStarGazer = stargazer.CStarGazer(self.config,
     # self.theolog: theolog.CTheolog = theolog.CTheolog(self.config, self.data
-
+    
     # *** Бесконечный цикл попыток подключения.
     while True:
 
