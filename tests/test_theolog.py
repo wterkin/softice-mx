@@ -14,15 +14,17 @@ class CTestTheolog(TestCase):
         self.theolog: theolog.CTheolog = theolog.CTheolog(self.config)
 
 
-    def test_search_in_book(self):  # ok
+    def test_find_by_quote(self):  # ok
 
         #def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
-        result = asyncio.run(theolog.search_in_book(self.theolog.data_path+"1.txt", "Книга Бытия",
+        result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
                              "И совершил Бог к седьмому дню дела Свои".lower()))
         self.assertIn("и почил в день седьмый",result)
+        result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
+                             "Хорошо живёт на свете Винни-Пух!".lower()))
+        self.assertEqual(result, "")
 
 
-    """
     def test_can_process_command(self):
 
         self.assertTrue(self.theolog.can_process_command(self.config.test_chat, "!вз В начале сотворил"))
@@ -32,24 +34,28 @@ class CTestTheolog(TestCase):
         self.assertFalse(self.theolog.can_process_command("fakechat", "!bible"))
         self.assertFalse(self.theolog.can_process_command("emptychat", "!книги"))
 
+
     def test_can_process_book(self):
 
-        self.assertTrue(self.theolog.can_process_book(["быт"]))
-        self.assertTrue(self.theolog.can_process_book(["откр"]))
-        self.assertFalse(self.theolog.can_process_book(["трали"]))
-        self.assertFalse(self.theolog.can_process_book(["вали"]))
+        self.assertTrue(self.theolog.can_process_book("быт"))
+        self.assertTrue(self.theolog.can_process_book("откр"))
+        self.assertFalse(self.theolog.can_process_book("трали"))
+        self.assertFalse(self.theolog.can_process_book("вали"))
 
 
-    def test_find_in_book_async(self):
+    def test_find_by_verse_number(self):
         
-        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "1", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "1", 1))
         self.assertIn("небо и землю", result)
-        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "2", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "2", 1))
         self.assertIn("и тьма над бездною", result)
-        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "211", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "211", 1))
         self.assertEqual(result, "")
-        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "12", 2))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "12", 2))
         self.assertIn("И был вечер, и было утро", result)
+
+    """
+
 
 
     def test_get_commands(self):
@@ -73,7 +79,7 @@ class CTestTheolog(TestCase):
         self.assertIn("", self.theolog.get_hint("fakechat"))
         self.assertIn("", self.theolog.get_hint("emptychat"))        
 
-    def test_global_search_async(self):
+    def test_find_in_testament_async(self):
         
         # def global_search(self, ptestament: str, pphrase: str,
                           # pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
