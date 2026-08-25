@@ -125,11 +125,18 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          )
 
 MAX_SEARCH_RESULT: int = 4
-OUTPUT_COUNT = "-n"
-FULL_OUTPUT = "-f"
 
 
-async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str):  # ok 
+FULL_SELECTION: str = "-f"
+NUMBER_OF_LINES: str = "-n"
+SPECIFIED_LINE: str = "-l"
+DEFAULT_NUMBER_OF_LINES: int = 1
+DEFAULT_SPECIFIED_LINE: int = 0
+
+async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
+                        pfull_selection: bool = False, 
+                        pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES, 
+                        pspecified_line: int = DEFAULT_SPECIFIED_LINE):
     """Ищет заданную строку в заданном файле."""
 
     assert pbook_file is not None, \
@@ -202,7 +209,7 @@ class CTheolog(basis.CBasis):
 
 
     async def find_by_verse_number(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
-                           poutput_count: int) -> str:  # noqa
+                           pnumber_of_lines: int) -> str:  # noqa
         """Ищет заданную строку в файле."""
 
         assert pbook_idx is not None, \
@@ -213,7 +220,7 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.find_by_verse_number] No <pchapter> parameter specified!"
         assert pverse is not None, \
             "Assert: [theolog.find_by_verse_number] No <pverse> parameter specified!"
-        assert poutput_count is not None, \
+        assert pnumber_of_lines is not None, \
             "Assert: [theolog.find_by_verse_number] No <pline_count> parameter specified!"
 
         answer: str = ""
@@ -231,19 +238,19 @@ class CTheolog(basis.CBasis):
                     text_pos: int = line.find(':', line.find(':') + 1)
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
                     answer = f"{pbook_name} {result}"
-                    if poutput_count == 1:
+                    if pnumber_of_lines == 1:
 
                         break
                 # *** Если что-то нашлось в предыдущей итерации..
                 elif answer:
 
                     # *** и нужно выдать больше одной строки...
-                    if poutput_count > 1:
+                    if pnumber_of_lines > 1:
 
                         # *** Добавляем их в ответ
                         parsed_line: list = line.split(":")
                         answer += "\n" + parsed_line[2]
-                        poutput_count -= 1
+                        pnumber_of_lines -= 1
                     else:
 
                         break
@@ -294,7 +301,7 @@ class CTheolog(basis.CBasis):
 
 
     def find_in_testament(self, ptestament: str, pphrase: str,
-                      pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
+                      pfull_output: bool = False, pnumber_of_lines: int = 0) -> str:  # noqa
         """Ищет заданную строку по всем книгам заданного завета"""
 
         assert ptestament is not None, \
@@ -341,13 +348,13 @@ class CTheolog(basis.CBasis):
 
                 answer = "\n".join(result_list)
             # *** Или задано количество строк в выдаче...
-            elif poutput_count > 0:
+            elif pnumber_of_lines > 0:
 
-                poutput_count = min(poutput_count, len(result_list))
-                #if len(result_list) < poutput_count:
+                pnumber_of_lines = min(pnumber_of_lines, len(result_list))
+                #if len(result_list) < pnumber_of_lines:
 
-                #    poutput_count = len(result_list)
-                answer = "\n".join(result_list[:poutput_count])
+                #    pnumber_of_lines = len(result_list)
+                answer = "\n".join(result_list[:pnumber_of_lines])
             else:
 
                 # *** Иначе берем случайную строчку
@@ -356,7 +363,7 @@ class CTheolog(basis.CBasis):
 
 
     async def global_search_async(self, ptestament: str, pphrase: str,
-                      pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
+                      pfull_output: bool = False, pnumber_of_lines: int = 0) -> str:  # noqa
         """Асинхронная версия функции"""
 
         assert ptestament is not None, \
@@ -366,7 +373,7 @@ class CTheolog(basis.CBasis):
 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.global_search, ptestament,
-                                          pphrase, pfull_output,  poutput_count)
+                                          pphrase, pfull_output,  pnumber_of_lines)
 
 
     async def reload(self):
@@ -387,9 +394,9 @@ class CTheolog(basis.CBasis):
         param_count = len(word_list)
         book_name: str
         chapter: str = ""
-        full_result: bool = False
-        output_count: int = 1
-
+        full_selection: bool = False
+        number_of_lines: int = DEFAULT_NUMBER_OF_LINES
+        specified_line: int = DEFAULT_SPECIFIED_LINE
         # *** Можем обработать?
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
            self.can_process_book(word_list[0]):
@@ -407,6 +414,40 @@ class CTheolog(basis.CBasis):
             # *** Если есть больше одного параметра, то смотрим, что там запросили
             if param_count > 1:
 
+                # *** Поищем, нет ли заданных опций
+                for index, word in enumeration(word_list):
+
+                    # *** Не запрошена ли полная выдача?
+                    full_selection = FULL_SELECTION in word
+                    if full_selection and number_of_lines == 1 and specified_line == 0:
+
+                        word_list.remove(word)
+                        break
+                    # *** Возможно, есть запрос на количество строк...    
+                    if NUMBER_OF_LINES in word and not full_selection and specified_line == 0:
+
+                        # *** если кроме ключа указано количество строк
+                        if len(word_list) >= index + 1:
+                            
+                            if word_list[index + 1].isdecimal():
+    
+                                number_of_lines = int(word_list[index + 1])
+                        word_list.remove(word)
+                        word_list.del(index + 1)
+                        break
+                    # *** Возможно, указана конкретная строка, которую нужно вернуть 
+                    if SPECIFIED_LINE in word and not full_selection and number_of_lines == 1:
+
+                        # *** если кроме ключа указан номер строки
+                        if len(word_list) >= index + 1:
+                            
+                            if word_list[index + 1].isdecimal():
+    
+                                specified_line = int(word_list[index + 1])
+                        word_list.remove(word)
+                        word_list.del(index + 1)
+                        break
+                    
                 # *** Если первый параметр - команда поиска...
                 if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
                    (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
@@ -417,22 +458,25 @@ class CTheolog(basis.CBasis):
                     # *** Нет ли там параметров выдачи?
                     for word in word_list:
 
-                        full_result = FULL_OUTPUT in word
-                        if full_result and output_count == 1:
+                        full_selection = FULL_SELECTION in word
+                        if full_selection and number_of_lines == 1:
 
                             word_list.remove(word)
                             break
-                        if OUTPUT_COUNT in word and not full_result:
+                        if NUMBER_OF_LINES in word and not full_selection:
 
-                            output_count = int(word[2:])
+                            number_of_lines = int(word[2:])
                             word_list.remove(word)
                             break
 
                     phrase = " ".join(word_list[1:]).lower()
-                    answer = self.find_in_testament(testament, phrase, full_result, output_count)
+                    answer = self.find_in_testament(testament, phrase, full_selection, number_of_lines)
                 elif word_list[0].lower() in COMMANDS[FIND_BY_QUOTE_GROUP]:
 
                     # *** Искать в книге
+                    # FULL_SELECTION: str = "-f"
+                    # NUMBER_OF_LINES: str = "-n"
+                    # SPECIFIED_LINE: str = "-l"
                     book_name = word_list[1]
                     book_index: int = -1
                     for index, book in enumerate(BOOKS_LIST):
@@ -444,8 +488,11 @@ class CTheolog(basis.CBasis):
                     if book_index >= 0:
 
                         book_file = f"{self.data_path}/{book_index+1}.txt"
+                        quote: str = " ".join(word_list[2:]
                         answer = find_by_quote(book_file, BOOKS_LIST[book_index][2],
-                                               " ".join(word_list[2:]))
+                                               quote, pfull_selection=full_selection, 
+                                               pnumber_of_lines=number_of_lines,
+                                               pspecified_line=specified_line))
                 else:
 
                     # *** Книгу и главу
@@ -462,9 +509,9 @@ class CTheolog(basis.CBasis):
                     for word in word_list:
 
                         # *** Если задано количество...
-                        if OUTPUT_COUNT in word:
+                        if NUMBER_OF_LINES in word:
 
-                            output_count = int(word[2:])
+                            number_of_lines = int(word[2:])
                             word_list.remove(word)
                             break
 
@@ -477,7 +524,7 @@ class CTheolog(basis.CBasis):
 
                         verse = word_list[2]
 
-                    answer = self.find_by_verse_number(book_idx, book_name, chapter, verse, output_count)
+                    answer = self.find_by_verse_number(book_idx, book_name, chapter, verse, number_of_lines)
                     if not answer:
 
                         answer = "Нет такой главы и/или стиха в этой книге."
