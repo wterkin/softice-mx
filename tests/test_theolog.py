@@ -16,11 +16,6 @@ class CTestTheolog(TestCase):
 
     def test_find_by_quote(self):  # ok
 
-        #def search_in_book(pbook_file: str, pbook_title: str, pphrase: str):
-        #async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
-        #                pfull_selection: bool = False, 
-        #                pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES, 
-        #                pspecified_line: int = DEFAULT_SPECIFIED_LINE):
         # * Без доп параметров - возвращает случайную строчку из выборки
         result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
                              "И совершил Бог".lower()))
@@ -31,12 +26,16 @@ class CTestTheolog(TestCase):
         self.assertEqual(result, "")
         # * Полная выборка
         result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
-                             "Бог".lower(), "-f"))
+                             "Бог".lower(), theolog.FULL_SELECTION))
         self.assertIn("И назвал Бог твердь небом",result)
         # * Заданное количество строк
         result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
                              "совершил".lower(), theolog.NUMBER_OF_LINES+" 3"))
         self.assertEqual(result.count("\n"), 3)
+        # * Заданную строчку из выборки
+        result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
+                             "Бог".lower(), theolog.SPECIFIED_LINE+" 2"))
+        self.assertIn("да будет свет.",result)
 
     def test_can_process_command(self):
 

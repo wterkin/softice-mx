@@ -154,21 +154,18 @@ async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
 
         async for line in book_file:
 
-            lower_line = line.lower()
-            parsed_line = re.split(r':', lower_line, maxsplit=2)
-            joined_line: str = " ".join(parsed_line[2:])
+            parsed_line = re.split(r':', line, maxsplit=2)
+            joined_line: str = " ".join(parsed_line[2:]).lower()
+            # rint(f"+++ Th +++ fbq +++ prsl1 * {joined_line=}")
             if pphrase in joined_line:
 
-                parsed_line = re.split(r':', line, maxsplit=2)
+                # rint(f"+++ Th +++ fbq +++ prsl2 * {parsed_line=}")
                 result_line: str = " ".join(parsed_line[2:])
                 result_list.append(f"{pbook_title} глава {parsed_line[0]} стих "
                                    f"{parsed_line[1]}: {result_line}")
             if len(result_list) >= MAX_SEARCH_RESULT:
 
-                # print(f"+++ Th +++ fbq +++ brk * {result_list=}")
-                # print(f"+++ Th +++ fbq +++ BREAK!!!")
                 break
-    print(f"+++ Th +++ fbq +++ {result_list=}")
             
     if pfull_selection:
     
@@ -224,7 +221,7 @@ class CTheolog(basis.CBasis):
 
 
     async def find_by_verse_number(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
-                           pnumber_of_lines: int) -> str:  # noqa
+                                   pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES) -> str:  # noqa
         """Ищет заданную строку в файле."""
 
         assert pbook_idx is not None, \
@@ -235,8 +232,6 @@ class CTheolog(basis.CBasis):
             "Assert: [theolog.find_by_verse_number] No <pchapter> parameter specified!"
         assert pverse is not None, \
             "Assert: [theolog.find_by_verse_number] No <pverse> parameter specified!"
-        assert pnumber_of_lines is not None, \
-            "Assert: [theolog.find_by_verse_number] No <pline_count> parameter specified!"
 
         answer: str = ""
         # *** Путь к файлу
@@ -244,19 +239,24 @@ class CTheolog(basis.CBasis):
         line_id: str = f"{pchapter}:{pverse}:"
         # *** Открываем нужную книгу и перебираем её
         async with aiofiles.open(book_file_name, "r", encoding="utf-8") as book_file:
-
+            
+            # *** Читаем файл построчно
             async for line in book_file:
 
                 # *** Ищем в файле заданный идентификатор строки
                 if re.search(f"^{line_id}", line) is not None:
-
+                    
+                    # *** находим начало текста после двух двоеточий
                     text_pos: int = line.find(':', line.find(':') + 1)
+                    # *** Добавляем к тексту номер главы и стиха
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
                     answer = f"{pbook_name} {result}"
                     if pnumber_of_lines == 1:
 
                         break
                 # *** Если что-то нашлось в предыдущей итерации..
+                # !!! Тут вот совершенно непонятно
+                
                 elif answer:
 
                     # *** и нужно выдать больше одной строки...
@@ -438,6 +438,7 @@ class CTheolog(basis.CBasis):
 
                         word_list.remove(word)
                         break
+                    # rint(f"+++ Th +++ th +++ numln * {specified_line=}")
                     # *** Возможно, есть запрос на количество строк...    
                     if NUMBER_OF_LINES in word and not full_selection and specified_line == 0:
 
@@ -447,6 +448,7 @@ class CTheolog(basis.CBasis):
                             if word_list[index + 1].isdecimal():
     
                                 number_of_lines = int(word_list[index + 1])
+                                print(f"+++ Th +++ th +++ numln * {number_of_lines=}")
                                 if number_of_lines > MAX_SEARCH_RESULT:
                                     
                                     number_of_lines = MAX_SEARCH_RESULT
@@ -472,29 +474,11 @@ class CTheolog(basis.CBasis):
 
                     # *** ..получим команду.
                     testament = word_list[0]
-
-                    # *** Нет ли там параметров выдачи?
-                    for word in word_list:
-
-                        full_selection = FULL_SELECTION in word
-                        if full_selection and number_of_lines == 1:
-
-                            word_list.remove(word)
-                            break
-                        if NUMBER_OF_LINES in word and not full_selection:
-
-                            number_of_lines = int(word[2:])
-                            word_list.remove(word)
-                            break
-
                     phrase = " ".join(word_list[1:]).lower()
                     answer = self.find_in_testament(testament, phrase, full_selection, number_of_lines)
                 elif word_list[0].lower() in COMMANDS[FIND_BY_QUOTE_GROUP]:
 
                     # *** Искать в книге
-                    # FULL_SELECTION: str = "-f"
-                    # NUMBER_OF_LINES: str = "-n"
-                    # SPECIFIED_LINE: str = "-l"
                     book_name = word_list[1]
                     book_index: int = -1
                     for index, book in enumerate(BOOKS_LIST):
@@ -524,21 +508,13 @@ class CTheolog(basis.CBasis):
                             book_idx = idx
                             book_name = book[2]
                             break
-                    for word in word_list:
-
-                        # *** Если задано количество...
-                        if NUMBER_OF_LINES in word:
-
-                            number_of_lines = int(word[2:])
-                            word_list.remove(word)
-                            break
-
+        
                     # *** Есть второй параметр, то это глава
-                    if (len(word_list) > 1) and word_list[1].isdigit():
+                    if (len(word_list) > 1) and word_list[1].isdecimal():
 
                         chapter = word_list[1]
                     # *** Есть третий параметр, то это стих
-                    if (len(word_list) > 2) and word_list[2].isdigit():
+                    if (len(word_list) > 2) and word_list[2].isdecimal():
 
                         verse = word_list[2]
 
