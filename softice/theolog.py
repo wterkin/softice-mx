@@ -124,7 +124,7 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          " получить полный список книг Библии")
                          )
 
-MAX_SEARCH_RESULT: int = 4
+MAX_SEARCH_RESULT: int = 8
 
 
 FULL_SELECTION: str = "-f"
@@ -163,12 +163,27 @@ async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
                 result_line: str = " ".join(parsed_line[2:])
                 result_list.append(f"{pbook_title} глава {parsed_line[0]} стих "
                                    f"{parsed_line[1]}: {result_line}")
-            if len(result_list) > MAX_SEARCH_RESULT:
+            if len(result_list) >= MAX_SEARCH_RESULT:
 
+                # print(f"+++ Th +++ fbq +++ brk * {result_list=}")
+                # print(f"+++ Th +++ fbq +++ BREAK!!!")
                 break
-    return "\n".join(result_list)
-
-
+    print(f"+++ Th +++ fbq +++ {result_list=}")
+            
+    if pfull_selection:
+    
+        return "\n".join(result_list[:MAX_SEARCH_RESULT])
+    if pnumber_of_lines > DEFAULT_NUMBER_OF_LINES:
+    
+        return "\n".join(result_list[:pnumber_of_lines])
+    if pspecified_line > DEFAULT_SPECIFIED_LINE:
+    
+        return result_list[pspecified_line - 1]
+    if not result_list:
+        
+        return ""
+    return random.choice(result_list)
+    
 class CTheolog(basis.CBasis):
     """Класс теолога."""
 
@@ -432,8 +447,11 @@ class CTheolog(basis.CBasis):
                             if word_list[index + 1].isdecimal():
     
                                 number_of_lines = int(word_list[index + 1])
+                                if number_of_lines > MAX_SEARCH_RESULT:
+                                    
+                                    number_of_lines = MAX_SEARCH_RESULT
                         word_list.remove(word)
-                        word_list.del(index + 1)
+                        del word_list[index + 1]
                         break
                     # *** Возможно, указана конкретная строка, которую нужно вернуть 
                     if SPECIFIED_LINE in word and not full_selection and number_of_lines == 1:
@@ -445,7 +463,7 @@ class CTheolog(basis.CBasis):
     
                                 specified_line = int(word_list[index + 1])
                         word_list.remove(word)
-                        word_list.del(index + 1)
+                        del word_list[index + 1]
                         break
                     
                 # *** Если первый параметр - команда поиска...
@@ -488,11 +506,11 @@ class CTheolog(basis.CBasis):
                     if book_index >= 0:
 
                         book_file = f"{self.data_path}/{book_index+1}.txt"
-                        quote: str = " ".join(word_list[2:]
+                        quote: str = " ".join(word_list[2:])
                         answer = find_by_quote(book_file, BOOKS_LIST[book_index][2],
                                                quote, pfull_selection=full_selection, 
                                                pnumber_of_lines=number_of_lines,
-                                               pspecified_line=specified_line))
+                                               pspecified_line=specified_line)
                 else:
 
                     # *** Книгу и главу
