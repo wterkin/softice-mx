@@ -96,7 +96,7 @@ BOOKS_LIST: tuple = (("бытие", "быт", "Книга Бытия"),
 
 FIND_IN_NEW_GROUP: int = 0
 FIND_IN_OLD_GROUP: int = 1
-CYTATE_GROUP: int = 2
+FIND_BY_VERSE_NUMBER_GROUP: int = 2
 FIND_BY_QUOTE_GROUP: int = 3
 BOOKS_GROUP: int = 4
 HINT_GROUP: int = 5
@@ -108,6 +108,11 @@ COMMANDS: tuple = (("найтинз", "нз", "findnew", "fn"),
                    ("книги", "кн", "books", "bk"),
                    ("библия", "бб", "bible", "bb"))
 
+MAX_SEARCH_RESULT: int = 8
+FULL_SELECTION: str = "-f"
+NUMBER_OF_LINES: str = "-n"
+SPECIFIED_LINE: str = "-l"
+
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - "
                          " найти указанную фразу в Новом Завете, "
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
@@ -115,23 +120,26 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          "найти указанную фразу в Ветхом Завете"
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        #DESC_FIND_IN_OLD,
-                       (f"{', '.join(COMMANDS[CYTATE_GROUP])} глава стих [количество] -"
+                       (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава стих [количество] -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
-                         " Название книги указывается в любом формате из приведенных"),
+                         " Название книги указывается в любом формате из приведенных"
+                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк (макс. {MAX_SEARCH_RESULT}"
+                         ),
                        (f"{', '.join(COMMANDS[FIND_BY_QUOTE_GROUP])} 'имя книги' 'строка'"
-                         "- Найти в указанной книге указанную цитату"),
+                         " - Найти в указанной книге указанную цитату"
+                         "[ {FULL_SELECTION} ] - выдать все найденные строки (макс. {MAX_SEARCH_RESULT})"
+                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк (макс. {MAX_SEARCH_RESULT}"
+                         "[ {SPECIFIED_LINE} номер - выдать заданную строку из списка найденных ]"
+                         ),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
 
-MAX_SEARCH_RESULT: int = 8
 
 
-FULL_SELECTION: str = "-f"
-NUMBER_OF_LINES: str = "-n"
-SPECIFIED_LINE: str = "-l"
 DEFAULT_NUMBER_OF_LINES: int = 1
 DEFAULT_SPECIFIED_LINE: int = 0
+MAXIMUM_ANSWER_LENGTH: int = 1024
 
 async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
                         pfull_selection: bool = False, 
@@ -251,23 +259,25 @@ class CTheolog(basis.CBasis):
                     # *** Добавляем к тексту номер главы и стиха
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
                     answer = f"{pbook_name} {result}"
+                    # rint(f"+++ Th +++ fbvn +++ 0* {answer=}")
                     if pnumber_of_lines == 1:
 
                         break
                 # *** Если что-то нашлось в предыдущей итерации..
-                # !!! Тут вот совершенно непонятно
-                
                 elif answer:
 
+                    # rint(f"+++ Th +++ fbvn +++ 1* {answer=}")
                     # *** и нужно выдать больше одной строки...
                     if pnumber_of_lines > 1:
 
                         # *** Добавляем их в ответ
                         parsed_line: list = line.split(":")
-                        answer += "\n" + parsed_line[2]
+                        answer += "\n" + " ".join(parsed_line[2:])  
                         pnumber_of_lines -= 1
+                        # rint(f"+++ Th +++ fbvn +++ 2* {answer=}")
                     else:
 
+                        # rint(f"+++ Th +++ fbvn +++  BREAK")
                         break
         return answer
 
@@ -495,12 +505,11 @@ class CTheolog(basis.CBasis):
                                                quote, pfull_selection=full_selection, 
                                                pnumber_of_lines=number_of_lines,
                                                pspecified_line=specified_line)
-                else:
-
+                elif word_list[0].lower() in COMMANDS[FIND_BY_VERSE_NUMBER_GROUP]:
                     # *** Книгу и главу
                     book_name = word_list[0].lower()
                     book_idx: int = 0
-                    # *** Переберем всё
+                    # *** Переберем все книги
                     for idx, book in enumerate(BOOKS_LIST):
 
                         if book_name in book:
@@ -509,15 +518,14 @@ class CTheolog(basis.CBasis):
                             book_name = book[2]
                             break
         
-                    # *** Есть второй параметр, то это глава
+                    # *** Если есть второй параметр, то это глава
                     if (len(word_list) > 1) and word_list[1].isdecimal():
 
                         chapter = word_list[1]
-                    # *** Есть третий параметр, то это стих
+                    # *** Если есть третий параметр, то это стих
                     if (len(word_list) > 2) and word_list[2].isdecimal():
 
                         verse = word_list[2]
-
                     answer = self.find_by_verse_number(book_idx, book_name, chapter, verse, number_of_lines)
                     if not answer:
 
@@ -528,4 +536,4 @@ class CTheolog(basis.CBasis):
             else:
 
                 answer = "Ничего не нашёл."
-        return answer[:1024]
+        return answer[:MAXIMUM_ANSWER_LENGTH]

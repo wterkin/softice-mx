@@ -63,11 +63,10 @@ class CTestTheolog(TestCase):
         self.assertIn("и тьма над бездною", result)
         result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "211", 1))
         self.assertEqual(result, "")
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "12", 2))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "111", "1", 1))
+        self.assertEqual(result, "")
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "12", 3))
         self.assertIn("И был вечер, и было утро", result)
-
-    """
-
 
 
     def test_get_commands(self):
@@ -76,6 +75,7 @@ class CTestTheolog(TestCase):
                       self.theolog.get_commands(self.config.test_chat))
         self.assertEqual(self.theolog.get_commands("fakechat"), "")
         self.assertEqual(self.theolog.get_commands("emptychat"), "")        
+    """
 
     def test_get_books(self):
         
