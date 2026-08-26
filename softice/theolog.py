@@ -4,9 +4,11 @@
 
 import re
 import random
-import asyncio
 import aiofiles
+from pathlib import Path
+
 from softice import basis
+
 
 # *** Путь к файлам Библии
 THEOLOG_FOLDER: str = "theolog/"
@@ -18,12 +20,6 @@ LINE_ARG: int = 1
 UNIT_ID = "theolog"
 
 # *** Команды поиска текста по книгам Библии
-#NEW_TESTAMENT: str = "найтинз"
-#OLD_TESTAMENT: str = "найтивз"
-#NEW_TESTAMENT_ENG: str = "findnew"
-#OLD_TESTAMENT_ENG: str = "findold"
-#FIND_IN_BOOK: str = "найти"
-#FIND_IN_BOOK_ENG: str = "find"
 OLD_TESTAMENT_BOOKS = range(1, 40)
 NEW_TESTAMENT_BOOKS = range(40, 67)
 
@@ -120,15 +116,19 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          "найти указанную фразу в Ветхом Завете"
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        #DESC_FIND_IN_OLD,
-                       (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава стих [количество] -"
+                       (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава "
+                         "стих [количество] -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
                          " Название книги указывается в любом формате из приведенных"
-                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк (макс. {MAX_SEARCH_RESULT}"
+                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
+                         "(макс. {MAX_SEARCH_RESULT}"
                          ),
                        (f"{', '.join(COMMANDS[FIND_BY_QUOTE_GROUP])} 'имя книги' 'строка'"
                          " - Найти в указанной книге указанную цитату"
-                         "[ {FULL_SELECTION} ] - выдать все найденные строки (макс. {MAX_SEARCH_RESULT})"
-                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк (макс. {MAX_SEARCH_RESULT}"
+                         "[ {FULL_SELECTION} ] - выдать все найденные строки "
+                         "(макс. {MAX_SEARCH_RESULT})"
+                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк"
+                         " (макс. {MAX_SEARCH_RESULT}"
                          "[ {SPECIFIED_LINE} номер - выдать заданную строку из списка найденных ]"
                          ),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
@@ -228,8 +228,9 @@ class CTheolog(basis.CBasis):
         return False
 
 
-    async def find_by_verse_number(self, pbook_idx: int, pbook_name: str, pchapter: str, pverse: str,
-                                   pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES) -> str:  # noqa
+    async def find_by_verse_number(self, pbook_idx: int, pbook_name: str, pchapter: str,
+                                   pverse: str,
+                                   pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES) -> str:
         """Ищет заданную строку в файле."""
 
         assert pbook_idx is not None, \
@@ -350,33 +351,40 @@ class CTheolog(basis.CBasis):
             book_title: str = BOOKS_LIST[book-1][2]
             # *** И название файла книги
             book_name = f"{self.data_path}{book}.txt"
-            # *** Открываем файл и экшен!
-            async with aiofiles.open(book_name, "r", encoding="utf-8") as book_file:
+            #print(f"+++ Th +++ fit +++ 0* {self.data_path + book_name}")
+           
+            if Path(book_name).exists():
+            
+                # *** Открываем файл и экшен!
+                async with aiofiles.open(book_name, "r", encoding="utf-8") as book_file:
 
-                async for line in book_file:
+                    async for line in book_file:
 
-                    lower_line = line.lower()
-                    # *** Если искомая фраза содержится в строке...
-                    if pphrase in lower_line:
+                        lower_line = line.lower()
+                        # *** Если искомая фраза содержится в строке...
+                        #print(f"+++ Th +++ fit +++ 0* {lower_line=}")
+                        #print(f"+++ Th +++ fit +++ 0* {pprase=}")
+                        if pphrase in lower_line:
 
-                        # *** Парсим строчку на три части
-                        parsed_line = re.split(r'\:', line, maxsplit=2)
-                        # *** Формируем ответ
+                            # *** Парсим строчку на три части
+                            parsed_line = re.split(r'\:', line, maxsplit=2)
+                            # *** Формируем ответ
 
-                        result_list.append(f"{book_title} глава {parsed_line[0]}"
-                                           f" стих {parsed_line[1]} : {parsed_line[2]}")
+                            result_list.append(f"{book_title} глава {parsed_line[0]}"
+                                               f" стих {parsed_line[1]} : {parsed_line[2]}")
+                            print(f"+++ Th +++ fit +++ 0* {result_list=}")
+                            if len(result_list) == MAX_SEARCH_RESULT:
 
-                        if len(result_list) == MAX_SEARCH_RESULT:
-
-                            break
+                                break
 
         # *** Если что-то нашли и ответ готов...
         if len(result_list) > 0:
 
             # *** Если нужна полная выдача (??)
-            if pfull_output:
+            if pfull_selection:
 
                 answer = "\n".join(result_list)
+                print(f"+++ Th +++ fit +++ 0* {answer=}")
             # *** Или задано количество строк в выдаче...
             elif pnumber_of_lines > DEFAULT_NUMBER_OF_LINES:
 
@@ -450,9 +458,7 @@ class CTheolog(basis.CBasis):
 
                                 number_of_lines = int(word_list[index + 1])
                                 print(f"+++ Th +++ th +++ numln * {number_of_lines=}")
-                                if number_of_lines > MAX_SEARCH_RESULT:
-
-                                    number_of_lines = MAX_SEARCH_RESULT
+                                pnumber_of_lines = min(pnumber_of_lines, MAX_SEARCH_RESULT)
                         word_list.remove(word)
                         del word_list[index + 1]
                         break
@@ -476,8 +482,8 @@ class CTheolog(basis.CBasis):
                     # *** ..получим команду.
                     testament = word_list[0]
                     phrase = " ".join(word_list[1:]).lower()
-                    answer = await self.find_in_testament(testament, phrase, full_selection, number_of_lines,
-                                                    specified_line)
+                    answer = await self.find_in_testament(testament, phrase, full_selection,
+                                                          number_of_lines, specified_line)
                 elif word_list[0].lower() in COMMANDS[FIND_BY_QUOTE_GROUP]:
 
                     # *** Искать в книге
@@ -518,7 +524,8 @@ class CTheolog(basis.CBasis):
                     if (len(word_list) > 2) and word_list[2].isdecimal():
 
                         verse = word_list[2]
-                    answer = self.find_by_verse_number(book_idx, book_name, chapter, verse, number_of_lines)
+                    answer = self.find_by_verse_number(book_idx, book_name, chapter,
+                                                       verse, number_of_lines)
                     if not answer:
 
                         answer = "Нет такой главы и/или стиха в этой книге."

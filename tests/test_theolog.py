@@ -90,13 +90,22 @@ class CTestTheolog(TestCase):
         self.assertIn("", self.theolog.get_hint("emptychat"))        
 
 
-    """
-    def test_find_in_testament_async(self):
+    def test_find_in_testament(self):
         
-        # def global_search(self, ptestament: str, pphrase: str,
-                          # pfull_output: bool = False, poutput_count: int = 0) -> str:  # noqa
-        result = asyncio.run(self.theolog.find_in_book_async(0, "Бытие", "1", "1", 1))
-        self.assertIn("глава 22 стих 1 : И показал мне чистую реку воды жизни", \
-                      self.theolog.global_search("найтинз", "чистую реку воды жизни"))
-        self.assertEqual(self.theolog.global_search("найтинз", "трали-вали"), "")
-    """
+        # async def find_in_testament(self, ptestament: str, pphrase: str,
+        #                             pfull_selection: bool = False,
+        #                             pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES,
+        #                             pspecified_line: int = DEFAULT_SPECIFIED_LINE):
+        #result = asyncio.run(self.find.theolog_in_testament(0, "Бытие", "1", "1", 1))
+        #self.assertIn("глава 22 стих 1 : И показал мне чистую реку воды жизни", \
+        #              self.theolog.global_search("найтинз", "чистую реку воды жизни"))
+        #self.assertEqual(self.theolog.global_search("найтинз", "трали-вали"), "")
+        # ищем несуществующую фразу
+        result = asyncio.run(self.theolog.find_in_testament("вз", "Хорошо живёт на свете Винни-Пух!".lower(), False, 1, 0))
+        self.assertEqual(result, "")
+        # full selection
+        result = asyncio.run(self.theolog.find_in_testament("вз", "и назвал", True, 1, 0))     
+        self.assertIn("сушу землею", result)
+        # number_of_line
+        # specified_line
+        # random
