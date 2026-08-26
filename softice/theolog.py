@@ -372,7 +372,7 @@ class CTheolog(basis.CBasis):
 
                             result_list.append(f"{book_title} глава {parsed_line[0]}"
                                                f" стих {parsed_line[1]} : {parsed_line[2]}")
-                            print(f"+++ Th +++ fit +++ 0* {result_list=}")
+                            #    rint(f"+++ Th +++ fit +++ 0* {result_list=}")
                             if len(result_list) == MAX_SEARCH_RESULT:
 
                                 break
@@ -392,7 +392,7 @@ class CTheolog(basis.CBasis):
                 answer = "\n".join(result_list[:pnumber_of_lines])
             elif pspecified_line > DEFAULT_SPECIFIED_LINE:
 
-                answer = "\n".join(result_list[pspecified_line])
+                answer = result_list[pspecified_line - 1]
             else:
 
                 # *** Иначе берем случайную строчку

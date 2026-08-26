@@ -96,10 +96,6 @@ class CTestTheolog(TestCase):
         #                             pfull_selection: bool = False,
         #                             pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES,
         #                             pspecified_line: int = DEFAULT_SPECIFIED_LINE):
-        #result = asyncio.run(self.find.theolog_in_testament(0, "Бытие", "1", "1", 1))
-        #self.assertIn("глава 22 стих 1 : И показал мне чистую реку воды жизни", \
-        #              self.theolog.global_search("найтинз", "чистую реку воды жизни"))
-        #self.assertEqual(self.theolog.global_search("найтинз", "трали-вали"), "")
         # ищем несуществующую фразу
         result = asyncio.run(self.theolog.find_in_testament("вз", "Хорошо живёт на свете Винни-Пух!".lower(), False, 1, 0))
         self.assertEqual(result, "")
@@ -107,5 +103,9 @@ class CTestTheolog(TestCase):
         result = asyncio.run(self.theolog.find_in_testament("вз", "и назвал", True, 1, 0))     
         self.assertIn("сушу землею", result)
         # number_of_line
+        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 4, 0))     
+        self.assertIn("день четвертый", result)
         # specified_line
-        # random
+        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 1, 3))     
+        self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
+
