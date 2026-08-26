@@ -9,7 +9,6 @@ from pathlib import Path
 
 from softice import basis
 
-
 # *** Путь к файлам Библии
 THEOLOG_FOLDER: str = "theolog/"
 # *** Константы частей сообщения
@@ -351,7 +350,7 @@ class CTheolog(basis.CBasis):
             book_title: str = BOOKS_LIST[book-1][2]
             # *** И название файла книги
             book_name = f"{self.data_path}{book}.txt"
-            #print(f"+++ Th +++ fit +++ 0* {self.data_path + book_name}")
+            # rint(f"+++ Th +++ fit +++ 0* {self.data_path + book_name}")
            
             if Path(book_name).exists():
             
@@ -362,8 +361,8 @@ class CTheolog(basis.CBasis):
 
                         lower_line = line.lower()
                         # *** Если искомая фраза содержится в строке...
-                        #print(f"+++ Th +++ fit +++ 0* {lower_line=}")
-                        #print(f"+++ Th +++ fit +++ 0* {pprase=}")
+                        # rint(f"+++ Th +++ fit +++ 0* {lower_line=}")
+                        # rint(f"+++ Th +++ fit +++ 0* {pprase=}")
                         if pphrase in lower_line:
 
                             # *** Парсим строчку на три части
@@ -384,7 +383,6 @@ class CTheolog(basis.CBasis):
             if pfull_selection:
 
                 answer = "\n".join(result_list)
-                print(f"+++ Th +++ fit +++ 0* {answer=}")
             # *** Или задано количество строк в выдаче...
             elif pnumber_of_lines > DEFAULT_NUMBER_OF_LINES:
 
@@ -457,7 +455,7 @@ class CTheolog(basis.CBasis):
                             if word_list[index + 1].isdecimal():
 
                                 number_of_lines = int(word_list[index + 1])
-                                print(f"+++ Th +++ th +++ numln * {number_of_lines=}")
+                                # rint(f"+++ Th +++ th +++ numln * {number_of_lines=}")
                                 pnumber_of_lines = min(pnumber_of_lines, MAX_SEARCH_RESULT)
                         word_list.remove(word)
                         del word_list[index + 1]
@@ -474,8 +472,8 @@ class CTheolog(basis.CBasis):
                         word_list.remove(word)
                         del word_list[index + 1]
                         break
-
-                # *** Если первый параметр - команда поиска...
+                # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
+                # *** Если первый параметр найтинз/найтивз - команда поиска...
                 if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
                    (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
 
@@ -484,7 +482,8 @@ class CTheolog(basis.CBasis):
                     phrase = " ".join(word_list[1:]).lower()
                     answer = await self.find_in_testament(testament, phrase, full_selection,
                                                           number_of_lines, specified_line)
-                elif word_list[0].lower() in COMMANDS[FIND_BY_QUOTE_GROUP]:
+                # *** Если первый параметр - книга                                            
+                elif word_list[0].lower() in BOOKS_LIST: # COMMANDS[FIND_BY_QUOTE_GROUP]:
 
                     # *** Искать в книге
                     book_name = word_list[1]
@@ -503,10 +502,13 @@ class CTheolog(basis.CBasis):
                                                quote, pfull_selection=full_selection,
                                                pnumber_of_lines=number_of_lines,
                                                pspecified_line=specified_line)
+
                 elif word_list[0].lower() in COMMANDS[FIND_BY_VERSE_NUMBER_GROUP]:
+
                     # *** Книгу и главу
                     book_name = word_list[0].lower()
-                    book_idx: int = 0
+                    # print(f"+++ Th +++ th +++ * {book_name=}")
+                    book_idx: int = -1
                     # *** Переберем все книги
                     for idx, book in enumerate(BOOKS_LIST):
 
@@ -515,20 +517,25 @@ class CTheolog(basis.CBasis):
                             book_idx = idx
                             book_name = book[2]
                             break
+                    # rint(f"+++ Th +++ th +++ * {book_idx=}")
+                    if book_idx >= 0:
 
-                    # *** Если есть второй параметр, то это глава
-                    if (len(word_list) > 1) and word_list[1].isdecimal():
+                        # rint(f"+++ Th +++ th +++ * {word_list=}")
+                        # *** Если есть второй параметр, то это глава
+                        if (len(word_list) > 1) and word_list[1].isdecimal():
 
-                        chapter = word_list[1]
-                    # *** Если есть третий параметр, то это стих
-                    if (len(word_list) > 2) and word_list[2].isdecimal():
+                            chapter = word_list[1]
+                            # rint(f"+++ Th +++ th +++ * {chapter=}")
+                        # *** Если есть третий параметр, то это стих
+                        if (len(word_list) > 2) and word_list[2].isdecimal():
 
-                        verse = word_list[2]
-                    answer = self.find_by_verse_number(book_idx, book_name, chapter,
-                                                       verse, number_of_lines)
-                    if not answer:
+                            verse = word_list[2]
+                            # rint(f"+++ Th +++ th +++ * {verse=}")
+                        answer = await self.find_by_verse_number(book_idx, book_name, chapter,
+                                                                 verse, number_of_lines)
+                        if not answer:
 
-                        answer = "Нет такой главы и/или стиха в этой книге."
+                            answer = "Нет такой главы и/или стиха в этой книге."
             if len(answer) > 0:
 
                 print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")

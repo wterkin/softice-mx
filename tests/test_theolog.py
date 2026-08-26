@@ -109,3 +109,21 @@ class CTestTheolog(TestCase):
         result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 1, 3))     
         self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
 
+    def test_theolog(self):
+        
+        # async def theolog(self, pchat_title: str, pmessage_text: str) -> str:
+        # result = asyncio.run(self.theolog.theolog()     
+        result = asyncio.run(self.theolog.theolog("fakechat", "!bible"))
+        self.assertFalse(result)
+        result = asyncio.run(self.theolog.theolog("emptychat", "!книги"))
+        self.assertFalse(result)
+        result = asyncio.run(self.theolog.theolog("emptychat", "!траляля"))
+        self.assertFalse(result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!bible"))
+        self.assertIn("найти указанную фразу", result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!быт 1 10"))
+        self.assertIn("сушу землею", result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, ("!быт назвал -f")))
+        self.assertIn("И назвал Бог твердь небом",result)
+
+
