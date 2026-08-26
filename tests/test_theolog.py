@@ -75,7 +75,6 @@ class CTestTheolog(TestCase):
                       self.theolog.get_commands(self.config.test_chat))
         self.assertEqual(self.theolog.get_commands("fakechat"), "")
         self.assertEqual(self.theolog.get_commands("emptychat"), "")        
-    """
 
     def test_get_books(self):
         
@@ -86,11 +85,12 @@ class CTestTheolog(TestCase):
 
     def test_get_hint(self):
         
-        #    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
         self.assertIn("библия, бб, bible, bb", self.theolog.get_hint(self.config.test_chat))
         self.assertIn("", self.theolog.get_hint("fakechat"))
         self.assertIn("", self.theolog.get_hint("emptychat"))        
 
+
+    """
     def test_find_in_testament_async(self):
         
         # def global_search(self, ptestament: str, pphrase: str,
