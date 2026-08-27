@@ -4,8 +4,8 @@
 
 import re
 import random
-import aiofiles
 from pathlib import Path
+import aiofiles
 
 from softice import basis
 
@@ -99,7 +99,7 @@ HINT_GROUP: int = 5
 COMMANDS: tuple = (("найтинз", "нз", "findnew", "fn"),
                    ("найтивз", "вз", "findold", "fo"),
                    ("<имя книги>"),
-                   ("найти", "нт", "find", "fn"),
+                   # ("найти", "нт", "find", "fn"),
                    ("книги", "кн", "books", "bk"),
                    ("библия", "бб", "bible", "bb"))
 
@@ -254,11 +254,16 @@ class CTheolog(basis.CBasis):
                 # *** Ищем в файле заданный идентификатор строки
                 if re.search(f"^{line_id}", line) is not None:
 
+                    # rint(f"+++ Th +++ fbvn +++ * 1")
                     # *** находим начало текста после двух двоеточий
                     text_pos: int = line.find(':', line.find(':') + 1)
+                    # rint(f"+++ Th +++ fbvn +++ * {text_pos=}")
+
                     # *** Добавляем к тексту номер главы и стиха
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
+                    # rint(f"+++ Th +++ fbvn +++ * {result=}")
                     answer = f"{pbook_name} {result}"
+                    # rint(f"+++ Th +++ fbvn +++ * {answer=}")
                     if pnumber_of_lines == DEFAULT_NUMBER_OF_LINES:
 
                         break
@@ -351,9 +356,9 @@ class CTheolog(basis.CBasis):
             # *** И название файла книги
             book_name = f"{self.data_path}{book}.txt"
             # rint(f"+++ Th +++ fit +++ 0* {self.data_path + book_name}")
-           
+
             if Path(book_name).exists():
-            
+
                 # *** Открываем файл и экшен!
                 async with aiofiles.open(book_name, "r", encoding="utf-8") as book_file:
 
@@ -410,7 +415,7 @@ class CTheolog(basis.CBasis):
                 book_index = index
                 break
         return book_index
-        
+
 
     async def reload(self):
         pass
@@ -473,9 +478,9 @@ class CTheolog(basis.CBasis):
 
                                 number_of_lines = int(word_list[index + 1])
                                 # rint(f"+++ Th +++ th +++ numln * {number_of_lines=}")
-                                pnumber_of_lines = min(pnumber_of_lines, MAX_SEARCH_RESULT)
+                                number_of_lines = min(number_of_lines, MAX_SEARCH_RESULT)
                         word_list.remove(word)
-                        del word_list[index + 1]
+                        del word_list[index]  # +1 не нужно, так как один элемент мы уже удалили
                         break
                     # *** Возможно, указана конкретная строка, которую нужно вернуть
                     if SPECIFIED_LINE in word and not full_selection and number_of_lines == 1:
@@ -487,7 +492,7 @@ class CTheolog(basis.CBasis):
 
                                 specified_line = int(word_list[index + 1])
                         word_list.remove(word)
-                        del word_list[index + 1]
+                        del word_list[index]
                         break
                 # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
                 # %%%%%% Тут начинаем обрабатывать команды %%%%%%%%%%%%
@@ -497,24 +502,23 @@ class CTheolog(basis.CBasis):
 
                     # *** Книгу и главу
                     book_name = word_list[0].lower()
-                    print(f"+++ Th +++ th +++ * {word_list=}")
+                    # rint(f"+++ Th +++ th +++ fbvn * {word_list=}")
                     # *** Если есть второй параметр, то это глава
                     if (len(word_list) > 1) and word_list[1].isdecimal():
 
                         chapter = word_list[1]
-                        print(f"+++ Th +++ th +++ * {chapter=}")
+                        # rint(f"+++ Th +++ th +++ * {chapter=}")
                     # *** Если есть третий параметр, то это стих
                     if (len(word_list) > 2) and word_list[2].isdecimal():
 
                         verse = word_list[2]
-                        print(f"+++ Th +++ th +++ * {verse=}")
+                        # rint(f"+++ Th +++ th +++ * {verse=}")
                     answer = await self.find_by_verse_number(book_index, book_name, chapter,
                                                              verse, number_of_lines)
                     if not answer:
 
                         answer = "Нет такой главы и/или стиха в этой книге."
 
-                """
                 # *** Если первый параметр найтинз/найтивз - команда поиска...
                 if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
                    (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
@@ -522,39 +526,11 @@ class CTheolog(basis.CBasis):
                     # rint(f"+++ Th +++ th +++ * fino ")
                     # *** ..получим команду.
                     testament = word_list[0]
+                    # rint(f"+++ Th +++ th +++ * fino {testament=}")
                     phrase = " ".join(word_list[1:]).lower()
+                    # rint(f"+++ Th +++ th +++ * fino {phrase=}")
                     answer = await self.find_in_testament(testament, phrase, full_selection,
                                                           number_of_lines, specified_line)
-                elif word_list[0].lower() in COMMANDS[FIND_BY_VERSE_NUMBER_GROUP]:
-
-                    # rint(f"+++ Th +++ th +++ * fbvn ")
-                # *** Если первый параметр - книга                                            
-                else:
-                
-                    # if word_list[0].lower() in BOOKS_LIST: # COMMANDS[FIND_BY_QUOTE_GROUP]:
-
-                    # rint(f"+++ Th +++ th +++ * fbq ")
-                    # *** Искать в книге
-                    book_name = word_list[0]
-                    book_index: int = -1
-                    for index, book in enumerate(BOOKS_LIST):
-
-                        print(f"+++ Th +++ th +++ * fbq {book_name=}")
-                        print(f"+++ Th +++ th +++ * fbq {book=}")
-                        if book_name.lower() in book:
-
-                            book_index = index
-                            break
-                    # rint(f"+++ Th +++ th +++ * fbq {book_index=}")
-                    if book_index >= 0:
-
-                        book_file = f"{self.data_path}/{book_index+1}.txt"
-                        quote: str = " ".join(word_list[2:])
-                        answer = await find_by_quote(book_file, BOOKS_LIST[book_index][2],
-                                                     quote, pfull_selection=full_selection,
-                                                     pnumber_of_lines=number_of_lines,
-                                                     pspecified_line=specified_line)
-                """    
             if len(answer) > 0:
 
                 print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")

@@ -13,7 +13,6 @@ class CTestTheolog(TestCase):
         self.config = config.Config("test_config.yaml")
         self.theolog: theolog.CTheolog = theolog.CTheolog(self.config)
 
-
     def test_find_by_quote(self):  # ok
 
         # * Без доп параметров - возвращает случайную строчку из выборки
@@ -110,7 +109,7 @@ class CTestTheolog(TestCase):
         self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
 
     def test_theolog(self):
-        
+
         # async def theolog(self, pchat_title: str, pmessage_text: str) -> str:
         # result = asyncio.run(self.theolog.theolog()     
         result = asyncio.run(self.theolog.theolog("fakechat", "!bible"))
@@ -125,5 +124,11 @@ class CTestTheolog(TestCase):
         self.assertIn("сушу землею", result)
         #result = asyncio.run(self.theolog.theolog(self.config.test_chat, ("!быт назвал -f")))
         #self.assertIn("И назвал Бог твердь небом",result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз и назвал -f "))     
+        self.assertIn("сушу землею", result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -n 4"))     
+        self.assertIn("день четвертый", result)
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -l 3"))     
+        self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
 
 
