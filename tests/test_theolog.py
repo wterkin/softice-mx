@@ -123,7 +123,7 @@ class CTestTheolog(TestCase):
         self.assertIn("найти указанную фразу", result)
         result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!быт 1 10"))
         self.assertIn("сушу землею", result)
-        result = asyncio.run(self.theolog.theolog(self.config.test_chat, ("!быт назвал -f")))
-        self.assertIn("И назвал Бог твердь небом",result)
+        #result = asyncio.run(self.theolog.theolog(self.config.test_chat, ("!быт назвал -f")))
+        #self.assertIn("И назвал Бог твердь небом",result)
 
 

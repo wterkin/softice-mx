@@ -398,6 +398,20 @@ class CTheolog(basis.CBasis):
         return answer
 
 
+    def find_book_by_name(self, pbook: str) -> int:
+        """Ищет указанную книгу в списке книг."""
+
+        book_name: str = pbook.lower()
+        book_index: int = -1
+        for index, book in enumerate(BOOKS_LIST):
+
+            if book_name in book:
+
+                book_index = index
+                break
+        return book_index
+        
+
     async def reload(self):
         pass
 
@@ -423,6 +437,7 @@ class CTheolog(basis.CBasis):
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
            self.can_process_book(word_list[0]):
 
+            # rint(f"+++ Th +++ th +++ * 000 ")
             # *** Если есть один параметр, то запрос помощи должен быть это
             if param_count == 1:
 
@@ -433,9 +448,11 @@ class CTheolog(basis.CBasis):
                 if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
                     return self.get_books(pchat_title)
+            # rint(f"+++ Th +++ th +++ * 111 ")
             # *** Если есть больше одного параметра, то смотрим, что там запросили
             if param_count > 1:
 
+                # rint(f"+++ Th +++ th +++ * opt ")
                 # *** Поищем, нет ли заданных опций
                 for index, word in enumerate(word_list):
 
@@ -473,69 +490,71 @@ class CTheolog(basis.CBasis):
                         del word_list[index + 1]
                         break
                 # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
+                # %%%%%% Тут начинаем обрабатывать команды %%%%%%%%%%%%
+                # *** Возможно, указана книга
+                book_index = self.find_book_by_name(word_list[0])
+                if book_index >= 0:
+
+                    # *** Книгу и главу
+                    book_name = word_list[0].lower()
+                    print(f"+++ Th +++ th +++ * {word_list=}")
+                    # *** Если есть второй параметр, то это глава
+                    if (len(word_list) > 1) and word_list[1].isdecimal():
+
+                        chapter = word_list[1]
+                        print(f"+++ Th +++ th +++ * {chapter=}")
+                    # *** Если есть третий параметр, то это стих
+                    if (len(word_list) > 2) and word_list[2].isdecimal():
+
+                        verse = word_list[2]
+                        print(f"+++ Th +++ th +++ * {verse=}")
+                    answer = await self.find_by_verse_number(book_index, book_name, chapter,
+                                                             verse, number_of_lines)
+                    if not answer:
+
+                        answer = "Нет такой главы и/или стиха в этой книге."
+
+                """
                 # *** Если первый параметр найтинз/найтивз - команда поиска...
                 if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
                    (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
 
+                    # rint(f"+++ Th +++ th +++ * fino ")
                     # *** ..получим команду.
                     testament = word_list[0]
                     phrase = " ".join(word_list[1:]).lower()
                     answer = await self.find_in_testament(testament, phrase, full_selection,
                                                           number_of_lines, specified_line)
-                # *** Если первый параметр - книга                                            
-                elif word_list[0].lower() in BOOKS_LIST: # COMMANDS[FIND_BY_QUOTE_GROUP]:
+                elif word_list[0].lower() in COMMANDS[FIND_BY_VERSE_NUMBER_GROUP]:
 
+                    # rint(f"+++ Th +++ th +++ * fbvn ")
+                # *** Если первый параметр - книга                                            
+                else:
+                
+                    # if word_list[0].lower() in BOOKS_LIST: # COMMANDS[FIND_BY_QUOTE_GROUP]:
+
+                    # rint(f"+++ Th +++ th +++ * fbq ")
                     # *** Искать в книге
-                    book_name = word_list[1]
+                    book_name = word_list[0]
                     book_index: int = -1
                     for index, book in enumerate(BOOKS_LIST):
 
+                        print(f"+++ Th +++ th +++ * fbq {book_name=}")
+                        print(f"+++ Th +++ th +++ * fbq {book=}")
                         if book_name.lower() in book:
 
                             book_index = index
                             break
+                    # rint(f"+++ Th +++ th +++ * fbq {book_index=}")
                     if book_index >= 0:
 
                         book_file = f"{self.data_path}/{book_index+1}.txt"
                         quote: str = " ".join(word_list[2:])
-                        answer = find_by_quote(book_file, BOOKS_LIST[book_index][2],
-                                               quote, pfull_selection=full_selection,
-                                               pnumber_of_lines=number_of_lines,
-                                               pspecified_line=specified_line)
-
-                elif word_list[0].lower() in COMMANDS[FIND_BY_VERSE_NUMBER_GROUP]:
-
-                    # *** Книгу и главу
-                    book_name = word_list[0].lower()
-                    # print(f"+++ Th +++ th +++ * {book_name=}")
-                    book_idx: int = -1
-                    # *** Переберем все книги
-                    for idx, book in enumerate(BOOKS_LIST):
-
-                        if book_name in book:
-
-                            book_idx = idx
-                            book_name = book[2]
-                            break
-                    # rint(f"+++ Th +++ th +++ * {book_idx=}")
-                    if book_idx >= 0:
-
-                        # rint(f"+++ Th +++ th +++ * {word_list=}")
-                        # *** Если есть второй параметр, то это глава
-                        if (len(word_list) > 1) and word_list[1].isdecimal():
-
-                            chapter = word_list[1]
-                            # rint(f"+++ Th +++ th +++ * {chapter=}")
-                        # *** Если есть третий параметр, то это стих
-                        if (len(word_list) > 2) and word_list[2].isdecimal():
-
-                            verse = word_list[2]
-                            # rint(f"+++ Th +++ th +++ * {verse=}")
-                        answer = await self.find_by_verse_number(book_idx, book_name, chapter,
-                                                                 verse, number_of_lines)
-                        if not answer:
-
-                            answer = "Нет такой главы и/или стиха в этой книге."
+                        answer = await find_by_quote(book_file, BOOKS_LIST[book_index][2],
+                                                     quote, pfull_selection=full_selection,
+                                                     pnumber_of_lines=number_of_lines,
+                                                     pspecified_line=specified_line)
+                """    
             if len(answer) > 0:
 
                 print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")
