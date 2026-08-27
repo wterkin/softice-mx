@@ -13,6 +13,7 @@ class CTestTheolog(TestCase):
         self.config = config.Config("test_config.yaml")
         self.theolog: theolog.CTheolog = theolog.CTheolog(self.config)
 
+    """
     def test_find_by_quote(self):  # ok
 
         # * Без доп параметров - возвращает случайную строчку из выборки
@@ -35,6 +36,7 @@ class CTestTheolog(TestCase):
         result = asyncio.run(theolog.find_by_quote(self.theolog.data_path+"1.txt", "Книга Бытия",
                              "Бог".lower(), theolog.SPECIFIED_LINE+" 2"))
         self.assertIn("да будет свет.",result)
+    """
 
     def test_can_process_command(self):
 

@@ -140,11 +140,12 @@ DEFAULT_NUMBER_OF_LINES: int = 1
 DEFAULT_SPECIFIED_LINE: int = 0
 MAXIMUM_ANSWER_LENGTH: int = 1024
 
+"""
 async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
                         pfull_selection: bool = False,
                         pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES,
                         pspecified_line: int = DEFAULT_SPECIFIED_LINE):
-    """Ищет заданную строку в заданном файле."""
+    ""Ищет заданную строку в заданном файле.""
 
     assert pbook_file is not None, \
         "Assert: [theolog:find_by_quote] " \
@@ -187,6 +188,7 @@ async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
 
         return ""
     return random.choice(result_list)
+"""
 
 class CTheolog(basis.CBasis):
     """Класс теолога."""
