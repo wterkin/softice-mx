@@ -92,9 +92,9 @@ BOOKS_LIST: tuple = (("бытие", "быт", "Книга Бытия"),
 FIND_IN_NEW_GROUP: int = 0
 FIND_IN_OLD_GROUP: int = 1
 FIND_BY_VERSE_NUMBER_GROUP: int = 2
-FIND_BY_QUOTE_GROUP: int = 3
-BOOKS_GROUP: int = 4
-HINT_GROUP: int = 5
+# FIND_BY_QUOTE_GROUP: int = 3
+BOOKS_GROUP: int = 3
+HINT_GROUP: int = 4
 
 COMMANDS: tuple = (("найтинз", "нз", "findnew", "fn"),
                    ("найтивз", "вз", "findold", "fo"),
@@ -122,14 +122,14 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
                          "(макс. {MAX_SEARCH_RESULT}"
                          ),
-                       (f"{', '.join(COMMANDS[FIND_BY_QUOTE_GROUP])} 'имя книги' 'строка'"
-                         " - Найти в указанной книге указанную цитату"
-                         "[ {FULL_SELECTION} ] - выдать все найденные строки "
-                         "(макс. {MAX_SEARCH_RESULT})"
-                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк"
-                         " (макс. {MAX_SEARCH_RESULT}"
-                         "[ {SPECIFIED_LINE} номер - выдать заданную строку из списка найденных ]"
-                         ),
+                       #(f"{', '.join(COMMANDS[FIND_BY_QUOTE_GROUP])} 'имя книги' 'строка'"
+                       #  " - Найти в указанной книге указанную цитату"
+                       # "[ {FULL_SELECTION} ] - выдать все найденные строки "
+                       # "(макс. {MAX_SEARCH_RESULT})"
+                       #  "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк"
+                       #  " (макс. {MAX_SEARCH_RESULT}"
+                       #  "[ {SPECIFIED_LINE} номер - выдать заданную строку из списка найденных ]"
+                       #  ),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
