@@ -40,6 +40,7 @@ from softice.manager import CManager
 from softice.meteorolog import CMeteorolog
 from softice.moderator import CModerator
 from softice.stargazer import CStarGazer
+from softice.theolog import CTheolog
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +112,7 @@ class Callbacks:
         self.meteorolog: CMeteorolog = CMeteorolog(self.config)
         self.moderator: CModerator = CModerator(self.config, self.client)
         self.stargazer: CStarGazer = CStarGazer(self.config)
+        self.theolog: CTheolog = CTheolog(self.config)
         self.first_run: bool = True
         self.last_message: str = ""
         self.manager.delete_restart_flag()
@@ -292,12 +294,15 @@ class Callbacks:
 
                     # *** Звездочёту есть что сказать?
                     answer = await self.stargazer.stargazer(room.name, message)
+                if not answer:
+
+                    # *** Теологу есть что сказать?
+                    answer = await self.theolog.theolog(room.name, message)
                 # *** Коллектор вызывается последним.
                 if not answer:
 
                     # *** Коллектору есть что сказать?
                     answer = self.collector.collector(answer)
-
             else:
 
                 # *** Просто сообщение

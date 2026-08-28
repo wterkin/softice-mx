@@ -9,6 +9,9 @@ import aiofiles
 
 from softice import basis
 
+# FixMe: findbyversenumber возвращает короткое имя книги, а должно возвращаться длинное
+# FixMe: найтивз не отрабатывает
+
 # *** Путь к файлам Библии
 THEOLOG_FOLDER: str = "theolog/"
 # *** Константы частей сообщения
@@ -440,11 +443,12 @@ class CTheolog(basis.CBasis):
         full_selection: bool = False
         number_of_lines: int = DEFAULT_NUMBER_OF_LINES
         specified_line: int = DEFAULT_SPECIFIED_LINE
+        print(f"+++ Th +++ th +++ * 000 ")
         # *** Можем обработать?
         if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
            self.can_process_book(word_list[0]):
 
-            # rint(f"+++ Th +++ th +++ * 000 ")
+            print(f"+++ Th +++ th +++ * 111 ")
             # *** Если есть один параметр, то запрос помощи должен быть это
             if param_count == 1:
 
