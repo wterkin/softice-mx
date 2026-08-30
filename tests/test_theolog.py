@@ -58,15 +58,15 @@ class CTestTheolog(TestCase):
 
     def test_find_by_verse_number(self):
         
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "1", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "1", 1))
         self.assertIn("небо и землю", result)
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "2", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "2", 1))
         self.assertIn("и тьма над бездною", result)
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "211", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "211", 1))
         self.assertEqual(result, "")
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "111", "1", 1))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "111", "1", 1))
         self.assertEqual(result, "")
-        result = asyncio.run(self.theolog.find_by_verse_number(0, "Бытие", "1", "12", 3))
+        result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "12", 3))
         self.assertIn("И был вечер, и было утро", result)
 
 

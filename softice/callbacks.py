@@ -54,7 +54,7 @@ HELP_MESSAGE: str = ("Все команды к боту должны начин�
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
 
-OBSOLETE_PERIOD: int = 50000 # millisec
+OBSOLETE_PERIOD: int = 10000 # millisec
 TIMESTAMP_FILE: str = "timestamp.json"
 TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
 
@@ -143,7 +143,7 @@ class Callbacks:
         
             self.last_timestamp = pevent.server_timestamp
             self.save_timestamp()
-            # rint(f":: clbk.is_obsolete :: время обновлено {self.last_timestamp=}")
+            print(f":: clbk.is_obsolete :: время обновлено {self.last_timestamp=}")
             
             return True        
         else:    
@@ -168,6 +168,7 @@ class Callbacks:
 
             timestamp_dict = await safe_read_json(str(filepath))
         self.last_timestamp = int(timestamp_dict["timestamp"])
+        print(f":: clbk.is_obsolete :: время восстановлено {self.last_timestamp=}")
 
 
     async def save_timestamp(self) -> bool:
