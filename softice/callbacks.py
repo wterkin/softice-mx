@@ -2,11 +2,11 @@
 """Основной модуль управления ботом."""
 import logging
 
-from typing import Optional
-# from datetime import datetime
-from pathlib import Path
-import json
-import aiofiles
+#from typing import Optional
+from datetime import datetime
+#from pathlib import Path
+#import json
+#import aiofiles
 
 # pylint: disable=import-error
 from nio import (
@@ -54,12 +54,13 @@ HELP_MESSAGE: str = ("Все команды к боту должны начин�
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
 
-OBSOLETE_PERIOD: int = 10000 # millisec
+OBSOLETE_PERIOD: int = 60000 # millisec
 TIMESTAMP_FILE: str = "timestamp.json"
 TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
 
+"""
 async def safe_read_json(filepath: str) -> Optional[dict]:
-    """Безопасное чтение JSON с обработкой ошибок."""
+    ""Безопасное чтение JSON с обработкой ошибок.""
     try:
         async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
             content = await f.read()
@@ -72,7 +73,7 @@ async def safe_read_json(filepath: str) -> Optional[dict]:
         return None
 
 async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
-    """Безопасная запись JSON с обработкой ошибок."""
+    ""Безопасная запись JSON с обработкой ошибок.""
     try:
         # Создаём директорию, если её нет
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +86,7 @@ async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
         print(f"Ошибка записи в {filepath}: {e}")
         return False
 
+"""
 class Callbacks:
     """Класс обратных вызовов."""
     def __init__(self, client: AsyncClient, store: Storage, config: Config):
@@ -116,7 +118,7 @@ class Callbacks:
         self.first_run: bool = True
         self.last_message: str = ""
         self.manager.delete_restart_flag()
-        self.last_timestamp: int = 0  # in millisec
+        # self.last_timestamp: int = 0  # in millisec
 
     async def run_once(self):
         """Функция выполняется один раз в начале работы."""
@@ -131,36 +133,21 @@ class Callbacks:
             await self.librarian.reload()
             await self.majordomo.reload()
             await self.moderator.reload()
-            await self.load_timestamp()
+            # await self.load_timestamp()
+
+
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
         """Возвращает True, если разница между временем события и текущим
            равна OBSOLETE_PERIOD и больше. """
+        now_time: int = int(datetime.now().timestamp()*1000)
+        delta: int = now_time - pevent.server_timestamp
+        return delta >= OBSOLETE_PERIOD
 
-        # rint(f":: clbk.is_obsolete :: {self.last_timestamp=}")
-        if self.last_timestamp == 0:
-        
-            self.last_timestamp = pevent.server_timestamp
-            self.save_timestamp()
-            print(f":: clbk.is_obsolete :: время обновлено {self.last_timestamp=}")
-            
-            return True        
-        else:    
-            # server_timestamp (int): Timestamp in milliseconds on originating
-            # homeserver when this event was sent. (c) room_events.py
-            if pevent.server_timestamp - self.last_timestamp > TIMESTAMP_SAVE_PERIOD:
-
-                await self.save_timestamp()
-
-            # now_time: int = int(datetime.now().timestamp()*1000)
-            # delta: int = now_time - pevent.server_timestamp
-            delta: int = self.last_timestamp - pevent.server_timestamp
-            return delta >= OBSOLETE_PERIOD
-
-
+    """
     async def load_timestamp(self) -> None:
-        """Читает из внешнего файла сохранённый timestamp."""
+        ""Читает из внешнего файла сохранённый timestamp.""
 
         timestamp_dict: dict = {"timestamp" : "0"}
         filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
@@ -172,11 +159,11 @@ class Callbacks:
 
 
     async def save_timestamp(self) -> bool:
-        """Сохраняет timestamp"""
+        ""Сохраняет timestamp""
         timestamp_dict: dict = {"timestamp" : str(self.last_timestamp)}
         filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
         return await safe_write_json(str(filepath), timestamp_dict)
-
+    """
     # *** Основная процедура вызывается при каждом пришедшем сообщении
     async def message(self, room: MatrixRoom, event: RoomMessageText) -> None:
         """Callback for when a message event is received

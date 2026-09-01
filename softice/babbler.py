@@ -107,11 +107,12 @@ class CBabbler(basis.CBasis):
 
         answer: str = ""
         file_name: str = ""
+
         if self.is_enabled(pchat_title, UNIT_ID):
 
-	        # *** Заданный период времени с последней фразы прошел?
+            # *** Заданный период времени с последней фразы прошел?
             minutes: float = (datetime.now() - self.last_phrase_time).total_seconds() / \
-                             int(self.config.babbler[BABBLER_PERIOD_KEY])
+                                int(self.config.babbler[BABBLER_PERIOD_KEY])
             if minutes > 1:
 
                 answer, file_name = await self.think(pmessage)

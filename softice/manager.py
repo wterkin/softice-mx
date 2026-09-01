@@ -51,22 +51,8 @@ class CManager(basis.CBasis):
             file.unlink()
 
 
-    def get_help(self, pchat_title: str) -> str:
-        """Пользователь запросил список команд."""
-
-        assert pchat_title is not None, \
-            "Assert: [manager.get_help] " \
-            "No <pchat_title> parameter specified!"
-
-        command_list: str = ""
-        if self.is_enabled(pchat_title, UNIT_ID):
-
-            command_list += ", ".join(COMMANDS)
-        return command_list
-
-
     def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
-        """Возвращает список команд, поддерживаемых модулем.  """
+        # """Возвращает список команд, поддерживаемых модулем.  """
 
         assert pchat_title is not None, \
             "Assert: [manager.get_hint] " \
@@ -84,7 +70,7 @@ class CManager(basis.CBasis):
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
         # rint(f"+++ Mgr +++ 1 +++ {room_name=} {UNIT_ID=} {pmessage_text=} {COMMANDS=}")
-        if self.can_process(room_name, UNIT_ID, pmessage_text, COMMANDS):
+        if self.can_process_command(room_name, pmessage_text, UNIT_ID, COMMANDS):
 
             if word_list[0] in HINT:
 
@@ -96,41 +82,36 @@ class CManager(basis.CBasis):
                 if word_list[0] in COMMANDS[:RESTART_COMMANDS]:
 
                     # rint(f"+++ Mgr +++ 3 +++ Quit")
-                    if self.is_enabled(room_name, UNIT_ID):
+                    if self.is_master(puser_name):
 
-                        if self.is_master(puser_name):
+                        # *** Запрошено отключение бота
+                        self.create_flag(QUIT_FLAG)
+                        # rint("+++ Mgr +++ 2 +++ Quit")
+                        if not self.last_report:
 
-                            # *** Запрошено отключение бота
-                            self.create_flag(QUIT_FLAG)
-                            # rint("+++ Mgr +++ 2 +++ Quit")
-                            if not self.last_report:
+                            self.last_report = True
+                            await send_text_to_room(self.client, room_id, "Добби свободен!!")
+                        await self.suicide()
+                    else:
 
-                                self.last_report = True
-                                await send_text_to_room(self.client, room_id, "Добби свободен!!")
-                            await self.suicide()
-                        else:
-
-                            answer = "Вам недоступна эта возможность."
+                        answer = "Вам недоступна эта возможность."
                 elif word_list[0] in COMMANDS[RESTART_COMMANDS:]:
 
-                    # rint("+++ Mgr +++ 4 +++ Restart")
-                    if self.is_enabled(room_name, UNIT_ID):
+                    if self.is_master(puser_name):
 
-                        if self.is_master(puser_name):
+                        # *** Запрошен рестарт бота
+                        self.create_flag(RESTART_FLAG)
+                        #rint("+++ Mgr +++ 1 +++ Restart")
 
-                            # *** Запрошен рестарт бота
-                            self.create_flag(RESTART_FLAG)
-                            #rint("+++ Mgr +++ 1 +++ Restart")
+                        if not self.last_report:
 
-                            if not self.last_report:
+                            self.last_report = True
+                            await send_text_to_room(self.client, room_id, "Щасвирнус.")
 
-                                self.last_report = True
-                                await send_text_to_room(self.client, room_id, "Щасвирнус.")
+                        await self.suicide()
+                    else:
 
-                            await self.suicide()
-                        else:
-
-                            answer = "Вам недоступна эта возможность."
+                        answer = "Вам недоступна эта возможность."
 
             if answer:
 

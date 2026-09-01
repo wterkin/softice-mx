@@ -47,17 +47,16 @@ async def send_text_to_room(
 
     if markdown_convert:
         content["formatted_body"] = markdown(message)
-    
+
     # rint(f"+++ ChFn +++ 1 +++ {message=}")
     if "\n" in message:
-    
-        # rint("!"*10, message)    
+
         content["formatted_body"] = message.replace("\n", "<br>")
         # rint("!"*10, content["formatted_body"])    
         #content["body"] = message
         #content["format"] = "org.matrix.custom.html"
         #rint(f"+++ ChFn +++ 2 +++ {content['formatted_body']=}")
-            
+
     if reply_to_event_id:
         content["m.relates_to"] = {"m.in_reply_to": {"event_id": reply_to_event_id}}
 
@@ -65,6 +64,7 @@ async def send_text_to_room(
     # rint(f"+++ ChFn +++ 3 +++ {content['formatted_body']=}")
     # rint(f"+++ ChFn +++ 4 +++ {content=}")
     try:
+
         return await client.room_send(
             room_id,
             "m.room.message",

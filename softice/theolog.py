@@ -310,16 +310,14 @@ class CTheolog(basis.CBasis):
             "Пропущен параметр <pchat_title> !"
 
         books: str = ""
-        if self.is_enabled(pchat_title, UNIT_ID):
+        for book in BOOKS_LIST:
 
-            for book in BOOKS_LIST:
+            if not book[0][0].isdigit():
 
-                if not book[0][0].isdigit():
+                books += f"{book[0].capitalize()}({book[1]}), "
+            else:
 
-                    books += f"{book[0].capitalize()}({book[1]}), "
-                else:
-
-                    books += f"{book[0]}({book[1]}), "
+                books += f"{book[0]}({book[1]}), "
         return books
 
 
@@ -440,111 +438,109 @@ class CTheolog(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text.replace(":", " "))
         verse: str = ""
         param_count = len(word_list)
-        book_name: str
+        #book_name: str
         chapter: str = ""
         full_selection: bool = False
         number_of_lines: int = DEFAULT_NUMBER_OF_LINES
         specified_line: int = DEFAULT_SPECIFIED_LINE
         # rint(f"+++ Th +++ th +++ * 000 ")
         # *** Можем обработать?
-        if self.is_enabled(pchat_title, UNIT_ID):
+        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
+            self.can_process_book(word_list[0]):
 
-            if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
-               self.can_process_book(word_list[0]):
+            # rint(f"+++ Th +++ th +++ * 111 ")
+            # *** Если есть один параметр, то запрос помощи должен быть это
+            if param_count == 1:
 
-                # rint(f"+++ Th +++ th +++ * 111 ")
-                # *** Если есть один параметр, то запрос помощи должен быть это
-                if param_count == 1:
+                if word_list[COMMAND_ARG] in COMMANDS[HINT_GROUP]:
 
-                    if word_list[COMMAND_ARG] in COMMANDS[HINT_GROUP]:
+                    return self.get_commands(pchat_title)
+                # *** Либо запрос списка книг
+                if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
-                        return self.get_commands(pchat_title)
-                    # *** Либо запрос списка книг
-                    if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
+                    return self.get_books(pchat_title)
+            # rint(f"+++ Th +++ th +++ * 111 ")
+            # *** Если есть больше одного параметра, то смотрим, что там запросили
+            if param_count > 1:
 
-                        return self.get_books(pchat_title)
-                # rint(f"+++ Th +++ th +++ * 111 ")
-                # *** Если есть больше одного параметра, то смотрим, что там запросили
-                if param_count > 1:
+                # rint(f"+++ Th +++ th +++ * opt ")
+                # *** Поищем, нет ли заданных опций
+                for index, word in enumerate(word_list):
 
-                    # rint(f"+++ Th +++ th +++ * opt ")
-                    # *** Поищем, нет ли заданных опций
-                    for index, word in enumerate(word_list):
+                    # *** Не запрошена ли полная выдача?
+                    full_selection = FULL_SELECTION in word
+                    if full_selection and number_of_lines == 1 and specified_line == 0:
 
-                        # *** Не запрошена ли полная выдача?
-                        full_selection = FULL_SELECTION in word
-                        if full_selection and number_of_lines == 1 and specified_line == 0:
+                        word_list.remove(word)
+                        break
+                    # rint(f"+++ Th +++ th +++ numln * {specified_line=}")
+                    # *** Возможно, есть запрос на количество строк...
+                    if NUMBER_OF_LINES in word and not full_selection and specified_line == 0:
 
-                            word_list.remove(word)
-                            break
-                        # rint(f"+++ Th +++ th +++ numln * {specified_line=}")
-                        # *** Возможно, есть запрос на количество строк...
-                        if NUMBER_OF_LINES in word and not full_selection and specified_line == 0:
+                        # *** если кроме ключа указано количество строк
+                        if len(word_list) >= index + 1:
 
-                            # *** если кроме ключа указано количество строк
-                            if len(word_list) >= index + 1:
+                            if word_list[index + 1].isdecimal():
 
-                                if word_list[index + 1].isdecimal():
+                                number_of_lines = int(word_list[index + 1])
+                                # rint(f"+++ Th +++ th +++ numln * {number_of_lines=}")
+                                number_of_lines = min(number_of_lines, MAX_SEARCH_RESULT)
+                        word_list.remove(word)
+                        del word_list[index]  # +1 не нужно, так как один элемент мы уже удалили
+                        break
+                    # *** Возможно, указана конкретная строка, которую нужно вернуть
+                    if SPECIFIED_LINE in word and not full_selection and number_of_lines == 1:
 
-                                    number_of_lines = int(word_list[index + 1])
-                                    # rint(f"+++ Th +++ th +++ numln * {number_of_lines=}")
-                                    number_of_lines = min(number_of_lines, MAX_SEARCH_RESULT)
-                            word_list.remove(word)
-                            del word_list[index]  # +1 не нужно, так как один элемент мы уже удалили
-                            break
-                        # *** Возможно, указана конкретная строка, которую нужно вернуть
-                        if SPECIFIED_LINE in word and not full_selection and number_of_lines == 1:
+                        # *** если кроме ключа указан номер строки
+                        if len(word_list) >= index + 1:
 
-                            # *** если кроме ключа указан номер строки
-                            if len(word_list) >= index + 1:
+                            if word_list[index + 1].isdecimal():
 
-                                if word_list[index + 1].isdecimal():
+                                specified_line = int(word_list[index + 1])
+                        word_list.remove(word)
+                        del word_list[index]
+                        break
+                # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
+                # %%%%%% Тут начинаем обрабатывать команды %%%%%%%%%%%%
+                # *** Возможно, указана книга
+                book_index = self.find_book_by_name(word_list[0])
+                if book_index >= 0:
 
-                                    specified_line = int(word_list[index + 1])
-                            word_list.remove(word)
-                            del word_list[index]
-                            break
-                    # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
-                    # %%%%%% Тут начинаем обрабатывать команды %%%%%%%%%%%%
-                    # *** Возможно, указана книга
-                    book_index = self.find_book_by_name(word_list[0])
-                    if book_index >= 0:
+                    # *** Книгу и главу
+                    # book_name = word_list[0].lower()
+                    # rint(f"+++ Th +++ th +++ fbvn * {word_list=}")
+                    # *** Если есть второй параметр, то это глава
+                    if (len(word_list) > 1) and word_list[1].isdecimal():
 
-                        # *** Книгу и главу
-                        book_name = word_list[0].lower()
-                        # rint(f"+++ Th +++ th +++ fbvn * {word_list=}")
-                        # *** Если есть второй параметр, то это глава
-                        if (len(word_list) > 1) and word_list[1].isdecimal():
+                        chapter = word_list[1]
+                        # rint(f"+++ Th +++ th +++ * {chapter=}")
+                    # *** Если есть третий параметр, то это стих
+                    if (len(word_list) > 2) and word_list[2].isdecimal():
 
-                            chapter = word_list[1]
-                            # rint(f"+++ Th +++ th +++ * {chapter=}")
-                        # *** Если есть третий параметр, то это стих
-                        if (len(word_list) > 2) and word_list[2].isdecimal():
+                        verse = word_list[2]
+                        # rint(f"+++ Th +++ th +++ * {verse=}")
+                    answer = await self.find_by_verse_number(book_index, BOOKS_LIST[book_index][1],
+                                                            chapter, verse, number_of_lines)
+                    if not answer:
 
-                            verse = word_list[2]
-                            # rint(f"+++ Th +++ th +++ * {verse=}")
-                        answer = await self.find_by_verse_number(book_index, BOOKS_LIST[book_index][1],
-                                                                chapter, verse, number_of_lines)
-                        if not answer:
+                        answer = "Нет такой главы и/или стиха в этой книге."
 
-                            answer = "Нет такой главы и/или стиха в этой книге."
+                # *** Если первый параметр найтинз/найтивз - команда поиска...
+                if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
+                (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
 
-                    # *** Если первый параметр найтинз/найтивз - команда поиска...
-                    if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
-                    (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
+                    # rint(f"+++ Th +++ th +++ * fino ")
+                    # *** ..получим команду.
+                    testament = word_list[0]
+                    # rint(f"+++ Th +++ th +++ * fino {testament=}")
+                    phrase = " ".join(word_list[1:]).lower()
+                    # rint(f"+++ Th +++ th +++ * fino {phrase=}")
+                    answer = await self.find_in_testament(testament, phrase, full_selection,
+                                                        number_of_lines, specified_line)
+            if len(answer) > 0:
 
-                        # rint(f"+++ Th +++ th +++ * fino ")
-                        # *** ..получим команду.
-                        testament = word_list[0]
-                        # rint(f"+++ Th +++ th +++ * fino {testament=}")
-                        phrase = " ".join(word_list[1:]).lower()
-                        # rint(f"+++ Th +++ th +++ * fino {phrase=}")
-                        answer = await self.find_in_testament(testament, phrase, full_selection,
-                                                            number_of_lines, specified_line)
-                if len(answer) > 0:
+                print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")
+            else:
 
-                    print(f"Theolog answers: {answer[:basis.OUT_MSG_LOG_LEN]}...")
-                else:
-
-                    answer = "Ничего не нашёл."
+                answer = "Ничего не нашёл."
         return answer[:MAXIMUM_ANSWER_LENGTH]

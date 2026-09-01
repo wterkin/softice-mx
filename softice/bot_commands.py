@@ -6,8 +6,6 @@ from softice.storage import Storage
 
 from datetime import datetime
 
-OBSOLETE_PERIOD: int = 63000 # 3000 
-
 
 class Command:
     def __init__(
@@ -45,7 +43,7 @@ class Command:
         print(f"@@@ {self.room=}")
         print(f"@@@ {self.event=}")
         print(f"@@@ {self.args=}")
-    """    
+    """
     self.event=RoomMessageText(
         source={
             'content': {
@@ -69,17 +67,11 @@ class Command:
               format=None
               )
     """
-        
-    async def is_obsolete(self) -> bool:
-        """Возвращает True, если разница между временем события и текущим равна OBSOLETE_PERIOD и больше. """
-        now_time: int = int(datetime.now().timestamp()*1000)
-        delta: int = now_time - self.event.server_timestamp
-        return delta >= OBSOLETE_PERIOD
 
     async def process(self):
         """Process the command"""
         if not await self.is_obsolete():
-        
+
             # *** Вызываем обработчика болтуна
             # # MTEXT MCHAT_TITLE MUSER_NAME
             self.babbler.babbler(self.room, self.event.source["sender"], message)
@@ -107,13 +99,12 @@ class Command:
         print("Quitting...")
         # await self.client.aclose()
         # if self.client.client_session:
-        
+
         # await self.client.close()
         await self.client.client_session.close()
         # self.client.client_session = None
-            
-            
-            
+
+
     async def _ping(self):
         """Возвращает ответ на пинг."""
         response = "Понг."
