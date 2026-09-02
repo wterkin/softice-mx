@@ -399,6 +399,10 @@ class Callbacks:
         if result:
 
             answer += result + "\n"
+        result = self.theolog.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
         if answer:
 
             return HELP_MESSAGE + answer

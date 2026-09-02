@@ -101,8 +101,7 @@ HINT_GROUP: int = 4
 
 COMMANDS: tuple = (("найтинз", "нз", "findnew", "fn"),
                    ("найтивз", "вз", "findold", "fo"),
-                   ("<имя книги>"),
-                   # ("найpbook_nameти", "нт", "find", "fn"),
+                   ("имя книги", " "),
                    ("книги", "кн", "books", "bk"),
                    ("библия", "бб", "bible", "bb"))
 
@@ -115,24 +114,15 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                          " найти указанную фразу в Новом Завете, "
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза -  "
-                         "найти указанную фразу в Ветхом Завете"
+                         "найти указанную фразу в Ветхом Завете "
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
                        #DESC_FIND_IN_OLD,
-                       (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава "
-                         "стих [количество] -"
+                       (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава стих -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
                          " Название книги указывается в любом формате из приведенных"
-                         "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
-                         "(макс. {MAX_SEARCH_RESULT}"
+                         "f[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
+                         "f(макс. {MAX_SEARCH_RESULT}"
                          ),
-                       #(f"{', '.join(COMMANDS[FIND_BY_QUOTE_GROUP])} 'имя книги' 'строка'"
-                       #  " - Найти в указанной книге указанную цитату"
-                       # "[ {FULL_SELECTION} ] - выдать все найденные строки "
-                       # "(макс. {MAX_SEARCH_RESULT})"
-                       #  "[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк"
-                       #  " (макс. {MAX_SEARCH_RESULT}"
-                       #  "[ {SPECIFIED_LINE} номер - выдать заданную строку из списка найденных ]"
-                       #  ),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
                          )
@@ -269,7 +259,7 @@ class CTheolog(basis.CBasis):
                     # *** Добавляем к тексту номер главы и стиха
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
                     # rint(f"+++ Th +++ fbvn +++ * {result=}")
-                    answer = f"{pbook_name} {result}"
+                    answer = f"{BOOKS_LIST[pbook_idx][2]} {result}"
                     # rint(f"+++ Th +++ fbvn +++ * {answer=}")
                     if pnumber_of_lines == DEFAULT_NUMBER_OF_LINES:
 
