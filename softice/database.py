@@ -128,7 +128,7 @@ class CUser(CAncestor):
                        index=True
                        )
 
-    def __init__(self, pmatrix_user_id: string, puser_name: str = ""):
+    def __init__(self, pmatrix_user_id: str, puser_name: str = ""):
         """Конструктор"""
 
         super().__init__()
@@ -367,10 +367,9 @@ class CStat(CAncestor):
 class CDataBase:
     """Класс для работы с базой данных."""
 
-    def __init__(self, pconfig, pdata_path: str, pdatabase_name: str):
+    def __init__(self, pconfig, pdatabase_name: str):
         """Конструктор класса."""
         self.config: dict = pconfig
-        self.data_path: str = pdata_path
         self.AsyncSessionLocal = None
         self.engine = None
         self.busy: bool = False
@@ -400,12 +399,14 @@ class CDataBase:
         result: bool = False
         try:
 
-            self.engine = create_async_engine(DB_STRING,
+            db_string: str = (f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@"
+                              f"{DB_HOST}/{self.database_name}")
+            self.engine = create_async_engine(db_string,
                                               echo=True,
                                               pool_size=10,
                                               max_overflow=20,
                                               pool_pre_ping=True,
-                                              connect_args={'check_same_thread': False})
+                                              )
             self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
                                                         expire_on_commit=False)
             result = True
@@ -436,12 +437,6 @@ class CDataBase:
         """Разрывает соединение с БД."""
 
         await self.engine.dispose()
-
-
-    def exists(self):
-        """Проверяет наличие базы данных по пути в конфигурации."""
-
-        return Path(self.data_path + self.database_name).exists()
 
 
     async def get_session(self):
@@ -483,4 +478,3 @@ class CDataBase:
 
             # Тут я позволил себе поправить опечатку в скобке
             print("Database error! [database.wipe_table]")
-

@@ -53,7 +53,7 @@ ICON_CONVERT: dict = {"01d": "Ясно. ☀️",
                       "50n": "Туман.🌫"}
 RUSSIAN_DATE_FORMAT: str = "%d.%m.%Y"
 STEP: int = 45
-DIRECTIONS: list = ['сев. ', 'св', ' вост.', 'юв', 'юг ', 'юз', ' зап.', 'сз']
+DIRECTIONS: list = ['сев. ', 'с-в', ' вост.', 'ю-в', 'юг ', 'ю-з', ' зап.', 'с-з']
 PRESSURE_COEFF: float = 1.02972973
 
 
@@ -213,13 +213,13 @@ class CMeteorolog(basis.CBasis):
 
             # *** .. берём его из словаря
             city_id = self.cities_id[pcity_name]
-            print(f"+++ Mtrl +++ gci +++ {city_id=}")
+            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
         else:
 
             try:
 
                 api_key: str = self.config.meteorolog["api_key"]
-                print(f"+++ Mtrl +++ gci +++ {api_key=}")
+                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
                 async with aiohttp.ClientSession() as session:
 
                     async with session.get(
@@ -235,23 +235,23 @@ class CMeteorolog(basis.CBasis):
 
                         res.raise_for_status()
                         data = await res.json()
-                print(f"+++ Mtrl +++ gci +++ {data=}")
+                # rint(f"+++ Mtrl +++ gci +++ {data=}")
                 if data:
 
-                    print(f"+++ Mtrl +++ gci +++ {data=}")
+                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
                     if "list" in data:
 
                         key_list: list = data["list"]
-                        print(f"+++ Mtrl +++ gci +++ {key_list=}")
+                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
                         if key_list:
 
                             dictionary: dict = key_list[0]
                             if "id" in dictionary:
 
                                 city_id = key_list[0]["id"]
-                                print(f"+++ Mtrl +++ gci +++ {city_id=}")
+                                # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
 
-                        print(f"+++ Mtrl +++ gci +++ finish!")
+                        # rint(f"+++ Mtrl +++ gci +++ finish!")
 
             except asyncio.exceptions.TimeoutError as ex:
 
@@ -296,7 +296,7 @@ class CMeteorolog(basis.CBasis):
         # *** Метеоролог может обработать эту команду?
         if self.can_process_command(pchat_title, pmessage_text):
 
-            print(f"+++ Mtrl +++ mtrl +++ can proc")
+            # rint(f"+++ Mtrl +++ mtrl +++ can proc")
             # *** Запросили помощь?
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -310,12 +310,12 @@ class CMeteorolog(basis.CBasis):
 
                 city_name = "Москва"
             # *** Получим ID города
-            print(f"+++ Mtrl +++ mtrl +++ {city_name=}")
+            # rint(f"+++ Mtrl +++ mtrl +++ {city_name=}")
             city_id = await self.get_city_id(city_name)
-            print(f"+++ Mtrl +++ mtrl +++ {city_id=}")
+            # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
             if city_id > 0:
 
-                print(f"+++ Mtrl +++ mtrl +++ {city_id=}")
+                # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
                 # *** Указан существующий город, работаем.
                 now: dtime.datetime = dtime.datetime.now()
                 date_str: str = ""

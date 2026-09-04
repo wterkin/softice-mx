@@ -1,7 +1,7 @@
 from unittest import TestCase
 import json
+import asyncio
 
-import softice
 from softice import database
 from softice import config
 
@@ -13,7 +13,22 @@ class CTestDataBase(TestCase):
         self.config = config.Config("test_config.yaml")
         self.database: database.CDataBase = database.CDataBase(self.config, "softice-test")
 
+    def test_connect(self):
 
+        result = asyncio.run(self.database.connect())
+        self.assertEqual(result, True)
+
+
+    def test_create(self):
+
+
+        result = asyncio.run(self.database.connect())
+        if result:
+
+            result = asyncio.run(self.database.create())
+            self.assertEqual(result, True)
+
+    """
     def test_commit_changes(self):
 
         
@@ -28,4 +43,4 @@ class CTestDataBase(TestCase):
         self.assertFalse(self.gambler.is_enabled("fakechat", gambler.UNIT_ID))
         self.assertFalse(self.gambler.is_enabled("emptychat", gambler.UNIT_ID))
         self.assertTrue(self.gambler.is_enabled(self.config.test_chat, gambler.UNIT_ID))
-
+    """
