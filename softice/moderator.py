@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from nio import MatrixRoom, AsyncClient, RoomMessageText, RoomRedactResponse
 from softice import basis
+from softice.config import Config
 
 
 RELOAD_GROUP: int = 0
@@ -41,7 +42,7 @@ def replace_bad_words(pbad_word: str, ptext: str) -> str:
 class CModerator(basis.CBasis):
     """Класс модератора."""
 
-    def __init__(self, pconfig: dict, pclient: AsyncClient):
+    def __init__(self, pconfig: Config, pclient: AsyncClient):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + DATA_FOLDER
@@ -107,7 +108,8 @@ class CModerator(basis.CBasis):
         return answer
 
 
-    async def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText, plocal_name: str) -> str:
+    async def control_talking(self, proom: MatrixRoom, pevent: RoomMessageText,
+                              plocal_name: str) -> str:
         """Следит за матершинниками."""
 
         assert proom is not None, \

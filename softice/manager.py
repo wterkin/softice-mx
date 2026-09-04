@@ -9,6 +9,7 @@ from nio import AsyncClient
 # pylint: enable=import-error
 
 from softice import basis
+from softice.config import Config
 from softice.chat_functions import send_text_to_room
 
 
@@ -28,7 +29,7 @@ RESTART_FLAG: str = "restart_by_demand.flg"
 class CManager(basis.CBasis):
     """Класс управляющего."""
 
-    def __init__(self, pconfig: dict, pclient: AsyncClient):
+    def __init__(self, pconfig: Config, pclient: AsyncClient):
 
         super().__init__(pconfig)
         self.client: AsyncClient = pclient
@@ -74,7 +75,7 @@ class CManager(basis.CBasis):
 
             if word_list[0] in HINT:
 
-                answer = self.get_help(room_name)
+                answer = self.get_commands(room_name, UNIT_ID, [])
             else:
 
                 # *** Получим код команды

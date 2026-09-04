@@ -5,6 +5,7 @@
 import random
 
 from softice import basis
+from softice.config import Config
 
 # *** Команды для цитатника высказываний
 
@@ -138,7 +139,7 @@ def quote(pbook: list, pword_list: list) -> str:
 class CLibrarian(basis.CBasis):
     """Класс библиотекаря."""
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
         "Assert: [CLibrarian.__init__] " \
@@ -232,7 +233,8 @@ class CLibrarian(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
 
 
-    async def librarian(self, pchat_title, puser_name: str, pevent_sender: str, pmessage_text: str) -> str:
+    async def librarian(self, pchat_title, puser_name: str,
+                        pevent_sender: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \
@@ -290,7 +292,8 @@ class CLibrarian(basis.CBasis):
                 command = get_command(word_list[0])
                 if command >= 0:
 
-                    answer = self.execute_quotes_commands(puser_name, pevent_sender, word_list, command)
+                    answer = self.execute_quotes_commands(puser_name, pevent_sender,
+                                                          word_list, command)
             if answer:
 
                 print("> Librarian отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])

@@ -9,6 +9,7 @@ import aiohttp
 # pylint: enable=import-error
 
 from softice import basis
+from softice.config import Config
 
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-nested-blocks
@@ -181,7 +182,7 @@ def parse_weather(pdata, preq_date) -> str:
 class CMeteorolog(basis.CBasis):
     """Класс метеоролога."""
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
         super().__init__(pconfig)
         self.cities_id: dict = {}
         print("Метеоролог стартовал.")
@@ -212,12 +213,13 @@ class CMeteorolog(basis.CBasis):
 
             # *** .. берём его из словаря
             city_id = self.cities_id[pcity_name]
+            print(f"+++ Mtrl +++ gci +++ {city_id=}")
         else:
 
             try:
 
                 api_key: str = self.config.meteorolog["api_key"]
-                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
+                print(f"+++ Mtrl +++ gci +++ {api_key=}")
                 async with aiohttp.ClientSession() as session:
 
                     async with session.get(
@@ -233,21 +235,23 @@ class CMeteorolog(basis.CBasis):
 
                         res.raise_for_status()
                         data = await res.json()
-                # rint(f"+++ Mtrl +++ gci +++ {data=}")
+                print(f"+++ Mtrl +++ gci +++ {data=}")
                 if data:
 
-                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
+                    print(f"+++ Mtrl +++ gci +++ {data=}")
                     if "list" in data:
 
                         key_list: list = data["list"]
-                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
-                        dictionary: dict = key_list[0]
-                        if "id" in dictionary:
+                        print(f"+++ Mtrl +++ gci +++ {key_list=}")
+                        if key_list:
 
-                            city_id = key_list[0]["id"]
-                            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
+                            dictionary: dict = key_list[0]
+                            if "id" in dictionary:
 
-                    # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
+                                city_id = key_list[0]["id"]
+                                print(f"+++ Mtrl +++ gci +++ {city_id=}")
+
+                        print(f"+++ Mtrl +++ gci +++ finish!")
 
             except asyncio.exceptions.TimeoutError as ex:
 
@@ -292,7 +296,7 @@ class CMeteorolog(basis.CBasis):
         # *** Метеоролог может обработать эту команду?
         if self.can_process_command(pchat_title, pmessage_text):
 
-            # rint(f"+++ Mtrl +++ mtrl +++ can proc")
+            print(f"+++ Mtrl +++ mtrl +++ can proc")
             # *** Запросили помощь?
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -306,12 +310,12 @@ class CMeteorolog(basis.CBasis):
 
                 city_name = "Москва"
             # *** Получим ID города
-            # rint(f"+++ Mtrl +++ mtrl +++ {city_name=}")
+            print(f"+++ Mtrl +++ mtrl +++ {city_name=}")
             city_id = await self.get_city_id(city_name)
             print(f"+++ Mtrl +++ mtrl +++ {city_id=}")
             if city_id > 0:
 
-                # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
+                print(f"+++ Mtrl +++ mtrl +++ {city_id=}")
                 # *** Указан существующий город, работаем.
                 now: dtime.datetime = dtime.datetime.now()
                 date_str: str = ""

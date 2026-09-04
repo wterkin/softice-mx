@@ -2,8 +2,9 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль - цитатник хокку. 俳人"""
 
-from softice import librarian
 from softice import basis
+from softice.config import Config
+from softice import librarian
 
 # pylint: disable=too-many-branches
 
@@ -26,7 +27,8 @@ HINT_COMMANDS: int = 5
 
 DESCRIPTIONS: tuple = ("",
                        "",
-                       (f"{', '.join(COMMANDS[ASK_COMMANDS])} [номер] [строка] : получить случайное хокку,"
+                       (f"{', '.join(COMMANDS[ASK_COMMANDS])} "
+                         "[номер] [строка] : получить случайное хокку,"
                         f" либо с с заданным номером, либо содержащее заданную строку"),
                        f"{', '.join(COMMANDS[ADD_COMMANDS])} : добавить в базу новое хокку ",
                        f"{', '.join(COMMANDS[DELETE_COMMANDS])} : удалить хокку из базы")
@@ -43,7 +45,7 @@ DELIMITER: str = "/"
 class CHaijin(basis.CBasis):
     """Класс хайдзина."""
 
-    def __init__(self, pconfig: dict):
+    def __init__(self, pconfig: Config):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + HAIJIN_FOLDER
@@ -100,7 +102,8 @@ class CHaijin(basis.CBasis):
                 result_text = text.replace("/", "\n")
                 result_text = (f"<i> {result_text[1:]} </i> \n"
                                f" {AUTHOR_INDENT}<b>{author}</b> "
-                               f"{LEFT_BRACKET}{number}{DELIMITER}{len(self.hokku)}{RIGHT_BRACKET}")
+                               f"{LEFT_BRACKET}{number}{DELIMITER}"
+                               f"{len(self.hokku)}{RIGHT_BRACKET}")
             return result_text
         return ptext
 
@@ -115,7 +118,8 @@ class CHaijin(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
-    async def haijin(self, pchat_title, puser_name: str, pevent_sender: str, pmessage_text: str) -> str:
+    async def haijin(self, pchat_title, puser_name: str,
+                     pevent_sender: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
 
         assert pchat_title is not None, \

@@ -4,8 +4,8 @@
 
 import random
 
-from softice.config import Config
 from softice import basis
+from softice.config import Config
 
 UNIT_ID = "majordomo"
 

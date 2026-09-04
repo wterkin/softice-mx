@@ -4,6 +4,7 @@
 
 import random
 from softice import basis
+from softice.config import Config
 
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
@@ -51,7 +52,7 @@ THUMBS_DOWN: str = "👎🏻"
 class CGambler(basis.CBasis):
     """Класс игрока."""
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
 
         super().__init__(pconfig)
         print("Игрун стартовал.")

@@ -25,8 +25,8 @@ ENGINE: str = "postgresql+asyncpg"
 DB_USER: str = "softice"
 DB_PASSWORD: str = "qz7$tEr"
 DB_HOST: str = "localhost"
-DATABASE: str = "softice"
-DB_STRING: str = f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DATABASE}"
+# DATABASE: str = "softice"
+# DB_STRING: str = f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DATABASE}"
 
 convention = {
     "all_column_names": lambda constraint, table: "_".join([
@@ -367,7 +367,7 @@ class CStat(CAncestor):
 class CDataBase:
     """Класс для работы с базой данных."""
 
-    def __init__(self, pconfig, pdata_path, pdatabase_name=DATABASE_NAME):
+    def __init__(self, pconfig, pdata_path: str, pdatabase_name: str):
         """Конструктор класса."""
         self.config: dict = pconfig
         self.data_path: str = pdata_path

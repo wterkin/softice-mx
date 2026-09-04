@@ -5,11 +5,13 @@
 import random
 
 from softice import basis
+from softice.config import Config
+
 
 # *** Список списков доступных команд
 COMMANDS: tuple = (("пиво", "beer", "пв", "br"),
                   ("водка", "vodka", "вк", "vk"),
-                  ("коньяк", "cognac", "кн", "cn"),
+                  ("коньяк", "cognac", "кк", "cс"),
                   ("коктейль", "cocktail", "кт", "ct"),
                   ("чай", "tea", "чй", "te"),
                   ("кофе", "coffee", "кф", "cf", "кофи"),
@@ -167,7 +169,7 @@ UNIT_ID = "barman"
 class CBarman(basis.CBasis):
     """Класс бармена."""
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
         "Assert: [CBasis.__init__] " \

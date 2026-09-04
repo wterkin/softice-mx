@@ -6,6 +6,7 @@ from datetime import datetime
 from random import randint
 
 from softice import basis
+from softice.config import Config
 
 UNIT_ID = "collector"
 WORK_HOURS: tuple = (12, 13, 14, 15, 16, 17, 18)
@@ -19,7 +20,7 @@ DONATE_MESSAGE: str = ("\n\nНравится SoftIce? Поддержи прое�
 class CCollector(basis.CBasis):
     """Класс сборщика пожертвований"""
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
         "Assert: [CCollector.__init__] " \

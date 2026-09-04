@@ -6,6 +6,7 @@ import datetime as dtime
 from datetime import datetime as dt
 import locale
 from softice import basis
+from softice.config import Config
 
 # pylint: disable=too-many-branches
 
@@ -111,7 +112,7 @@ class CStarGazer(basis.CBasis):
     """Класс модуля звездочёта."""
 
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: Config):
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + STARGAZER_FOLDER
@@ -220,10 +221,12 @@ class CStarGazer(basis.CBasis):
                 answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_DAY): } дней"
             if pcommands[0] in COMMANDS[HOURS_GROUP]:
 
-                answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_HOUR): } часов"
+                answer = (f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_HOUR): }"
+                           " часов")
             if pcommands[0] in COMMANDS[MINUTES_GROUP]:
 
-                answer = f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_MINUTE): } минут"
+                answer = (f"{answer_part} {int(difference.total_seconds() / SECONDS_IN_MINUTE): }"
+                          " минут")
             if pcommands[0] in COMMANDS[SECONDS_GROUP]:
 
                 answer = f"{answer_part} {difference.total_seconds(): } секунд"

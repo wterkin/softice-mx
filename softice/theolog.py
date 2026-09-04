@@ -8,9 +8,7 @@ from pathlib import Path
 import aiofiles
 
 from softice import basis
-
-# FixMe: findbyversenumber возвращает короткое имя книги, а должно возвращаться длинное
-# FixMe: найтивз не отрабатывает
+from softice.config import Config
 
 # *** Путь к файлам Библии
 THEOLOG_FOLDER: str = "theolog/"
@@ -95,7 +93,6 @@ BOOKS_LIST: tuple = (("бытие", "быт", "Книга Бытия"),
 FIND_IN_NEW_GROUP: int = 0
 FIND_IN_OLD_GROUP: int = 1
 FIND_BY_VERSE_NUMBER_GROUP: int = 2
-# FIND_BY_QUOTE_GROUP: int = 3
 BOOKS_GROUP: int = 3
 HINT_GROUP: int = 4
 
@@ -116,12 +113,11 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[FIND_IN_NEW_GROUP])} фраза - 
                        (f"{', '.join(COMMANDS[FIND_IN_OLD_GROUP])} фраза -  "
                          "найти указанную фразу в Ветхом Завете "
                          "-f - выдать все вхождения, -n число - выдать указанное количество строк"),
-                       #DESC_FIND_IN_OLD,
                        (f"{', '.join(COMMANDS[FIND_BY_VERSE_NUMBER_GROUP])} глава стих -"
                          " получить указанные стих/стихи из выбранной книги и главы Библии."
-                         " Название книги указывается в любом формате из приведенных"
-                         "f[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
-                         "f(макс. {MAX_SEARCH_RESULT}"
+                         " Название книги указывается в любом формате из приведенных "
+                         f"[ {NUMBER_OF_LINES} ] число - выдать указанное кол-во найденных строк "
+                         f"(макс. {MAX_SEARCH_RESULT})"
                          ),
                        (f"{', '.join(COMMANDS[BOOKS_GROUP])} -"
                          " получить полный список книг Библии")
@@ -186,7 +182,7 @@ async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
 class CTheolog(basis.CBasis):
     """Класс теолога."""
 
-    def __init__(self, pconfig: dict):
+    def __init__(self, pconfig: Config):
         """Конструктор."""
 
         super().__init__(pconfig)
