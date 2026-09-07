@@ -92,7 +92,7 @@ class CRoom(CAncestor):
                        nullable=False,
                        index=True)
 
-    def __init__(self, proom_id: int, proom_name: str):
+    def __init__(self, proom_id: str, proom_name: str):
         """Конструктор"""
 
         super().__init__()
@@ -376,7 +376,7 @@ class CDataBase:
         self.database_name: str = pdatabase_name
 
 
-    async def commit_changes(self, obj):
+    async def commit_changes(self, obj) -> bool:
         """Сохраняет изменения в БД."""
 
         # *** Сохраняем данные
@@ -387,10 +387,12 @@ class CDataBase:
                 async with session.begin:
 
                     session.add(obj)
+                    return True
 
         except exc.SQLAlchemyError:
 
             print("Database error! * database.commit_changes")
+            return False
 
 
     async def connect(self):
@@ -440,19 +442,16 @@ class CDataBase:
 
 
     async def get_session(self):
-
         """Возвращает экземпляр session."""
-        #async with self.AsyncSessionLocal() as session:
-        #return session
+
         return self.AsyncSessionLocal
 
 
-    async def query_data(self, model_class):
+    async def query_data(self, model_class) -> CRoom| CUser | CStat:
         """Возвращает выборку заданнного класса."""
 
         try:
 
-            # *** Теперь сами её залочим.
             async_session_class = await self.get_session()
             async with async_session_class() as session:
 
@@ -476,5 +475,4 @@ class CDataBase:
                 await session.commit()
         except exc.SQLAlchemyError:
 
-            # Тут я позволил себе поправить опечатку в скобке
             print("Database error! [database.wipe_table]")

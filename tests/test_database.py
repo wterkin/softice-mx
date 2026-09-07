@@ -13,6 +13,7 @@ class CTestDataBase(TestCase):
         self.config = config.Config("test_config.yaml")
         self.database: database.CDataBase = database.CDataBase(self.config, "softice-test")
 
+
     def test_connect(self):
 
         result = asyncio.run(self.database.connect())
@@ -28,19 +29,22 @@ class CTestDataBase(TestCase):
             result = asyncio.run(self.database.create())
             self.assertEqual(result, True)
 
-    """
+
     def test_commit_changes(self):
 
-        
-        self.assertEqual(self.database.t("fakechat"), "")
-        #self.assertEqual(self.gambler.get_hint("emptychat"), "")
-        #self.assertIn("игры, games", self.gambler.get_hint(self.config.test_chat))
+
+        result = asyncio.run(self.database.connect())
+        if result:
+
+            room: database.CRoom = database.CRoom("777", "super_room")
+            result = asyncio.run(self.database.commit_changes(room))
+
+            self.assertTrue(result)
 
 
-    def test_is_enabled(self):
+    def test_query_data(self):
 
-
-        self.assertFalse(self.gambler.is_enabled("fakechat", gambler.UNIT_ID))
-        self.assertFalse(self.gambler.is_enabled("emptychat", gambler.UNIT_ID))
-        self.assertTrue(self.gambler.is_enabled(self.config.test_chat, gambler.UNIT_ID))
-    """
+        query = asyncio.run(self.database.query_data(database.CRoom))
+        query.where(database.CRoom.id == '777')
+        room: database.CRoom = query.scalars.first()
+        self.assertEqual(room.name, "super_room")
