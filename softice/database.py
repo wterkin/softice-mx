@@ -3,7 +3,7 @@
 """Модуль функций, связанных с БД."""
 from pathlib import Path
 
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
@@ -127,7 +127,6 @@ class CUser(CAncestor):
                        default="",
                        index=True
                        )
-
     def __init__(self, pmatrix_user_id: str, puser_name: str = ""):
         """Конструктор"""
 
@@ -167,14 +166,16 @@ class CStat(CAncestor):
     __faudios = Column(Integer, default=0)    # m.audio
     __fvideos = Column(Integer, default=0)    # m.video
     __ffiles = Column(Integer, default=0)    # m.video
+    __fsilence = Column(Boolean, default=False)
 
-    def __init__(self, puser_id: int, proom_id: int, pdata_dict: dict):
+
+    def __init__(self, puser_id: int, proom_id: int):
         """Конструктор"""
 
         super().__init__()
         self.fuserid = puser_id
         self.froomid = proom_id
-        self.set_all_fields(pdata_dict)
+        self.fsilence = False
 
     @property
     def userid(self):
@@ -348,20 +349,34 @@ class CStat(CAncestor):
             "Количество файлов не может быть отрицательным"
         self.__faudios = pfiles
 
+    @property
+    def silence(self):
+        """Silence"""
+
+        return self.__fsilence
+
+
+    @silence.setter
+    def silence(self, psilence):
+        """User ID"""
+
+        self.__fsilence = psilence
+
 
     def __repr__(self):
         """Repr"""
 
         ancestor_repr = super().__repr__()
         return f"""{ancestor_repr},
-                   User id:{self.fuserid}
-                   Letters:{self.fletters},
-                   Words: {self.fwords},
-                   Sentences: {self.fphrases},
-                   Stickers: {self.fstickers},
-                   Pictures: {self.fpictures},
-                   Audios: {self.faudios},
-                   Videos: {self.fvideos}"""
+                   User id:{self.userid}
+                   Letters:{self.letters},
+                   Words: {self.words},
+                   Sentences: {self.phrases},
+                   Stickers: {self.stickers},
+                   Pictures: {self.pictures},
+                   Audios: {self.audios},
+                   Videos: {self.videos},
+                   Silence: {self.silence}"""
 
 
 class CDataBase:
@@ -384,14 +399,16 @@ class CDataBase:
 
             async with self.AsyncSessionLocal() as session:
 
-                async with session.begin:
+                async with session.begin():
 
                     session.add(obj)
+                    print("*** Database ** cc ** True!!!! **")
                     return True
 
         except exc.SQLAlchemyError:
 
             print("Database error! * database.commit_changes")
+            print("*** Database ** cc ** False ????? **")
             return False
 
 
@@ -434,7 +451,6 @@ class CDataBase:
             return False
 
 
-
     async def disconnect(self):
         """Разрывает соединение с БД."""
 
@@ -452,10 +468,10 @@ class CDataBase:
 
         try:
 
-            async_session_class = await self.get_session()
+            async_session_class = self.AsyncSessionLocal
             async with async_session_class() as session:
 
-                return await session.execute(select(model_class))
+                return select(model_class)
 
         except exc.SQLAlchemyError:
 
@@ -467,7 +483,7 @@ class CDataBase:
         """Уничтожает данные заданного класса. """
         try:
 
-            async_session_class = await self.get_session()
+            async_session_class = await self.AsyncSessionLocal()
             async with async_session_class() as session:
 
                 # Используем новое имя параметра

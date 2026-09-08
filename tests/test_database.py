@@ -38,13 +38,18 @@ class CTestDataBase(TestCase):
 
             room: database.CRoom = database.CRoom("777", "super_room")
             result = asyncio.run(self.database.commit_changes(room))
-
             self.assertTrue(result)
 
 
     def test_query_data(self):
 
-        query = asyncio.run(self.database.query_data(database.CRoom))
-        query.where(database.CRoom.id == '777')
-        room: database.CRoom = query.scalars.first()
-        self.assertEqual(room.name, "super_room")
+        result = asyncio.run(self.database.connect())
+        if result:
+
+            session = asyncio.run(self.database.get_session())
+            query = asyncio.run(self.database.query_data(database.CRoom))
+            query.where(database.CRoom.id == '777')
+            result = asyncio.run(session().execute(query))
+            rows = result.scalars()
+            room: database.CRoom = rows.first()
+            self.assertEqual(room.froomname, "super_room")
