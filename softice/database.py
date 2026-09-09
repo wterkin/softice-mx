@@ -389,6 +389,7 @@ class CDataBase:
         self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
+        self.connected: bool = False
 
 
     async def commit_changes(self, obj) -> bool:
@@ -402,37 +403,46 @@ class CDataBase:
                 async with session.begin():
 
                     session.add(obj)
-                    print("*** Database ** cc ** True!!!! **")
-                    return True
+                    print(f"*** Database ** cc ** True!!!! ** {obj}**")
+                return True
 
         except exc.SQLAlchemyError:
 
             print("Database error! * database.commit_changes")
-            print("*** Database ** cc ** False ????? **")
+            print(f"*** Database ** cc ** False ????? ** {obj}**")
             return False
 
+    """
+    async def connect(self) -> bool:
+        if self._engine is not None:
+            return True  # уже подключено — ничего не трогаем
+
+        self._engine = create_async_engine(self._dsn, pool_pre_ping=True)
+        # дальше твоя инициализация, если есть
+        return True
+    """
 
     async def connect(self):
         """Устанавливает соединение с БД."""
 
-        result: bool = False
         try:
 
             db_string: str = (f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@"
                               f"{DB_HOST}/{self.database_name}")
             self.engine = create_async_engine(db_string,
-                                              echo=True,
+                                              echo=False,
                                               pool_size=10,
                                               max_overflow=20,
                                               pool_pre_ping=True,
                                               )
             self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
                                                         expire_on_commit=False)
-            result = True
+            self.connected = True
+
         except exc.SQLAlchemyError:
 
             print("Database error! * database.connect")
-        return result
+        return self.connected
 
 
     async def create(self) -> bool:
@@ -444,7 +454,7 @@ class CDataBase:
 
                 # Создать все таблицы
                 await conn.run_sync(Base.metadata.create_all)
-                return True
+            return True
         except exc.SQLAlchemyError:
 
             print("Database error! * database.create")
