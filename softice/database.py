@@ -460,6 +460,7 @@ class CDataBase:
         """Разрывает соединение с БД."""
 
         await self.engine.dispose()
+        self.connected = False
 
 
     async def get_session(self):
