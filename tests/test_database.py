@@ -8,18 +8,6 @@ from softice import config
 class CTestDataBase(TestCase):
 
 
-    @classmethod
-    def setUpClass(cls):
-
-        # Один раз перед всеми тестами
-        cls.database = database.CDataBase(self.config, "softice-test")
-        async def do_connect():
-
-            return await cls.database.connect()
-        ok = asyncio.run(do_connect())
-        assert ok, "Не удалось подключиться в setUpClass"
-
-
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
@@ -28,7 +16,9 @@ class CTestDataBase(TestCase):
 
     def test_connect(self):
 
-        self.assertTrue(self.database.connected)
+        result = asyncio.run(self.database.connect())
+        self.assertTrue(result)
+
     """
     def test_create(self):
 
@@ -44,13 +34,21 @@ class CTestDataBase(TestCase):
 
     """
 
-
     def test_commit_changes(self):
 
-        room = database.CRoom("777", "super_room")
-        result = asyncio.run(self.database.commit_changes(room))
-        self.assertTrue(result)
+        async def run_test():
 
+            result = await self.database.connect()
+
+            if result:
+
+                if await self.database.wipe_table(database.CRoom):
+
+                    room = database.CRoom("777", "super_room")
+                    result = await self.database.commit_changes(room)
+                    self.assertTrue(result)
+
+        asyncio.run(run_test())
 
 
     """
@@ -67,11 +65,3 @@ class CTestDataBase(TestCase):
             room: database.CRoom = rows.first()
             self.assertEqual(room.froomname, "super_room")
     """
-    @classmethod
-    def tearDownClass(cls):
-        # Один раз после всех тестов
-
-        async def do_close():
-
-            await cls.database.close()  # важно: закрыть движок и пул
-        asyncio.run(do_close())

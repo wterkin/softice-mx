@@ -396,52 +396,47 @@ class CDataBase:
         """Сохраняет изменения в БД."""
 
         # *** Сохраняем данные
+        print(f"*** Database ** cc ** Start! **")
         try:
 
+            print(f"*** Database ** cc ** AsyncSessionLocal! **")
             async with self.AsyncSessionLocal() as session:
 
+                print(f"*** Database ** cc ** session.begin! **")
                 async with session.begin():
 
                     session.add(obj)
-                    print(f"*** Database ** cc ** True!!!! ** {obj}**")
+                print(f"*** Database ** cc ** True!!!! ** {obj}**")
                 return True
 
-        except exc.SQLAlchemyError:
+        except exc.SQLAlchemyError as ex:
 
-            print("Database error! * database.commit_changes")
-            print(f"*** Database ** cc ** False ????? ** {obj}**")
+            print(f"Database error! * database.commit_changes {ex}")
             return False
 
-    """
+
     async def connect(self) -> bool:
-        if self._engine is not None:
-            return True  # уже подключено — ничего не трогаем
-
-        self._engine = create_async_engine(self._dsn, pool_pre_ping=True)
-        # дальше твоя инициализация, если есть
-        return True
-    """
-
-    async def connect(self):
         """Устанавливает соединение с БД."""
 
-        try:
+        if not self.connected:
 
-            db_string: str = (f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@"
-                              f"{DB_HOST}/{self.database_name}")
-            self.engine = create_async_engine(db_string,
-                                              echo=False,
-                                              pool_size=10,
-                                              max_overflow=20,
-                                              pool_pre_ping=True,
-                                              )
-            self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
-                                                        expire_on_commit=False)
-            self.connected = True
+            try:
 
-        except exc.SQLAlchemyError:
+                db_string: str = (f"{ENGINE}://{DB_USER}:{DB_PASSWORD}@"
+                                f"{DB_HOST}/{self.database_name}")
+                self.engine = create_async_engine(db_string,
+                                                echo=False,
+                                                pool_size=10,
+                                                max_overflow=20,
+                                                pool_pre_ping=True,
+                                                )
+                self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
+                                                            expire_on_commit=False)
+                self.connected = True
 
-            print("Database error! * database.connect")
+            except exc.SQLAlchemyError:
+
+                print("Database error! * database.connect")
         return self.connected
 
 
@@ -489,16 +484,16 @@ class CDataBase:
         return None
 
 
-    async def wipe_table(self, model_class):
+    async def wipe_table(self, model_class) -> bool:
         """Уничтожает данные заданного класса. """
         try:
 
-            async_session_class = await self.AsyncSessionLocal()
-            async with async_session_class() as session:
-
+            async with self.AsyncSessionLocal() as session:
                 # Используем новое имя параметра
                 await session.execute(delete(model_class))
                 await session.commit()
-        except exc.SQLAlchemyError:
+            return True
+        except exc.SQLAlchemyError as ex:
 
-            print("Database error! [database.wipe_table]")
+            print(f"Database error! [database.wipe_table]: {ex}")
+            return False
