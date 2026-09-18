@@ -22,10 +22,10 @@ PERSONAL_GROUP: int = 3
 HINT_GROUP: int = 4
 
 
-COMMANDS: tuple = (("пер10", "top10"),
-                   ("пер25", "top25"),
-                   ("пер50", "top50"),
-                   ("личные", "pers"),
+COMMANDS: tuple = (("первые10", "пв10", "top10"),
+                   ("первые25", "пв25", "top25"),
+                   ("первые50", "пв50", "top50"),
+                   ("личные", "лич", "personal", "pers"),
                    ("статистика", "стат", "statistic", "stat"))
 
 DESCRIPTIONS: tuple = ("",

@@ -31,21 +31,26 @@ class CTestStatistic(TestCase):
 
     def clean_tables(self):
 
-        database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
-        asyncio.run(database.connect())
-        result = asyncio.run(database.wipe_table(db.CRoom))
-        result = asyncio.run(database.wipe_table(db.CUser))
-        result = asyncio.run(database.wipe_table(db.CStat))
+        async def run_test():
+
+            # database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
+            # asyncio.run(database.connect())
+            result = asyncio.run(database.wipe_table(db.CRoom))
+            result = asyncio.run(database.wipe_table(db.CUser))
+            result = asyncio.run(database.wipe_table(db.CStat))
 
 
-    # def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
     def test_add_room_to_base(self):
 
         result = asyncio.run(self.statistic.add_room_to_base("botovka", "Ботовка"))
         self.assertEqual(result, 1)
 
-
 """
+
+    # def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
+
+
+
     def test_extract_user_name(self):
 
         event: dict = {cn.MUSER_TITLE:"Andrey"}

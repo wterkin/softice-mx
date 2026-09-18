@@ -469,7 +469,7 @@ class CDataBase:
         return self.AsyncSessionLocal
 
 
-    async def query_data(self, model_class) -> CRoom| CUser | CStat:
+    async def query_data(self, model_class) -> CRoom | CUser | CStat:
         """Возвращает выборку заданнного класса."""
 
         try:
