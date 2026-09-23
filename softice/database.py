@@ -490,9 +490,13 @@ class CDataBase:
         try:
 
             async with self.AsyncSessionLocal() as session:
+
                 # Используем новое имя параметра
+                print(f"*** Database ** wt ** delete **")
                 await session.execute(delete(model_class))
+                print(f"*** Database ** wt ** commit **")
                 await session.commit()
+                print(f"*** Database ** wt ** done **")
             return True
         except exc.SQLAlchemyError as ex:
 

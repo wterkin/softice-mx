@@ -59,8 +59,7 @@ class CStatistic(basis.CBasis):
     def __init__(self, pconfig: dict, pdatabase_name: str = DATABASE_NAME):
 
         super().__init__(pconfig)
-        self.data_path: str = self.config.data_folder
-        self.database: db.CDataBase = db.CDataBase(self.config, self.data_path, pdatabase_name)
+        self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
         asyncio.run(self.database.connect())
         asyncio.run(self.database.create())
         print("Статистик стартовал.")
@@ -79,7 +78,9 @@ class CStatistic(basis.CBasis):
         try:
 
             room = db.CRoom(proom_id, proom_name)
+            print(f"*** Statistic ** artb ** pre-commit **")
             await self.database.commit_changes(room)
+            print(f"*** Statistic ** artb ** post-commit **")
             return room.id
         except SQLAlchemyError:
 

@@ -24,20 +24,18 @@ class CTestStatistic(TestCase):
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
-        self.clean_tables()
         self.statistic: statistic.CStatistic = \
             statistic.CStatistic(self.config, TEST_DATABASE_NAME)
+        asyncio.run(self.clean_tables())
 
 
-    def clean_tables(self):
+    async def clean_tables(self):
 
-        async def run_test():
-
-            # database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
-            # asyncio.run(database.connect())
-            result = asyncio.run(database.wipe_table(db.CRoom))
-            result = asyncio.run(database.wipe_table(db.CUser))
-            result = asyncio.run(database.wipe_table(db.CStat))
+        # database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
+        # asyncio.run(database.connect())
+        result = await self.statistic.database.wipe_table(db.CRoom)
+        result = await self.statistic.database.wipe_table(db.CUser)
+        result = await self.statistic.database.wipe_table(db.CStat)
 
 
     def test_add_room_to_base(self):
