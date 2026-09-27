@@ -60,9 +60,13 @@ class CStatistic(basis.CBasis):
 
         super().__init__(pconfig)
         self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
-        asyncio.run(self.database.connect())
-        asyncio.run(self.database.create())
         print("Статистик стартовал.")
+
+
+    async def init(self):
+        # Всю асинхронную инициализацию переносим сюда
+        await self.database.connect()
+        await self.database.create()
 
 
     async def add_room_to_base(self, proom_id: str, proom_name: str) -> int:

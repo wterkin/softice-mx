@@ -3,7 +3,7 @@
 """Модуль функций, связанных с БД."""
 from pathlib import Path
 
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete, Boolean
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete, Boolean, text
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
@@ -494,9 +494,11 @@ class CDataBase:
                 # Используем новое имя параметра
                 print(f"*** Database ** wt ** delete **")
                 await session.execute(delete(model_class))
+                await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__} RESTART IDENTITY CASCADE"))
                 print(f"*** Database ** wt ** commit **")
                 await session.commit()
                 print(f"*** Database ** wt ** done **")
+
             return True
         except exc.SQLAlchemyError as ex:
 

@@ -4,7 +4,7 @@
 # pylint: disable=C0116
 # pylint: disable=line-too-long
 
-from unittest import TestCase
+import unittest
 
 import datetime as dtime
 
@@ -19,29 +19,47 @@ TEST_DATABASE_NAME: str = "softice-test"
 
 first_run: bool = True
 
-class CTestStatistic(TestCase):
+class CTestStatistic(unittest.IsolatedAsyncioTestCase):
+
 
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
         self.statistic: statistic.CStatistic = \
             statistic.CStatistic(self.config, TEST_DATABASE_NAME)
-        asyncio.run(self.clean_tables())
 
 
-    async def clean_tables(self):
+    async def asyncSetUp(self) -> None:
+        # Асинхронный setup: один event loop на весь тест
 
-        # database: db.CDataBase = db.CDataBase(self.config, TEST_DATABASE_NAME)
-        # asyncio.run(database.connect())
-        result = await self.statistic.database.wipe_table(db.CRoom)
-        result = await self.statistic.database.wipe_table(db.CUser)
-        result = await self.statistic.database.wipe_table(db.CStat)
+        await self.statistic.init()
+        await self._clean_tables()
 
 
-    def test_add_room_to_base(self):
+    async def _clean_tables(self) -> bool:
 
-        result = asyncio.run(self.statistic.add_room_to_base("botovka", "Ботовка"))
+        models = [db.CRoom, db.CUser, db.CStat]
+
+        for model in models:
+
+            ok = await self.statistic.database.wipe_table(model)
+            if not ok:
+
+                print(f"Не удалось очистить таблицу для модели: {model.__name__}")
+                return False
+        return True
+
+
+    async def test_add_room_to_base(self):
+        # Просто await — без asyncio.run
+
+        result = await self.statistic.add_room_to_base("botovka", "Ботовка")
         self.assertEqual(result, 1)
+
+    #def test_add_room_to_base(self):
+
+    #    result = asyncio.run(self.statistic.add_room_to_base("botovka", "Ботовка"))
+    #    self.assertEqual(result, 1)
 
 """
 
