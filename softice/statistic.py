@@ -63,10 +63,14 @@ class CStatistic(basis.CBasis):
         print("Статистик стартовал.")
 
 
-    async def init(self):
+    async def init(self) -> bool:
         # Всю асинхронную инициализацию переносим сюда
-        await self.database.connect()
-        await self.database.create()
+
+        result: bool = await self.database.connect()
+        if result:
+
+            result = await self.database.create()
+        return result
 
 
     async def add_room_to_base(self, proom_id: str, proom_name: str) -> int:
@@ -90,25 +94,17 @@ class CStatistic(basis.CBasis):
 
             return ERROR_CODE
 
-    """
-    def add_user_stat(self, proom_id: int, puser_id: int, pstat: db.CStat) -> int:
-        ""Добавляет новую запись статистики по человеку.""
 
-        assert puser_id is not None, \
+    async def add_user_stat(self, pstat: db.CStat) -> int:
+        """Добавляет новую запись статистики по человеку."""
+
+        assert pstat is not None, \
             "Assert: [statistic.add_user_stat] " \
-            "Пропущен параметр <puser_id> !"
-        assert proom_id is not None, \
-            "Assert: [statistic.add_user_stat] " \
-            "Пропущен параметр <proom_id> !"
+            "Пропущен параметр <pstat> !"
 
-        try:
+        await self.database.commit_changes(pstat)
+        return pstat.id
 
-            self.database.commit_changes(pstat)
-            return pstat.id
-        except SQLAlchemyError:
-
-            return ERROR_CODE
-    """
 
     async def add_user_to_base(self, puser_id: str, puser_name: str) -> int:
         """"Добавляет нового пользователя в БД и возвращает его ID."""
@@ -120,14 +116,9 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.add_user_to_base] " \
             "Пропущен параметр <puser_name> !"
 
-        try:
-
-            user = db.CUser(puser_id, puser_name)
-            await self.database.commit_changes(user)
-            return user.id
-        except SQLAlchemyError:
-
-            return ERROR_CODE
+        user = db.CUser(puser_id, puser_name)
+        await self.database.commit_changes(user)
+        return user.id
 
 
     def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
@@ -153,8 +144,8 @@ class CStatistic(basis.CBasis):
         try:
 
             query = await self.database.query_data(db.CRoom)
-            query = await query.filter_by(froomid=proom_id)
-            room = await query.first()
+            query = query.filter_by(froomid=proom_id)
+            room = await query.scalar_one_or_none()
             if room is not None:
 
                 return room.id

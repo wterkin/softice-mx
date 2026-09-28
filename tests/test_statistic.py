@@ -16,6 +16,8 @@ from softice import statistic
 
 
 TEST_DATABASE_NAME: str = "softice-test"
+TEST_USER_ID: str = "777"
+TEST_ROOM_ID: str = "777"
 
 first_run: bool = True
 
@@ -32,8 +34,9 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
         # Асинхронный setup: один event loop на весь тест
 
-        await self.statistic.init()
-        await self._clean_tables()
+        if await self.statistic.init():
+
+            await self._clean_tables()
 
 
     async def _clean_tables(self) -> bool:
@@ -51,61 +54,40 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
 
     async def test_add_room_to_base(self):
-        # Просто await — без asyncio.run
 
-        result = await self.statistic.add_room_to_base("botovka", "Ботовка")
+        result = await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
         self.assertEqual(result, 1)
 
-    #def test_add_room_to_base(self):
 
-    #    result = asyncio.run(self.statistic.add_room_to_base("botovka", "Ботовка"))
-    #    self.assertEqual(result, 1)
+    async def test_add_user_to_base(self):
+
+        result = await self.statistic.add_user_to_base(TEST_USER_ID, "Master")
+        self.assertEqual(result, 1)
+
+
+    async def test_add_user_stat(self):
+
+        stat: db.CStat = db.CStat(1, 1)
+        stat.letters = 1
+        stat.words = 2
+        stat.phrases = 3
+        stat.emotes = 4
+        stat.notices = 5
+        stat.images = 6
+        stat.audios = 7
+        stat.videos = 8
+        stat.files = 9
+        stat.silence = False
+        result = await self.statistic.add_user_stat(stat)
+        self.assertEqual(result, 1)
+
+
+    async def test_get_room_by_id(self):
+
+        result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
+        self.assertEqual(result, 1)
 
 """
-
-    # def add_room_to_base(self, proom_id: int, proom_name: str) -> int:
-
-
-
-    def test_extract_user_name(self):
-
-        event: dict = {cn.MUSER_TITLE:"Andrey"}
-        self.assertEqual(statistic.extract_user_name(event), "Andrey")
-        event2: dict = {cn.MUSER_LASTNAME:"Petrovich"}
-        self.assertEqual(statistic.extract_user_name(event2), " Petrovich")
-
-
-    def test_add_user_to_base(self):
-
-        self.assertEqual(self.statistic.add_user_to_base(777, "Master"), 1)
-
-
-    def test_add_user_stat(self):
-
-        statfields: dict = {db.STATUSERID: 0,
-                            db.STATLETTERS: 2,
-                            db.STATWORDS: 3,
-                            db.STATPHRASES: 4,
-                            db.STATPICTURES: 5,
-                            db.STATSTICKERS: 6,
-                            db.STATAUDIOS: 7,
-                            db.STATVIDEOS: 8}
-        self.assertEqual(self.statistic.add_user_stat(1, 1, statfields), 1)
-
-
-    def test_can_process(self):
-
-        self.assertFalse(self.statistic.can_process("fakechat", "!top10"))
-        self.assertFalse(self.statistic.can_process("emptychat", "!top10"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!top10"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!top25"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!top50"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!pers"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!перв10"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!перв25"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!перв50"))
-        self.assertTrue(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!личные"))
-        self.assertFalse(self.statistic.can_process(test_softice.TESTPLACE_CHAT_NAME, "!кукабарра"))
 
 
     def test_get_chat_id(self):

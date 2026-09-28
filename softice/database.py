@@ -2,11 +2,13 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль функций, связанных с БД."""
 from pathlib import Path
+from typing import Union
 
 from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete, Boolean, text
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
+
 # py lint: disable=C0301
 # py lint: disable=line-too-long
 
@@ -469,7 +471,7 @@ class CDataBase:
         return self.AsyncSessionLocal
 
 
-    async def query_data(self, model_class) -> CRoom | CUser | CStat:
+    async def query_data(self, model_class) -> Union[CRoom, CUser, CStat]:
         """Возвращает выборку заданнного класса."""
 
         try:
