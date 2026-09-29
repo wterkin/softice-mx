@@ -37,23 +37,6 @@ class CTestDataBase(TestCase):
         asyncio.run(run_test())
 
 
-    """
-                sel = self.database.query_data(db.CRoom)
-                sel = sel.where(db.CRoom.froomid==proom_id)
-                session = await self.database.get_session()
-                # rint(f"*** Statistic ** grbi ** {session=} **")
-                async with session() as session:
-
-                    result = await session.execute(sel)
-                    # rint(f"*** Statistic ** grbi ** {result=} **")
-                    room = result.scalar_one_or_none()
-                    # rint(f"*** Statistic ** grbi ** {room=} **")
-                if room is not None:
-
-                    return room.id
-                return ERROR_CODE
-    """
-
     def test_query_data(self):
 
         async def run_test():

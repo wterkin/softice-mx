@@ -64,7 +64,7 @@ class CStatistic(basis.CBasis):
 
 
     async def init(self) -> bool:
-        # Всю асинхронную инициализацию переносим сюда
+        """ Место для асинхронной инициализации."""
 
         result: bool = await self.database.connect()
         if result:
@@ -118,6 +118,7 @@ class CStatistic(basis.CBasis):
 
         user = db.CUser(puser_id, puser_name)
         await self.database.commit_changes(user)
+        print(f"*** Statistic ** autb ** {user.id=} **")
         return user.id
 
 
@@ -159,15 +160,6 @@ class CStatistic(basis.CBasis):
                 return room.id
             return ERROR_CODE
 
-            """
-            query = await self.database.query_data(db.CRoom)
-            query = query.filter_by(froomid=proom_id)
-            room = await query.scalar_one_or_none()
-            if room is not None:
-
-                return room.id
-            return ERROR_CODE
-            """
         except SQLAlchemyError:
 
             return ERROR_CODE
@@ -204,29 +196,41 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <puser_name> !"
 
         answer: str = ""
-        query = await self.database.query_data(db.CUser)
-        query = await query.filter_by(fusername=puser_name)
-        user = await query.first()
-        if user is not None:
+        session = await self.database.get_session()
+        # *** Получим данные юзера
+        sel = self.database.query_data(db.CUser)
+        sel = sel.where(db.CUser.fusername==puser_name)
+        print(f"*** Statistic ** gpi ** start **")
+        async with session() as session:
 
-            # *** Получим ID чата в базе
-            query = await self.database.query_data(db.CRoom)
-            query = await query.filter_by(froomid=proom_id)
-            room = await query.first()
-            if room is not None:
+            result = await session.execute(sel)
+            user = result.scalar_one_or_none()
+            if user is not None:
 
-                query = await self.database.query_data(db.CStat)
-                query = await query.filter_by(fuserid=user.id)
-                query = await query.filter_by(fchatid=room.id)
-                stat = await query.first()
-                if stat is not None:
+                print(f"*** Statistic ** gpi ** {user=} **")
+                # *** Получим ID чата в базе
+                sel = self.database.query_data(db.CRoom)
+                sel = sel.where(db.CRoom.froomid==proom_id)
+                result = await session.execute(sel)
+                room = result.scalar_one_or_none()
+                if room is not None:
 
-                    answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
-                             f"{stat.words} слов, {stat.letters} букв, запостил " \
-                             f"{0 if stat.images is None else stat.images} фоток, " \
-                             f"{0 if stat.audios is None else stat.audios} аудио и " \
-                             f"{0 if stat.videos is None else stat.videos} видео," \
-                             f"{0 if stat.files is None else stat.files} файлов"
+                    print(f"*** Statistic ** gpi ** {room=} **")
+                    # *** Получим статистику юзера в чате
+                    sel = self.database.query_data(db.CStat)
+                    sel = sel.where(db.CStat.fuserid==user.id)
+                    sel = sel.where(db.CStat.froomid==room.id)
+                    result = await session.execute(sel)
+                    stat = result.scalar_one_or_none()
+                    if stat is not None:
+
+                        print(f"*** Statistic ** gpi ** {stat=} **")
+                        answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
+                                 f"{stat.words} слов, {stat.letters} букв, запостил " \
+                                 f"{0 if stat.images is None else stat.images} фоток, " \
+                                 f"{0 if stat.audios is None else stat.audios} аудио и " \
+                                 f"{0 if stat.videos is None else stat.videos} видео," \
+                                 f"{0 if stat.files is None else stat.files} файлов"
 
         return answer
 

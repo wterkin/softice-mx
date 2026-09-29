@@ -65,7 +65,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, 1)
 
 
-    async def test_add_user_stat(self):
+    async def add_stat(self):
 
         stat: db.CStat = db.CStat(1, 1)
         stat.letters = 1
@@ -79,6 +79,11 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         stat.files = 9
         stat.silence = False
         result = await self.statistic.add_user_stat(stat)
+
+
+    async def test_add_user_stat(self):
+
+        result = await self.add_stat()
         self.assertEqual(result, 1)
 
 
@@ -88,33 +93,34 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
         self.assertEqual(result, 1)
 
-"""
 
+    def test_get_commands(self):
 
-    def test_get_chat_id(self):
-
-        self.assertEqual(self.statistic.get_chat_id(777), 1)
-        self.assertEqual(self.statistic.get_chat_id(0), -1)
-
-
-    def test_get_help(self):
-
-        self.assertIn("перв10, перв25, перв50, личные", self.statistic.get_help(test_softice.TESTPLACE_CHAT_NAME))
+        self.assertIn("первые10, пв10, top10", self.statistic.get_commands(self.config.test_chat))
 
 
     def test_get_hint(self):
 
-        self.assertIn("стат, stat", self.statistic.get_hint(test_softice.TESTPLACE_CHAT_NAME))
+        self.assertIn("статистика, стат, statistic, stat", self.statistic.get_hint(self.config.test_chat))
 
 
-    def test_get_personal_information(self):
+    async def test_get_personal_information(self):
 
         # def get_personal_information(self, ptg_chat_id: int, puser_title: str):
-        self.assertIn("наболтал", self.statistic.get_personal_information(777, "Master"))
-        self.assertEqual(self.statistic.get_personal_information(777, "Somebody"), "")
-        self.assertEqual(self.statistic.get_personal_information(1, "Master"), "")
+        result = await self.statistic.add_user_to_base(TEST_USER_ID, "Master")
+        if result == 1:
 
+            result = await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
+            if result == 1:
 
+                result = await self.add_stat()
+                answer = f"3 фраз, 2 слов, 1 букв"
+                result = await self.statistic.get_personal_information(TEST_ROOM_ID, "Master")
+                self.assertIn(answer, result)
+                #self.assertEqual(self.statistic.get_personal_information(777, "Somebody"), "")
+                #self.assertEqual(self.statistic.get_personal_information(1, "Master"), "")
+
+    """
     def test_get_statistic(self):
 
         #  def get_statistic(self, ptg_chat_id: int, pcount: int, porder_by: int):
@@ -199,4 +205,4 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
         self.database.disconnect()
         # pass
-"""
+    """
