@@ -37,6 +37,22 @@ class CTestDataBase(TestCase):
         asyncio.run(run_test())
 
 
+    """
+                sel = self.database.query_data(db.CRoom)
+                sel = sel.where(db.CRoom.froomid==proom_id)
+                session = await self.database.get_session()
+                # rint(f"*** Statistic ** grbi ** {session=} **")
+                async with session() as session:
+
+                    result = await session.execute(sel)
+                    # rint(f"*** Statistic ** grbi ** {result=} **")
+                    room = result.scalar_one_or_none()
+                    # rint(f"*** Statistic ** grbi ** {room=} **")
+                if room is not None:
+
+                    return room.id
+                return ERROR_CODE
+    """
 
     def test_query_data(self):
 
@@ -45,10 +61,12 @@ class CTestDataBase(TestCase):
             # result = await self.database.connect()
             if await self.database.connect():
 
+                sel = self.database.query_data(database.CRoom)
+                sel = sel.where(database.CRoom.froomid == '777')
                 session = await self.database.get_session()
-                query = await self.database.query_data(database.CRoom)
-                query.where(database.CRoom.id == '777')
-                data = await session().execute(query)
-                room = data.scalars().first()
+                async with session() as session:
+
+                    result = await session.execute(sel)
+                    room = result.scalar_one_or_none()
             self.assertEqual(room.froomname, "super_room")
         asyncio.run(run_test())

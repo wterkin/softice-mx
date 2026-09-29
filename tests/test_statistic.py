@@ -84,6 +84,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_room_by_id(self):
 
+        await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
         result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
         self.assertEqual(result, 1)
 

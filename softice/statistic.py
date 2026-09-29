@@ -86,9 +86,9 @@ class CStatistic(basis.CBasis):
         try:
 
             room = db.CRoom(proom_id, proom_name)
-            print(f"*** Statistic ** artb ** pre-commit **")
+            # rint(f"*** Statistic ** artb ** pre-commit **")
             await self.database.commit_changes(room)
-            print(f"*** Statistic ** artb ** post-commit **")
+            # rint(f"*** Statistic ** artb ** post-commit **")
             return room.id
         except SQLAlchemyError:
 
@@ -141,8 +141,25 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_room_id] " \
             "Пропущен параметр <proom_id> !"
 
+        room: db.CRoom = None
         try:
 
+            sel = self.database.query_data(db.CRoom)
+            sel = sel.where(db.CRoom.froomid==proom_id)
+            session = await self.database.get_session()
+            # rint(f"*** Statistic ** grbi ** {session=} **")
+            async with session() as session:
+
+                result = await session.execute(sel)
+                # rint(f"*** Statistic ** grbi ** {result=} **")
+                room = result.scalar_one_or_none()
+                # rint(f"*** Statistic ** grbi ** {room=} **")
+            if room is not None:
+
+                return room.id
+            return ERROR_CODE
+
+            """
             query = await self.database.query_data(db.CRoom)
             query = query.filter_by(froomid=proom_id)
             room = await query.scalar_one_or_none()
@@ -150,6 +167,7 @@ class CStatistic(basis.CBasis):
 
                 return room.id
             return ERROR_CODE
+            """
         except SQLAlchemyError:
 
             return ERROR_CODE

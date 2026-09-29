@@ -398,17 +398,17 @@ class CDataBase:
         """Сохраняет изменения в БД."""
 
         # *** Сохраняем данные
-        print(f"*** Database ** cc ** Start! **")
+        # rint(f"*** Database ** cc ** Start! **")
         try:
 
-            print(f"*** Database ** cc ** AsyncSessionLocal! **")
+            # rint(f"*** Database ** cc ** AsyncSessionLocal! **")
             async with self.AsyncSessionLocal() as session:
 
-                print(f"*** Database ** cc ** session.begin! **")
+                # rint(f"*** Database ** cc ** session.begin! **")
                 async with session.begin():
 
                     session.add(obj)
-                print(f"*** Database ** cc ** True!!!! ** {obj}**")
+                # rint(f"*** Database ** cc ** True!!!! ** {obj}**")
                 return True
 
         except exc.SQLAlchemyError as ex:
@@ -471,8 +471,14 @@ class CDataBase:
         return self.AsyncSessionLocal
 
 
+    def query_data(self, model_class):  # не указываем тип возвращаемого класса
+        """Просто возвращает select для model_class. Без сессии, без execute."""
+
+        return select(model_class)
+
+    """
     async def query_data(self, model_class) -> Union[CRoom, CUser, CStat]:
-        """Возвращает выборку заданнного класса."""
+        ""Возвращает выборку заданнного класса.""
 
         try:
 
@@ -485,7 +491,7 @@ class CDataBase:
 
             print("Database error! * database.query_data")
         return None
-
+    """
 
     async def wipe_table(self, model_class) -> bool:
         """Уничтожает данные заданного класса. """
@@ -494,12 +500,12 @@ class CDataBase:
             async with self.AsyncSessionLocal() as session:
 
                 # Используем новое имя параметра
-                print(f"*** Database ** wt ** delete **")
+                # rint(f"*** Database ** wt ** delete **")
                 await session.execute(delete(model_class))
                 await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__} RESTART IDENTITY CASCADE"))
-                print(f"*** Database ** wt ** commit **")
+                # rint(f"*** Database ** wt ** commit **")
                 await session.commit()
-                print(f"*** Database ** wt ** done **")
+                # rint(f"*** Database ** wt ** done **")
 
             return True
         except exc.SQLAlchemyError as ex:
