@@ -134,7 +134,7 @@ class CUser(CAncestor):
 
         super().__init__()
         self.fmatrixuserid = pmatrix_user_id
-        self.fuser_name = puser_name
+        self.fusername = puser_name
 
     def __repr__(self):
 
@@ -374,8 +374,7 @@ class CStat(CAncestor):
                    Letters:{self.letters},
                    Words: {self.words},
                    Sentences: {self.phrases},
-                   Stickers: {self.stickers},
-                   Pictures: {self.pictures},
+                   Images: {self.images},
                    Audios: {self.audios},
                    Videos: {self.videos},
                    Silence: {self.silence}"""
@@ -401,14 +400,11 @@ class CDataBase:
         # rint(f"*** Database ** cc ** Start! **")
         try:
 
-            # rint(f"*** Database ** cc ** AsyncSessionLocal! **")
             async with self.AsyncSessionLocal() as session:
 
-                # rint(f"*** Database ** cc ** session.begin! **")
                 async with session.begin():
 
                     session.add(obj)
-                # rint(f"*** Database ** cc ** True!!!! ** {obj}**")
                 return True
 
         except exc.SQLAlchemyError as ex:
@@ -500,7 +496,7 @@ class CDataBase:
             async with self.AsyncSessionLocal() as session:
 
                 # Используем новое имя параметра
-                # rint(f"*** Database ** wt ** delete **")
+                print(f"*** Database ** wt ** {model_class.__tablename__} **")
                 await session.execute(delete(model_class))
                 await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__} RESTART IDENTITY CASCADE"))
                 # rint(f"*** Database ** wt ** commit **")
