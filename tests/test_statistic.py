@@ -17,7 +17,9 @@ from softice import statistic
 
 TEST_DATABASE_NAME: str = "softice-test"
 TEST_USER_ID: str = "777"
+TEST_USER_NAME: str = "Master"
 TEST_ROOM_ID: str = "777"
+TEST_ROOM_NAME: str = "Ботовка"
 
 first_run: bool = True
 
@@ -55,13 +57,13 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     """
     async def test_add_room_to_base(self):
 
-        result = await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
+        result = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
         self.assertEqual(result, 1)
 
 
     async def test_add_user_to_base(self):
 
-        result = await self.statistic.add_user_to_base(TEST_USER_ID, "Master")
+        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
         self.assertEqual(result, 1)
 
     """
@@ -90,7 +92,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     """
     async def test_get_room_by_id(self):
 
-        await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
+        await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
         result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
         self.assertEqual(result, 1)
 
@@ -108,21 +110,21 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     async def test_get_personal_information(self):
 
         # def get_personal_information(self, ptg_chat_id: int, puser_title: str):
-        print(f"*** Test Statistic ** tgpi ** add user **")
-        result = await self.statistic.add_user_to_base(TEST_USER_ID, "Master")
+        # rint(f"*** Test Statistic ** tgpi ** add user **")
+        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
         if result == 1:
 
-            print(f"*** Test Statistic ** tgpi ** Ok. add room **")
-            result = await self.statistic.add_room_to_base(TEST_ROOM_ID, "Ботовка")
+            # rint(f"*** Test Statistic ** tgpi ** Ok. add room **")
+            result = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
             if result == 1:
 
-                print(f"*** Test Statistic ** tgpi ** Ok. add stat **")
+                # rint(f"*** Test Statistic ** tgpi ** Ok. add stat **")
                 result = await self.add_stat()
                 if result == 1:
 
-                    print(f"*** Test Statistic ** tgpi ** Ok. get pers info **")
+                    # rint(f"*** Test Statistic ** tgpi ** Ok. get pers info **")
                     answer = f"3 фраз, 2 слов, 1 букв"
-                    result = await self.statistic.get_personal_information(TEST_ROOM_ID, "Master")
+                    result = await self.statistic.get_personal_information(TEST_ROOM_ID, TEST_USER_NAME)
                     self.assertIn(answer, result)
                     #self.assertEqual(self.statistic.get_personal_information(777, "Somebody"), "")
                     #self.assertEqual(self.statistic.get_personal_information(1, "Master"), "")

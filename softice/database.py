@@ -175,9 +175,9 @@ class CStat(CAncestor):
         """Конструктор"""
 
         super().__init__()
-        self.fuserid = puser_id
-        self.froomid = proom_id
-        self.fsilence = False
+        self.__fuserid = puser_id
+        self.__froomid = proom_id
+        self.__fsilence = False
 
     @property
     def userid(self):
@@ -496,7 +496,7 @@ class CDataBase:
             async with self.AsyncSessionLocal() as session:
 
                 # Используем новое имя параметра
-                print(f"*** Database ** wt ** {model_class.__tablename__} **")
+                # rint(f"*** Database ** wt ** {model_class.__tablename__} **")
                 await session.execute(delete(model_class))
                 await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__} RESTART IDENTITY CASCADE"))
                 # rint(f"*** Database ** wt ** commit **")

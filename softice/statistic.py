@@ -88,7 +88,7 @@ class CStatistic(basis.CBasis):
             room = db.CRoom(proom_id, proom_name)
             # rint(f"*** Statistic ** artb ** pre-commit **")
             await self.database.commit_changes(room)
-            print(f"*** Statistic ** artb ** {room.id=} **")
+            # rint(f"*** Statistic ** artb ** {room.id=} **")
             return room.id
         except SQLAlchemyError:
 
@@ -104,7 +104,7 @@ class CStatistic(basis.CBasis):
 
         # rint(f"*** Statistic ** aus ** {pstat.__repr__()} **")
         await self.database.commit_changes(pstat)
-        print(f"*** Statistic ** aus ** {pstat.id=} **")
+        # rint(f"*** Statistic ** aus ** {pstat.id=} **")
         return pstat.id
 
 
@@ -119,9 +119,9 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <puser_name> !"
 
         user = db.CUser(puser_id, puser_name)
-        print(f"*** Statistic ** autb ** {user=} **")
+        # rint(f"*** Statistic ** autb ** {user=} **")
         await self.database.commit_changes(user)
-        print(f"*** Statistic ** autb ** {user.id=} **")
+        # rint(f"*** Statistic ** autb ** {user.id=} **")
         return user.id
 
 
@@ -203,13 +203,13 @@ class CStatistic(basis.CBasis):
         # *** Получим данные юзера
         sel = self.database.query_data(db.CUser)
         sel = sel.where(db.CUser.fusername==puser_name)
-        print(f"*** Statistic ** gpi ** start **")
+        # rint(f"*** Statistic ** gpi ** start **")
         async with session() as session:
 
             result = await session.execute(sel)
-            print(f"*** Statistic ** gpi ** {result=} **")
+            # rint(f"*** Statistic ** gpi ** {result=} **")
             user = result.scalar_one_or_none()
-            print(f"*** Statistic ** gpi ** {user=} **")
+            # rint(f"*** Statistic ** gpi ** {user=} **")
             if user is not None:
 
                 # *** Получим ID чата в базе
@@ -219,13 +219,15 @@ class CStatistic(basis.CBasis):
                 room = result.scalar_one_or_none()
                 if room is not None:
 
-                    print(f"*** Statistic ** gpi ** {room=} **")
+                    print(f"*** Statistic ** gpi ** {room=} {user=} **")
                     # *** Получим статистику юзера в чате
                     sel = self.database.query_data(db.CStat)
-                    sel = sel.where(db.CStat.fuserid==user.id)
-                    sel = sel.where(db.CStat.froomid==room.id)
+                    sel = sel.where(db.CStat.userid==user.id)
+                    sel = sel.where(db.CStat.roomid==room.id)
                     result = await session.execute(sel)
+                    print(f"*** Statistic ** gpi ** {result=} **")
                     stat = result.scalar_one_or_none()
+                    print(f"*** Statistic ** gpi ** {stat=} **")
                     if stat is not None:
 
                         print(f"*** Statistic ** gpi ** {stat=} **")
