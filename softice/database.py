@@ -440,19 +440,21 @@ class CDataBase:
 
 
     async def create(self) -> bool:
-        """Создает или изменяет БД в соответствии с описанной в классах структурой."""
+        """Создает БД в соответствии с описанной в классах структурой."""
 
+        result: bool = False
         try:
 
             async with self.engine.begin() as conn:
 
                 # Создать все таблицы
                 await conn.run_sync(Base.metadata.create_all)
-            return True
-        except exc.SQLAlchemyError:
+            result = True
+        except exc.SQLAlchemyError as ex:
 
-            print("Database error! * database.create")
-            return False
+            print(f"Database error! * database.create {ex=}")
+            result = False
+        return result
 
 
     async def disconnect(self):
@@ -473,22 +475,6 @@ class CDataBase:
 
         return select(model_class)
 
-    """
-    async def query_data(self, model_class) -> Union[CRoom, CUser, CStat]:
-        ""Возвращает выборку заданнного класса.""
-
-        try:
-
-            async_session_class = self.AsyncSessionLocal
-            async with async_session_class() as session:
-
-                return select(model_class)
-
-        except exc.SQLAlchemyError:
-
-            print("Database error! * database.query_data")
-        return None
-    """
 
     async def wipe_table(self, model_class) -> bool:
         """Уничтожает данные заданного класса. """

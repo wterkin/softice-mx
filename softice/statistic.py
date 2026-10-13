@@ -83,16 +83,11 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.add_chat_to_base] " \
             "Пропущен параметр <proom_name> !"
 
-        try:
+        result: int = ERROR_CODE
 
-            room = db.CRoom(proom_id, proom_name)
-            # rint(f"*** Statistic ** artb ** pre-commit **")
-            await self.database.commit_changes(room)
-            # rint(f"*** Statistic ** artb ** {room.id=} **")
-            return room.id
-        except SQLAlchemyError:
-
-            return ERROR_CODE
+        room = db.CRoom(proom_id, proom_name)
+        await self.database.commit_changes(room)
+        return room.id
 
 
     async def add_user_stat(self, pstat: db.CStat) -> int:
@@ -102,9 +97,7 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.add_user_stat] " \
             "Пропущен параметр <pstat> !"
 
-        # rint(f"*** Statistic ** aus ** {pstat.__repr__()} **")
         await self.database.commit_changes(pstat)
-        # rint(f"*** Statistic ** aus ** {pstat.id=} **")
         return pstat.id
 
 
@@ -119,9 +112,7 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <puser_name> !"
 
         user = db.CUser(puser_id, puser_name)
-        # rint(f"*** Statistic ** autb ** {user=} **")
         await self.database.commit_changes(user)
-        # rint(f"*** Statistic ** autb ** {user.id=} **")
         return user.id
 
 
@@ -145,27 +136,25 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_room_id] " \
             "Пропущен параметр <proom_id> !"
 
+        result: int  = ERROR_CODE
         room: db.CRoom = None
         try:
 
             sel = self.database.query_data(db.CRoom)
             sel = sel.where(db.CRoom.froomid==proom_id)
-            session = await self.database.get_session()
-            # rint(f"*** Statistic ** grbi ** {session=} **")
-            async with session() as session:
+            sess = await self.database.get_session()
+            async with sess() as session:
 
-                result = await session.execute(sel)
-                # rint(f"*** Statistic ** grbi ** {result=} **")
-                room = result.scalar_one_or_none()
-                # rint(f"*** Statistic ** grbi ** {room=} **")
-            if room is not None:
+                value = await session.execute(sel)
+                room = value.scalar_one_or_none()
+                if room is not None:
 
-                return room.id
-            return ERROR_CODE
+                    result = room.id
 
         except SQLAlchemyError:
 
-            return ERROR_CODE
+            result = ERROR_CODE
+        return result
 
 
     def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
@@ -199,55 +188,40 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <puser_name> !"
 
         answer: str = ""
-        session = await self.database.get_session()
+        sess = await self.database.get_session()
         # *** Получим данные юзера
         sel = self.database.query_data(db.CUser)
         sel = sel.where(db.CUser.fusername==puser_name)
         # rint(f"*** Statistic ** gpi ** start **")
-        async with session() as session:
-
-            result = await session.execute(sel )
-            # rint(f"*** Statistic ** gpi ** {result=} **")
-            user = result.scalar_one_or_none()
-            print(f"*** Statistic ** gpi ** {user=} **")
+        async with sess() as session:
+            user_result = await session.execute(sel)
+            user = user_result.scalar_one_or_none()
             if user is not None:
-
                 # *** Получим ID чата в базе
                 sel = self.database.query_data(db.CRoom)
                 sel = sel.where(db.CRoom.froomid==proom_id)
-                result = await session.execute(sel)
-                room = result.scalar_one_or_none()
-                print(f"*** Statistic ** gpi ** {room=} **")
+                room_result = await session.execute(sel)
+                room = room_result.scalar_one_or_none()
                 if room is not None:
 
-                    # rint(f"*** Statistic ** gpi ** {room=} {user=} **")
                     # *** Получим статистику юзера в чате
                     sel = self.database.query_data(db.CStat) # .where(db.CStat.userid==user.id)
-                    # print("========== Before where:", sel)          # посмотри, какой запрос уже есть
-                    # print("========== userid:", user.id)            # проверь значения
-                    # print("========== roomid:", room.id)
-                    # sel = sel.where(db.CStat._fuserid.is_(user.id))
-                    # sel = sel.where(db.CStat._froomid.is_(room.id))
                     sel = sel.where(db.CStat._fuserid == user.id)
                     sel = sel.where(db.CStat._froomid == room.id)
-                    result = await session.execute(sel)
-                    print(f"*** Statistic ** gpi ** {result=} **")
-                    stat = result.scalar_one_or_none()
-                    print(f"*** Statistic ** gpi ** {stat=} **")
+                    stat_result = await session.execute(sel)
+                    stat = stat_result.scalar_one_or_none()
                     if stat is not None:
 
-                        print(f"*** Statistic ** gpi ** {stat=} **")
                         answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
                                  f"{stat.words} слов, {stat.letters} букв, запостил " \
                                  f"{0 if stat.images is None else stat.images} фоток, " \
                                  f"{0 if stat.audios is None else stat.audios} аудио и " \
                                  f"{0 if stat.videos is None else stat.videos} видео," \
                                  f"{0 if stat.files is None else stat.files} файлов"
-
         return answer
 
 
-    def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
+    async def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
         """Получает из базы статистику по самым говорливым юзерам."""
 
         assert proom_id is not None, \
@@ -261,33 +235,39 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <porder_by> !"
 
         query = select(db.CRoom, db.CStat, db.CUser)
-        query = query.filter_by(froomid=proom_id)
-        query = query.join(db.CStat, db.CStat.froomid == db.CRoom.id)
-        query = query.join(db.CUser, db.CUser.id == db.CStat.fuserid)
+        query = query.where(db.CStat._froomid==proom_id)
+        query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
+        query = query.join(db.CUser, db.CUser.id == db.CStat._fuserid)
         if porder_by == 1:
 
-            query = query.order_by(db.CStat.phrases.desc())
+            query = query.order_by(db.CStat._fphrases.desc())
         elif porder_by == 2:
 
-            query = query.order_by(db.CStat.words.desc())
+            query = query.order_by(db.CStat._fwords.desc())
         elif porder_by == 3:
 
-            query = query.order_by(db.CStat.images.desc())
+            query = query.order_by(db.CStat._fimages.desc())
         elif porder_by == 4:
 
-            query = query.order_by(db.CStat.audios.desc())
+            query = query.order_by(db.CStat._faudios.desc())
         elif porder_by == 5:
 
-            query = query.order_by(db.CStat.videos.desc())
+            query = query.order_by(db.CStat._fvideos.desc())
         elif porder_by == 6:
 
-            query = query.order_by(db.CStat.files.desc())
+            query = query.order_by(db.CStat._ffiles.desc())
         else:
 
-            query = query.order_by(db.CStat.phrases.desc())
-        stat = query.limit(pcount).all()
+            query = query.order_by(db.CStat._fphrases.desc())
+            stat = query.limit(pcount)
+
+        sess = await self.database.get_session()
+        async with sess() as session:
+
+           value = await session.execute(query)
+           result = value.scalars().all()
         answer = "Самые общительные:\n"
-        for number, item in enumerate(stat):
+        for number, item in enumerate(result):
 
             answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
                       f" фраз, {item[1].fwords} слов, " \
@@ -306,14 +286,14 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_user_id] " \
             "Пропущен параметр <puser_id> !"
 
-
+        result: int = ERROR_CODE
         query = self.database.query_data(db.CUser)
         query = query.filter_by(fuserid=puser_id)
         user = query.first()
         if user is not None:
 
-            return user.id
-        return None
+            result = user.id
+        return result
 
 
     def get_user_stat(self, proom_id: int, puser_id: int) -> tuple:
