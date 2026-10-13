@@ -157,33 +157,33 @@ class CStat(CAncestor):
     """Класс статистики."""
 
     __tablename__ = 'tbl_stat'
-    __fuserid = Column(Integer, ForeignKey(CUser.id))
-    __froomid = Column(Integer, ForeignKey(CRoom.id))
-    __fletters = Column(Integer, default=0)   # m.text
-    __fwords = Column(Integer, default=0)     # m.text
-    __fphrases = Column(Integer, default=0)   # m.text
-    __femotes = Column(Integer, default=0)    # m.emote
-    __fnotices = Column(Integer, default=0)   # m.notice
-    __fimages = Column(Integer, default=0)    # m.image
-    __faudios = Column(Integer, default=0)    # m.audio
-    __fvideos = Column(Integer, default=0)    # m.video
-    __ffiles = Column(Integer, default=0)    # m.video
-    __fsilence = Column(Boolean, default=False)
+    _fuserid = Column(Integer, ForeignKey(CUser.id))
+    _froomid = Column(Integer, ForeignKey(CRoom.id))
+    _fletters = Column(Integer, default=0)   # m.text
+    _fwords = Column(Integer, default=0)     # m.text
+    _fphrases = Column(Integer, default=0)   # m.text
+    _femotes = Column(Integer, default=0)    # m.emote
+    _fnotices = Column(Integer, default=0)   # m.notice
+    _fimages = Column(Integer, default=0)    # m.image
+    _faudios = Column(Integer, default=0)    # m.audio
+    _fvideos = Column(Integer, default=0)    # m.video
+    _ffiles = Column(Integer, default=0)    # m.video
+    _fsilence = Column(Boolean, default=False)
 
 
     def __init__(self, puser_id: int, proom_id: int):
         """Конструктор"""
 
         super().__init__()
-        self.__fuserid = puser_id
-        self.__froomid = proom_id
-        self.__fsilence = False
+        self._fuserid = puser_id
+        self._froomid = proom_id
+        self._fsilence = False
 
     @property
     def userid(self):
         """User ID"""
 
-        return self.__fuserid
+        return self._fuserid
 
 
     @userid.setter
@@ -192,14 +192,14 @@ class CStat(CAncestor):
 
         assert puser_id > 0, \
             "Идентификатор пользователя не может быть отрицательным"
-        self.__fuserid = puser_id
+        self._fuserid = puser_id
 
 
     @property
     def roomid(self):
         """Room ID"""
 
-        return self.__froomid
+        return self._froomid
 
 
     @roomid.setter
@@ -208,14 +208,14 @@ class CStat(CAncestor):
 
         assert proom_id > 0, \
             "Идентификатор комнаты не может быть отрицательным"
-        self.__froomid = proom_id
+        self._froomid = proom_id
 
 
     @property
     def letters(self):
         """Letters"""
 
-        return self.__fletters
+        return self._fletters
 
 
     @letters.setter
@@ -224,13 +224,13 @@ class CStat(CAncestor):
 
         assert pletters > 0, \
             "Количество букв не может быть отрицательным"
-        self.__fletters = pletters
+        self._fletters = pletters
 
 
     @property
     def words(self):
         """Words"""
-        return self.__fwords
+        return self._fwords
 
 
     @words.setter
@@ -239,14 +239,14 @@ class CStat(CAncestor):
 
         assert pwords > 0, \
             "Количество слов не может быть отрицательным"
-        self.__fwords = pwords
+        self._fwords = pwords
 
 
     @property
     def phrases(self):
         """Phrases"""
 
-        return self.__fphrases
+        return self._fphrases
 
 
     @phrases.setter
@@ -255,14 +255,14 @@ class CStat(CAncestor):
 
         assert pphrases > 0, \
             "Количество предложений не может быть отрицательным"
-        self.__fphrases = pphrases
+        self._fphrases = pphrases
 
 
     @property
     def emotes(self):
         """Emotes"""
 
-        return self.__femotes
+        return self._femotes
 
 
     @emotes.setter
@@ -271,14 +271,14 @@ class CStat(CAncestor):
 
         assert pemotes > 0, \
             "Количество эмоций не может быть отрицательным"
-        self.__femotes = pemotes
+        self._femotes = pemotes
 
 
     @property
     def notices(self):
         """Notices"""
 
-        return self.__fnotices
+        return self._fnotices
 
 
     @notices.setter
@@ -287,14 +287,14 @@ class CStat(CAncestor):
 
         assert pnotices > 0, \
             "Количество примечаний не может быть отрицательным"
-        self.__fnotices = pnotices
+        self._fnotices = pnotices
 
 
     @property
     def images(self):
         """Images"""
 
-        return self.__fimages
+        return self._fimages
 
 
     @images.setter
@@ -303,14 +303,14 @@ class CStat(CAncestor):
 
         assert pimages > 0, \
             "Количество изображений не может быть отрицательным"
-        self.__fimages = pimages
+        self._fimages = pimages
 
 
     @property
     def audios(self):
         """Audios"""
 
-        return self.__faudios
+        return self._faudios
 
 
     @audios.setter
@@ -319,14 +319,14 @@ class CStat(CAncestor):
 
         assert paudios > 0, \
             "Количество звукозаписей не может быть отрицательным"
-        self.__faudios = paudios
+        self._faudios = paudios
 
 
     @property
     def videos(self):
         """Videos"""
 
-        return self.__fvideos
+        return self._fvideos
 
     @videos.setter
     def videos(self, pvideos):
@@ -334,13 +334,13 @@ class CStat(CAncestor):
 
         assert pvideos > 0, \
             "Количество видеозаписей не может быть отрицательным"
-        self.__fvideos = pvideos
+        self._fvideos = pvideos
 
     @property
     def files(self):
-        """Audios"""
+        """Files"""
 
-        return self.__ffiles
+        return self._ffiles
 
 
     @files.setter
@@ -349,20 +349,20 @@ class CStat(CAncestor):
 
         assert pfiles > 0, \
             "Количество файлов не может быть отрицательным"
-        self.__faudios = pfiles
+        self._ffiles = pfiles
 
     @property
     def silence(self):
         """Silence"""
 
-        return self.__fsilence
+        return self._fsilence
 
 
     @silence.setter
     def silence(self, psilence):
         """User ID"""
 
-        self.__fsilence = psilence
+        self._fsilence = psilence
 
 
     def __repr__(self):
@@ -370,7 +370,8 @@ class CStat(CAncestor):
 
         ancestor_repr = super().__repr__()
         return f"""{ancestor_repr},
-                   User id:{self.userid}
+                   User id:{self.userid},
+                   Room id:{self.roomid},
                    Letters:{self.letters},
                    Words: {self.words},
                    Sentences: {self.phrases},

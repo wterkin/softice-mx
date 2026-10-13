@@ -206,10 +206,10 @@ class CStatistic(basis.CBasis):
         # rint(f"*** Statistic ** gpi ** start **")
         async with session() as session:
 
-            result = await session.execute(sel)
+            result = await session.execute(sel )
             # rint(f"*** Statistic ** gpi ** {result=} **")
             user = result.scalar_one_or_none()
-            # rint(f"*** Statistic ** gpi ** {user=} **")
+            print(f"*** Statistic ** gpi ** {user=} **")
             if user is not None:
 
                 # *** Получим ID чата в базе
@@ -217,13 +217,19 @@ class CStatistic(basis.CBasis):
                 sel = sel.where(db.CRoom.froomid==proom_id)
                 result = await session.execute(sel)
                 room = result.scalar_one_or_none()
+                print(f"*** Statistic ** gpi ** {room=} **")
                 if room is not None:
 
-                    print(f"*** Statistic ** gpi ** {room=} {user=} **")
+                    # rint(f"*** Statistic ** gpi ** {room=} {user=} **")
                     # *** Получим статистику юзера в чате
-                    sel = self.database.query_data(db.CStat)
-                    sel = sel.where(db.CStat.userid==user.id)
-                    sel = sel.where(db.CStat.roomid==room.id)
+                    sel = self.database.query_data(db.CStat) # .where(db.CStat.userid==user.id)
+                    # print("========== Before where:", sel)          # посмотри, какой запрос уже есть
+                    # print("========== userid:", user.id)            # проверь значения
+                    # print("========== roomid:", room.id)
+                    # sel = sel.where(db.CStat._fuserid.is_(user.id))
+                    # sel = sel.where(db.CStat._froomid.is_(room.id))
+                    sel = sel.where(db.CStat._fuserid == user.id)
+                    sel = sel.where(db.CStat._froomid == room.id)
                     result = await session.execute(sel)
                     print(f"*** Statistic ** gpi ** {result=} **")
                     stat = result.scalar_one_or_none()

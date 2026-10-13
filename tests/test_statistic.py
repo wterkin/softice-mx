@@ -43,7 +43,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def _clean_tables(self) -> bool:
 
-        models = [db.CRoom, db.CUser, db.CStat]
+        models = [db.CStat, db.CRoom, db.CUser]
 
         for model in models:
 
@@ -67,9 +67,9 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, 1)
 
     """
-    async def add_stat(self):
+    async def add_stat(self, proom_id, puser_id):
 
-        stat: db.CStat = db.CStat(1, 1)
+        stat: db.CStat = db.CStat(proom_id, puser_id)
         stat.letters = 1
         stat.words = 2
         stat.phrases = 3
@@ -83,13 +83,13 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         result = await self.statistic.add_user_stat(stat)
         return result
 
+    """
 
     async def test_add_user_stat(self):
 
         result = await self.add_stat()
         self.assertEqual(result, 1)
 
-    """
     async def test_get_room_by_id(self):
 
         await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
@@ -111,15 +111,15 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
         # def get_personal_information(self, ptg_chat_id: int, puser_title: str):
         # rint(f"*** Test Statistic ** tgpi ** add user **")
-        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
-        if result == 1:
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        if user_id == 1:
 
             # rint(f"*** Test Statistic ** tgpi ** Ok. add room **")
-            result = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
-            if result == 1:
+            room_id: int = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
+            if room_id == 1:
 
                 # rint(f"*** Test Statistic ** tgpi ** Ok. add stat **")
-                result = await self.add_stat()
+                result = await self.add_stat(room_id, user_id)
                 if result == 1:
 
                     # rint(f"*** Test Statistic ** tgpi ** Ok. get pers info **")
