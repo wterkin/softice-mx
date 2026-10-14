@@ -59,14 +59,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
         result = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
         self.assertEqual(result, 1)
-        await self.statistic.database.engine.dispose()  # это реально закрывает все соединения в пуле
-
-
-    async def test_add_user_to_base(self):
-
-        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
-        self.assertEqual(result, 1)
-        await self.statistic.database.engine.dispose()  # это реально закрывает все соединения в пуле
+        await self.statistic.destroy()
 
 
     async def add_stat(self, proom_id, puser_id):
@@ -83,7 +76,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         stat.files = 9
         stat.silence = False
         result = await self.statistic.add_user_stat(stat)
-        await self.statistic.database.engine.dispose()  # это реально закрывает все соединения в пуле
+        await self.statistic.destroy()
         return result
 
 
@@ -97,7 +90,14 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
                 result = await self.add_stat(1, 1)
                 self.assertEqual(result, 1)
-        await self.statistic.database.engine.dispose()  # это реально закрывает все соединения в пуле
+        await self.statistic.destroy()
+
+
+    async def test_add_user_to_base(self):
+
+        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        self.assertEqual(result, 1)
+        await self.statistic.destroy()
 
 
     async def test_get_room_by_id(self):
@@ -106,7 +106,8 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
             result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
             self.assertEqual(result, 1)
-        await self.statistic.database.engine.dispose()  # это реально закрывает все соединения в пуле
+        await self.statistic.destroy()
+
 
     def test_get_commands(self):
 
@@ -120,7 +121,6 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_personal_information(self):
 
-        # def get_personal_information(self, ptg_chat_id: int, puser_title: str):
         user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
         if user_id == 1:
 
@@ -132,29 +132,28 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
                     answer = f"3 фраз, 2 слов, 1 букв"
                     result = await self.statistic.get_personal_information(TEST_ROOM_ID, TEST_USER_NAME)
-                    #self.assertIn(answer, result)
                     self.assertTrue(True)
+        await self.statistic.destroy()
 
-    """
 
     async def test_get_statistic(self):
 
-        #  def get_statistic(self, ptg_chat_id: int, pcount: int, porder_by: int):
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[0]}",
-                      await self.statistic.get_statistic(777, 5, 1))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[1]}",
-                      await self.statistic.get_statistic(777, 5, 2))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[2]}",
-                      await self.statistic.get_statistic(777, 5, 3))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[3]}",
-                      await self.statistic.get_statistic(777, 5, 4))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[4]}",
-                      await self.statistic.get_statistic(777, 5, 5))
-        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[5]}",
-                      await self.statistic.get_statistic(777, 5, 6))
+        # async def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.PHRASES_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.PHRASES_ORDER))
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.WORDS_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.WORDS_ORDER))
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.IMAGES_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.IMAGES_ORDER))
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.AUDIOS_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.AUDIOS_ORDER))
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.VIDEOS_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.VIDEOS_ORDER))
+        self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.FILES_ORDER-1]}",
+                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.FILES_ORDER))
+        await self.statistic.destroy()
 
-
-
+    """
     def test_get_user_id(self):
         # def get_user_id(self, ptg_user_id):
         self.assertIsNotNone(self.statistic.get_user_id(777))

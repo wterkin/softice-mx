@@ -21,6 +21,13 @@ TOP_50_GROUP: int = 2
 PERSONAL_GROUP: int = 3
 HINT_GROUP: int = 4
 
+PHRASES_ORDER: int = 1
+WORDS_ORDER: int = 2
+IMAGES_ORDER: int = 3
+AUDIOS_ORDER: int = 4
+VIDEOS_ORDER: int = 5
+FILES_ORDER: int = 6
+
 
 COMMANDS: tuple = (("первые10", "пв10", "top10"),
                    ("первые25", "пв25", "top25"),
@@ -234,26 +241,27 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <porder_by> !"
 
+        room_id = await self.get_room_by_id(proom_id)
         query = select(db.CRoom, db.CStat, db.CUser)
-        query = query.where(db.CStat._froomid==proom_id)
+        query = query.where(db.CStat._froomid==room_id)
         query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
         query = query.join(db.CUser, db.CUser.id == db.CStat._fuserid)
-        if porder_by == 1:
+        if porder_by == PHRASES_ORDER:
 
             query = query.order_by(db.CStat._fphrases.desc())
-        elif porder_by == 2:
+        elif porder_by == WORDS_ORDER:
 
             query = query.order_by(db.CStat._fwords.desc())
-        elif porder_by == 3:
+        elif porder_by == IMAGES_ORDER:
 
             query = query.order_by(db.CStat._fimages.desc())
-        elif porder_by == 4:
+        elif porder_by == AUDIOS_ORDER:
 
             query = query.order_by(db.CStat._faudios.desc())
-        elif porder_by == 5:
+        elif porder_by == VIDEOS_ORDER:
 
             query = query.order_by(db.CStat._fvideos.desc())
-        elif porder_by == 6:
+        elif porder_by == FILES_ORDER:
 
             query = query.order_by(db.CStat._ffiles.desc())
         else:
@@ -428,3 +436,8 @@ class CStatistic(basis.CBasis):
 
                         answer = self.get_personal_information(proom_id, puser_name)
         return answer
+
+    async def destroy(self):
+        """Закрывает соединение с базой."""
+
+        await self.database.destroy()

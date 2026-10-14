@@ -448,7 +448,7 @@ class CDataBase:
             async with self.engine.begin() as conn:
 
                 # Создать все таблицы
-                await conn.run_sync(Base.metadata.create_all)
+                await conn.run_sync(Base.metadata.create_all, checkfirst=True)
             result = True
         except exc.SQLAlchemyError as ex:
 
@@ -495,3 +495,10 @@ class CDataBase:
 
             print(f"Database error! [database.wipe_table]: {ex}")
             return False
+
+    async def destroy(self):
+        """Закрывает соединение с базой."""
+
+        # await self.AsyncSessionLocal.close()
+        await self.engine.dispose()
+        self.connected = False
