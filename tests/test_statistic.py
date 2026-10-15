@@ -153,13 +153,19 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                       await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.FILES_ORDER))
         await self.statistic.destroy()
 
-    """
-    def test_get_user_id(self):
+
+    async def test_get_user_id(self):
         # def get_user_id(self, ptg_user_id):
-        self.assertIsNotNone(self.statistic.get_user_id(777))
-        self.assertIsNone(self.statistic.get_user_id(111))
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        if user_id == 1:
+
+            result = await self.statistic.get_user_id(TEST_USER_ID)
+            self.assertIsNotNone(result)
+            result = await self.statistic.get_user_id("111")
+            self.assertEqual(result, statistic.ERROR_CODE)
 
 
+    """
     def test_get_user_stat(self):
 
         #    def get_user_stat(self, pchat_id: int, puser_id: int):

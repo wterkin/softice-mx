@@ -3,7 +3,7 @@
 
 """Модуль статистики для бота."""
 
-import asyncio
+# import asyncio
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -58,8 +58,6 @@ DATABASE_NAME: str = "softice"
 ERROR_CODE: int = -1
 
 
-
-
 class CStatistic(basis.CBasis):
     """Класс статистика."""
 
@@ -80,19 +78,17 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    async def add_room_to_base(self, proom_id: str, proom_name: str) -> int:
+    async def add_room_to_base(self, pmx_room_id: str, proom_name: str) -> int:
         """Добавляет новую комнату в БД и возвращает его ID."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.add_chat_to_base] " \
-            "Пропущен параметр <proom_id> !"
+            "Пропущен параметр <pmx_room_id> !"
         assert proom_name is not None, \
             "Assert: [statistic.add_chat_to_base] " \
             "Пропущен параметр <proom_name> !"
 
-        result: int = ERROR_CODE
-
-        room = db.CRoom(proom_id, proom_name)
+        room = db.CRoom(pmx_room_id, proom_name)
         await self.database.commit_changes(room)
         return room.id
 
@@ -108,17 +104,17 @@ class CStatistic(basis.CBasis):
         return pstat.id
 
 
-    async def add_user_to_base(self, puser_id: str, puser_name: str) -> int:
+    async def add_user_to_base(self, pmx_user_id: str, puser_name: str) -> int:
         """"Добавляет нового пользователя в БД и возвращает его ID."""
 
-        assert puser_id is not None, \
+        assert pmx_user_id is not None, \
             "Assert: [statistic.add_user_to_base] " \
-            "Пропущен параметр <puser_id> !"
+            "Пропущен параметр <pmx_user_id> !"
         assert puser_name is not None, \
             "Assert: [statistic.add_user_to_base] " \
             "Пропущен параметр <puser_name> !"
 
-        user = db.CUser(puser_id, puser_name)
+        user = db.CUser(pmx_user_id, puser_name)
         await self.database.commit_changes(user)
         return user.id
 
@@ -136,19 +132,19 @@ class CStatistic(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    async def get_room_by_id(self, proom_id: str) -> int:
+    async def get_room_by_id(self, pmx_room_id: str) -> int:
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.get_room_id] " \
-            "Пропущен параметр <proom_id> !"
+            "Пропущен параметр <pmx_room_id> !"
 
         result: int  = ERROR_CODE
         room: db.CRoom = None
         try:
 
             sel = self.database.query_data(db.CRoom)
-            sel = sel.where(db.CRoom.froomid==proom_id)
+            sel = sel.where(db.CRoom.froomid==pmx_room_id)
             sess = await self.database.get_session()
             async with sess() as session:
 
@@ -228,12 +224,12 @@ class CStatistic(basis.CBasis):
         return answer
 
 
-    async def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
+    async def get_statistic(self, pmx_room_id: str, pcount: int, porder_by: int) -> str:
         """Получает из базы статистику по самым говорливым юзерам."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.get_statistic] " \
-            "Пропущен параметр <proom_id> !"
+            "Пропущен параметр <pmx_room_id> !"
         assert pcount is not None, \
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <pcount> !"
@@ -241,7 +237,7 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <porder_by> !"
 
-        room_id = await self.get_room_by_id(proom_id)
+        room_id = await self.get_room_by_id(pmx_room_id)
         query = select(db.CRoom, db.CStat, db.CUser)
         query = query.where(db.CStat._froomid==room_id)
         query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
@@ -267,13 +263,13 @@ class CStatistic(basis.CBasis):
         else:
 
             query = query.order_by(db.CStat._fphrases.desc())
-            stat = query.limit(pcount)
-
+            # stat = query.limit(pcount)
+        query = query.limit(pcount)
         sess = await self.database.get_session()
         async with sess() as session:
 
-           value = await session.execute(query)
-           result = value.scalars().all()
+            value = await session.execute(query)
+            result = value.scalars().all()
         answer = "Самые общительные:\n"
         for number, item in enumerate(result):
 
@@ -287,20 +283,24 @@ class CStatistic(basis.CBasis):
         return answer
 
 
-    def get_user_id(self, puser_id) -> int:
-        """Если пользователь уже есть в базе, возвращает его ID, если нет - None."""
+    async def get_user_id(self, pmx_user_name) -> int:
+        """Если пользователь уже есть в базе, возвращает его ID, если нет - ERROR_CODE."""
 
-        assert puser_id is not None, \
+        assert pmx_user_name is not None, \
             "Assert: [statistic.get_user_id] " \
-            "Пропущен параметр <puser_id> !"
+            "Пропущен параметр <pmx_user_name> !"
 
         result: int = ERROR_CODE
-        query = self.database.query_data(db.CUser)
-        query = query.filter_by(fuserid=puser_id)
-        user = query.first()
-        if user is not None:
+        sel = self.database.query_data(db.CUser)
+        sel = sel.where(db.CUser.fmatrixuserid==pmx_user_name)
+        sess = await self.database.get_session()
+        async with sess() as session:
 
-            result = user.id
+            res = await session.execute(sel)
+            user = res.scalar_one_or_none()
+            if user is not None:
+
+                result = user.id
         return result
 
 
