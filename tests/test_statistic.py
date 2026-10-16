@@ -104,7 +104,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
         if await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME) == 1:
 
-            result = await self.statistic.get_room_by_id(TEST_ROOM_ID)
+            result = await self.statistic.get_room_id(TEST_ROOM_ID)
             self.assertEqual(result, 1)
         await self.statistic.destroy()
 
@@ -163,22 +163,33 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(result)
             result = await self.statistic.get_user_id("111")
             self.assertEqual(result, statistic.ERROR_CODE)
+        await self.statistic.destroy()
+
+
+    async def test_get_user_stat(self):
+
+        #    def get_user_stat(self, pchat_id: int, puser_id: int):
+        user_id = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        if user_id > 0:
+
+            room_id = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
+            if room_id > 0:
+
+                await self.add_stat(room_id, user_id)
+                stat: db.CStat = await self.statistic.get_user_stat(1, 1)
+                self.assertEqual(stat.fletters,1)
+                self.assertEqual(stat.fwords,2)
+                self.assertEqual(stat.fphrases,3)
+                self.assertEqual(stat.femotes,4)
+                self.assertEqual(stat.fpictures,4)
+                self.assertEqual(stat.fnotices,5)
+                self.assertEqual(stat.fimages,6)
+                self.assertEqual(stat.faudios,7)
+                self.assertEqual(stat.fvideos,8)
+                await self.statistic.destroy()
 
 
     """
-    def test_get_user_stat(self):
-
-        #    def get_user_stat(self, pchat_id: int, puser_id: int):
-        stat: db.CStat = self.statistic.get_user_stat(1, 1)
-        self.assertEqual(stat.fletters,2)
-        self.assertEqual(stat.fwords,3)
-        self.assertEqual(stat.fphrases,4)
-        self.assertEqual(stat.fpictures,5)
-        self.assertEqual(stat.fstickers,6)
-        self.assertEqual(stat.faudios,7)
-        self.assertEqual(stat.fvideos,8)
-
-
     def test_is_enabled(self):
 
         self.assertTrue(self.statistic.is_enabled(test_softice.TESTPLACE_CHAT_NAME))

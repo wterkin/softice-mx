@@ -132,7 +132,7 @@ class CStatistic(basis.CBasis):
         return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
 
 
-    async def get_room_by_id(self, pmx_room_id: str) -> int:
+    async def get_room_id(self, pmx_room_id: str) -> int:
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
         assert pmx_room_id is not None, \
@@ -237,7 +237,7 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <porder_by> !"
 
-        room_id = await self.get_room_by_id(pmx_room_id)
+        room_id = await self.get_room_id(pmx_room_id)
         query = select(db.CRoom, db.CStat, db.CUser)
         query = query.where(db.CStat._froomid==room_id)
         query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
@@ -304,19 +304,29 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    def get_user_stat(self, proom_id: int, puser_id: int) -> tuple:
+    async def get_user_stat(self, pmx_room_id: str, puser_name: str) -> tuple:
         """Получает из базы статистику пользователя и возвращает её."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.get_user_stat] " \
-            "Пропущен параметр <proom_id> !"
-        assert puser_id is not None, \
+            "Пропущен параметр <pmx_room_id> !"
+        assert puser_name is not None, \
             "Assert: [statistic.get_user_stat] " \
-            "Пропущен параметр <puser_id> !"
+            "Пропущен параметр <puser_name> !"
 
-        query = self.database.query_data(db.CStat)
-        query = query.filter_by(fuserid=puser_id, froomid=proom_id)
-        return query.first()
+        result: tuple = None
+        user_id = await self.get_user_id(puser_name)
+        room_id = await self.get_room_id(pmx_room_id)
+
+        sel = self.database.query_data(db.CStat)
+        sel = sel.where(db.CStat._fuserid==user_id)
+        sel = sel.where(db.CStat._froomid==room_id)
+        sess = await self.database.get_session()
+        async with sess() as session:
+
+            res = await session.execute(sel)
+            result = res.scalar_one_or_none()
+        return result
 
 
     def save_all_type_of_messages(self, proom_id: int, proom_name: str,
@@ -344,7 +354,7 @@ class CStatistic(basis.CBasis):
             if puser_name not in self.config.alien_bots:
 
                 # Проверить, нет ли уже этого чата в таблице чатов
-                room_id = self.get_room_by_id(proom_id)
+                room_id = self.get_room_id(proom_id)
                 if room_id is None:
 
                     # *** Нету еще, новый чат - добавить, и получить id
