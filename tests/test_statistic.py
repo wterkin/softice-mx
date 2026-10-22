@@ -9,7 +9,7 @@ import unittest
 import datetime as dtime
 
 import asyncio
-
+import nio
 from softice import config
 from softice import database as db
 from softice import statistic
@@ -191,24 +191,14 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
                     self.assertNotEqual(stat, None)
 
-    """
-    def test_is_enabled(self):
-
-        self.assertTrue(self.statistic.is_enabled(test_softice.TESTPLACE_CHAT_NAME))
-        self.assertFalse(self.statistic.is_enabled("fakechat"))
-        self.assertFalse(self.statistic.is_enabled("emptychat"))
-
 
     def test_save_all_type_of_messages(self):
 
-        #    def save_all_type_of_messages(self, pevent: dict):
-        event: dict = {}
-        event[cn.MTEXT] = "Hello, world!"
-        event[cn.MCHAT_ID] = 777
-        event[cn.MCHAT_TITLE] = "TestPlace"
-        event[cn.MUSER_ID] = 777
-        event[cn.MUSER_NAME] = "Master"
-        event[cn.MCONTENT_TYPE] = "text"
+        # def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
+                                            # pmx_user_name: str,
+                                            # pevent: RoomMessageText) -> bool:
+
+
         self.assertTrue(self.statistic.save_all_type_of_messages(event))
         event[cn.MCAPTION] = "Some picture"
         self.assertTrue(self.statistic.save_all_type_of_messages(event))
@@ -221,6 +211,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         event[cn.MCHAT_TITLE] = "emptychat"
         self.assertFalse(self.statistic.save_all_type_of_messages(event))
 
+    """
 
     def test_statistic(self):
 

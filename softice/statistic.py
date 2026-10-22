@@ -353,14 +353,12 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <pmx_user_name> !"
 
         result: bool = False
-        if self.is_enabled(pmx_room_name, UNIT_ID):
+        # *** Это не бот написал? Чужой бот, не наш?
+        if pmx_user_name in self.config.alien_bots:
 
-            # *** Это не бот написал? Чужой бот, не наш?
-            if pmx_user_name not in self.config.alien_bots:
-
-                # Проверить, нет ли уже этого чата в таблице чатов
-                room_id = self.get_room_id(pmx_room_id)
-                if room_id is None:
+            # Проверить, нет ли уже этого чата в таблице чатов
+            room_id = self.get_room_id(pmx_room_id)
+            if room_id is None:
 
                     # *** Нету еще, новый чат - добавить, и получить id
                     room_id = self.add_room_to_base(pmx_room_id, pmx_room_name)
@@ -370,33 +368,36 @@ class CStatistic(basis.CBasis):
 
                     # *** Нету, новый пользователь
                     user_id = self.add_user_to_base(pmx_user_name)
+
                 # *** Имеется ли в БД статистика по этому пользователю?
                 user_stat = self.get_user_stat(room_id, user_id)
-                if user_stat is not None:
+                if user_stat None:
 
-                    # *** Изменяем статистику юзера в зависимости от типа сообщения
-                    if isinstance(pevent, RoomMessageText):
+                    user_stat = db.CStat
 
-                        text: str = pevent.body.strip()
-                        if text[0] != self.config.command_prefix:
+                # *** Изменяем статистику юзера в зависимости от типа сообщения
+                if isinstance(pevent, RoomMessageText):
 
-                            user_stat.phrases += 1
-                            user_stat.letters += len(text)
-                            user_stat.words += len(text.split(" "))
-                    elif isinstance(pevent, RoomMessageVideo):
+                    text: str = pevent.body.strip()
+                    if text[0] != self.config.command_prefix:
 
-                        user_stat.videos += 1
-                    elif isinstance(pevent, RoomMessageAudio):
+                        user_stat.phrases += 1
+                        user_stat.letters += len(text)
+                        user_stat.words += len(text.split(" "))
+                elif isinstance(pevent, RoomMessageVideo):
 
-                        user_stat.audios += 1
-                    elif isinstance(pevent, RoomMessageImage):
+                    user_stat.videos += 1
+                elif isinstance(pevent, RoomMessageAudio):
 
-                        user_stat.audios += 1
-                    elif isinstance(pevent, RoomMessageFile):
+                    user_stat.audios += 1
+                elif isinstance(pevent, RoomMessageImage):
 
-                        user_stat.files += 1
-                    self.database.commit_changes(user_stat)
-                    result = True
+                    user_stat.audios += 1
+                elif isinstance(pevent, RoomMessageFile):
+
+                    user_stat.files += 1
+                self.database.commit_changes(user_stat)
+                result = True
         return result
 
 
@@ -451,6 +452,7 @@ class CStatistic(basis.CBasis):
 
                         answer = self.get_personal_information(pmx_room_id, pmx_user_name)
         return answer
+
 
     async def destroy(self):
         """Закрывает соединение с базой."""
