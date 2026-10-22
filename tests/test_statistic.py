@@ -191,7 +191,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
                     self.assertNotEqual(stat, None)
 
-
+    # *** Перенести её выше и заменить add_stat на этот тест
     async def test_save_all_type_of_messages(self):
 
         # def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
@@ -209,15 +209,17 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
+        event = nio.RoomMessageVideo(source, "mxc://sibnsk.net/bhJWdVHztMKSsfxlJasFFvca",
+                                     None)
+        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+                                                                 TEST_ROOM_NAME,
+                                                                 TEST_USER_NAME,
+                                                                 event))
+
         """
         self.assertTrue(self.statistic.save_all_type_of_messages(event))
-        event[cn.MUSER_NAME] = "User"
-        self.assertTrue(self.statistic.save_all_type_of_messages(event))
-        event[cn.MUSER_NAME] = "Mafioso"
         self.assertFalse(self.statistic.save_all_type_of_messages(event))
-        event[cn.MCHAT_TITLE] = "fakechat"
         self.assertFalse(self.statistic.save_all_type_of_messages(event))
-        event[cn.MCHAT_TITLE] = "emptychat"
         self.assertFalse(self.statistic.save_all_type_of_messages(event))
 
 
