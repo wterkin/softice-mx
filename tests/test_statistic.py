@@ -16,7 +16,7 @@ from softice import statistic
 
 
 TEST_DATABASE_NAME: str = "softice-test"
-TEST_USER_NAME: str = "@namo:sibnsk.net"
+TEST_USER_NAME: str = "@xxx:sibnsk.net"
 TEST_ROOM_ID: str = "777"
 TEST_ROOM_NAME: str = "Ботовка"
 
@@ -192,15 +192,24 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                     self.assertNotEqual(stat, None)
 
 
-    def test_save_all_type_of_messages(self):
+    async def test_save_all_type_of_messages(self):
 
         # def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
                                             # pmx_user_name: str,
                                             # pevent: RoomMessageText) -> bool:
 
-
-        self.assertTrue(self.statistic.save_all_type_of_messages(event))
-        event[cn.MCAPTION] = "Some picture"
+        source = {"event_id": "111",
+                  "sender": TEST_USER_NAME,
+                  "origin_server_ts": ""
+                  }
+        event = nio.RoomMessageText(source,
+          "Антошка, Антошка, сыграй нам на гармошке", None, None)
+        # event.body =
+        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+                                                                 TEST_ROOM_NAME,
+                                                                 TEST_USER_NAME,
+                                                                 event))
+        """
         self.assertTrue(self.statistic.save_all_type_of_messages(event))
         event[cn.MUSER_NAME] = "User"
         self.assertTrue(self.statistic.save_all_type_of_messages(event))
@@ -211,7 +220,6 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         event[cn.MCHAT_TITLE] = "emptychat"
         self.assertFalse(self.statistic.save_all_type_of_messages(event))
 
-    """
 
     def test_statistic(self):
 

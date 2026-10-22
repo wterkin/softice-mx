@@ -112,8 +112,8 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <pmx_user_name> !"
 
         user = db.CUser(pmx_user_name)
-        print(f"*** Statistic ** autb ** {pmx_user_name} **")
-        print(f"*** Statistic ** autb ** {user} **")
+        # rint(f"*** Statistic ** autb ** {pmx_user_name} **")
+        # rint(f"*** Statistic ** autb ** {user} **")
         await self.database.commit_changes(user)
         return user.id
 
@@ -316,15 +316,15 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <pmx_user_name> !"
 
         result: tuple = None
-        print(f"*** Statistic ** gus ** {pmx_user_name} **")
+        # rint(f"*** Statistic ** gus ** {pmx_user_name} **")
         user_id = await self.get_user_id(pmx_user_name)
         if user_id != ERROR_CODE:
 
             room_id = await self.get_room_id(pmx_room_id)
             if room_id != ERROR_CODE:
 
-                print(f"*** Statistic ** gus ** {user_id} **")
-                print(f"*** Statistic ** gus ** {room_id} **")
+                # rint(f"*** Statistic ** gus ** {user_id} **")
+                # print(f"*** Statistic ** gus ** {room_id} **")
 
                 sel = self.database.query_data(db.CStat)
                 sel = sel.where(db.CStat._fuserid==user_id)
@@ -337,7 +337,7 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
+    async def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
                                         pmx_user_name: str,
                                         pevent: RoomMessageText) -> bool:
         """Учитывает стикеры, видео, аудиосообщения."""
@@ -357,21 +357,21 @@ class CStatistic(basis.CBasis):
         if pmx_user_name in self.config.alien_bots:
 
             # Проверить, нет ли уже этого чата в таблице чатов
-            room_id = self.get_room_id(pmx_room_id)
+            room_id = await self.get_room_id(pmx_room_id)
             if room_id is None:
 
-                    # *** Нету еще, новый чат - добавить, и получить id
-                    room_id = self.add_room_to_base(pmx_room_id, pmx_room_name)
+                # *** Нету еще, новый чат - добавить, и получить id
+                room_id = await self.add_room_to_base(pmx_room_id, pmx_room_name)
                 # *** Проверить, нет ли юзера в таблице тг юзеров
-                user_id = self.get_user_id(pmx_user_name)
+                user_id = await self.get_user_id(pmx_user_name)
                 if user_id is None:
 
                     # *** Нету, новый пользователь
-                    user_id = self.add_user_to_base(pmx_user_name)
+                    user_id = await self.add_user_to_base(pmx_user_name)
 
                 # *** Имеется ли в БД статистика по этому пользователю?
-                user_stat = self.get_user_stat(room_id, user_id)
-                if user_stat None:
+                user_stat = await self.get_user_stat(room_id, user_id)
+                if user_stat is None:
 
                     user_stat = db.CStat
 
@@ -396,7 +396,7 @@ class CStatistic(basis.CBasis):
                 elif isinstance(pevent, RoomMessageFile):
 
                     user_stat.files += 1
-                self.database.commit_changes(user_stat)
+                await self.database.commit_changes(user_stat)
                 result = True
         return result
 
