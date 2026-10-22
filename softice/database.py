@@ -121,33 +121,31 @@ class CUser(CAncestor):
     """Класс модели таблицы справочника ID пользователей телеграмма."""
 
     __tablename__ = 'tbl_users'
-    fmatrixuserid = Column(String,
-                           nullable=False,
-                           unique=True)
+    #fmatrixuserid = Column(String,
+    #                       nullable=False,
+    #                       unique=True)
     fusername = Column(String,
                        nullable=True,
                        default="",
                        index=True
                        )
-    def __init__(self, pmatrix_user_id: str, puser_name: str = ""):
+    def __init__(self, puser_name: str = ""):
         """Конструктор"""
 
         super().__init__()
-        self.fmatrixuserid = pmatrix_user_id
+        #self.fmatrixuserid = pmatrix_user_id
         self.fusername = puser_name
 
     def __repr__(self):
 
         ancestor_repr = super().__repr__()
         return f"""{ancestor_repr},
-                    Matrix user ID:{self.fmatrixuserid},
                     User name:{self.fusername}"""
 
     def __str__(self):
         """Str"""
 
-        return (f"* User: {self.id} * {self.fstatus} * {self.fmatrixuserid}"
-                f" * {self.fusername} *")
+        return (f"* User: {self.id} * {self.fstatus} * {self.fusername} *")
 
     def null(self):
         """Чтоб линтер был щаслив."""

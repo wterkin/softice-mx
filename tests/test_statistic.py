@@ -16,8 +16,7 @@ from softice import statistic
 
 
 TEST_DATABASE_NAME: str = "softice-test"
-TEST_USER_ID: str = "777"
-TEST_USER_NAME: str = "Master"
+TEST_USER_NAME: str = "@namo:sibnsk.net"
 TEST_ROOM_ID: str = "777"
 TEST_ROOM_NAME: str = "Ботовка"
 
@@ -82,7 +81,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_add_user_stat(self):
 
-        user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id == 1:
 
             room_id: int = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
@@ -95,7 +94,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_add_user_to_base(self):
 
-        result = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        result = await self.statistic.add_user_to_base(TEST_USER_NAME)
         self.assertEqual(result, 1)
         await self.statistic.destroy()
 
@@ -121,7 +120,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_personal_information(self):
 
-        user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id == 1:
 
             room_id: int = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
@@ -156,10 +155,10 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_user_id(self):
         # def get_user_id(self, ptg_user_id):
-        user_id: int = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
-        if user_id == 1:
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
+        if user_id > 0:
 
-            result = await self.statistic.get_user_id(TEST_USER_ID)
+            result = await self.statistic.get_user_id(TEST_USER_NAME)
             self.assertIsNotNone(result)
             result = await self.statistic.get_user_id("111")
             self.assertEqual(result, statistic.ERROR_CODE)
@@ -169,25 +168,28 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     async def test_get_user_stat(self):
 
         #    def get_user_stat(self, pchat_id: int, puser_id: int):
-        user_id = await self.statistic.add_user_to_base(TEST_USER_ID, TEST_USER_NAME)
+        user_id = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id > 0:
 
             room_id = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
             if room_id > 0:
 
                 await self.add_stat(room_id, user_id)
-                stat: db.CStat = await self.statistic.get_user_stat(1, 1)
-                self.assertEqual(stat.fletters,1)
-                self.assertEqual(stat.fwords,2)
-                self.assertEqual(stat.fphrases,3)
-                self.assertEqual(stat.femotes,4)
-                self.assertEqual(stat.fpictures,4)
-                self.assertEqual(stat.fnotices,5)
-                self.assertEqual(stat.fimages,6)
-                self.assertEqual(stat.faudios,7)
-                self.assertEqual(stat.fvideos,8)
-                await self.statistic.destroy()
+                stat: db.CStat = await self.statistic.get_user_stat(TEST_ROOM_ID, TEST_USER_NAME)
+                if stat:
 
+                    self.assertEqual(stat.letters,1)
+                    self.assertEqual(stat.words,2)
+                    self.assertEqual(stat.phrases,3)
+                    self.assertEqual(stat.emotes,4)
+                    self.assertEqual(stat.notices,5)
+                    self.assertEqual(stat.images,6)
+                    self.assertEqual(stat.audios,7)
+                    self.assertEqual(stat.videos,8)
+                    await self.statistic.destroy()
+                else:
+
+                    self.assertNotEqual(stat, None)
 
     """
     def test_is_enabled(self):

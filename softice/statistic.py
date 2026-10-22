@@ -104,17 +104,16 @@ class CStatistic(basis.CBasis):
         return pstat.id
 
 
-    async def add_user_to_base(self, pmx_user_id: str, puser_name: str) -> int:
+    async def add_user_to_base(self, pmx_user_name: str) -> int:
         """"Добавляет нового пользователя в БД и возвращает его ID."""
 
-        assert pmx_user_id is not None, \
+        assert pmx_user_name is not None, \
             "Assert: [statistic.add_user_to_base] " \
-            "Пропущен параметр <pmx_user_id> !"
-        assert puser_name is not None, \
-            "Assert: [statistic.add_user_to_base] " \
-            "Пропущен параметр <puser_name> !"
+            "Пропущен параметр <pmx_user_name> !"
 
-        user = db.CUser(pmx_user_id, puser_name)
+        user = db.CUser(pmx_user_name)
+        print(f"*** Statistic ** autb ** {pmx_user_name} **")
+        print(f"*** Statistic ** autb ** {user} **")
         await self.database.commit_changes(user)
         return user.id
 
@@ -180,26 +179,28 @@ class CStatistic(basis.CBasis):
         return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    async def get_personal_information(self, proom_id: str, puser_name: str) -> str:
+    async def get_personal_information(self, proom_id: str, pmx_user_name: str) -> str:
         """Возвращает информацию о пользователе"""
 
         assert proom_id is not None, \
             "Assert: [statistic.get_personal_information] " \
             "Пропущен параметр <proom_id> !"
-        assert puser_name is not None, \
+        assert pmx_user_name is not None, \
             "Assert: [statistic.get_personal_information] " \
-            "Пропущен параметр <puser_name> !"
+            "Пропущен параметр <pmx_user_name> !"
 
         answer: str = ""
         sess = await self.database.get_session()
         # *** Получим данные юзера
         sel = self.database.query_data(db.CUser)
-        sel = sel.where(db.CUser.fusername==puser_name)
+        sel = sel.where(db.CUser.fusername==pmx_user_name)
         # rint(f"*** Statistic ** gpi ** start **")
         async with sess() as session:
+
             user_result = await session.execute(sel)
             user = user_result.scalar_one_or_none()
             if user is not None:
+
                 # *** Получим ID чата в базе
                 sel = self.database.query_data(db.CRoom)
                 sel = sel.where(db.CRoom.froomid==proom_id)
@@ -215,7 +216,7 @@ class CStatistic(basis.CBasis):
                     stat = stat_result.scalar_one_or_none()
                     if stat is not None:
 
-                        answer = f"{puser_name} наговорил {stat.phrases} фраз, " \
+                        answer = f"{pmx_user_name} наговорил {stat.phrases} фраз, " \
                                  f"{stat.words} слов, {stat.letters} букв, запостил " \
                                  f"{0 if stat.images is None else stat.images} фоток, " \
                                  f"{0 if stat.audios is None else stat.audios} аудио и " \
@@ -292,7 +293,7 @@ class CStatistic(basis.CBasis):
 
         result: int = ERROR_CODE
         sel = self.database.query_data(db.CUser)
-        sel = sel.where(db.CUser.fmatrixuserid==pmx_user_name)
+        sel = sel.where(db.CUser.fusername==pmx_user_name)
         sess = await self.database.get_session()
         async with sess() as session:
 
@@ -304,67 +305,71 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    async def get_user_stat(self, pmx_room_id: str, puser_name: str) -> tuple:
+    async def get_user_stat(self, pmx_room_id: str, pmx_user_name: str) -> tuple:
         """Получает из базы статистику пользователя и возвращает её."""
 
         assert pmx_room_id is not None, \
             "Assert: [statistic.get_user_stat] " \
             "Пропущен параметр <pmx_room_id> !"
-        assert puser_name is not None, \
+        assert pmx_user_name is not None, \
             "Assert: [statistic.get_user_stat] " \
-            "Пропущен параметр <puser_name> !"
+            "Пропущен параметр <pmx_user_name> !"
 
         result: tuple = None
-        user_id = await self.get_user_id(puser_name)
-        room_id = await self.get_room_id(pmx_room_id)
+        print(f"*** Statistic ** gus ** {pmx_user_name} **")
+        user_id = await self.get_user_id(pmx_user_name)
+        if user_id != ERROR_CODE:
 
-        sel = self.database.query_data(db.CStat)
-        sel = sel.where(db.CStat._fuserid==user_id)
-        sel = sel.where(db.CStat._froomid==room_id)
-        sess = await self.database.get_session()
-        async with sess() as session:
+            room_id = await self.get_room_id(pmx_room_id)
+            if room_id != ERROR_CODE:
 
-            res = await session.execute(sel)
-            result = res.scalar_one_or_none()
+                print(f"*** Statistic ** gus ** {user_id} **")
+                print(f"*** Statistic ** gus ** {room_id} **")
+
+                sel = self.database.query_data(db.CStat)
+                sel = sel.where(db.CStat._fuserid==user_id)
+                sel = sel.where(db.CStat._froomid==room_id)
+                sess = await self.database.get_session()
+                async with sess() as session:
+
+                    res = await session.execute(sel)
+                    result = res.scalar_one_or_none()
         return result
 
 
-    def save_all_type_of_messages(self, proom_id: int, proom_name: str,
-                                        puser_id: int, puser_name: str,
+    def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
+                                        pmx_user_name: str,
                                         pevent: RoomMessageText) -> bool:
         """Учитывает стикеры, видео, аудиосообщения."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.save_all_type_of_messages] " \
-            "Пропущен параметр <proom_id> !"
-        assert proom_name is not None, \
+            "Пропущен параметр <pmx_room_id> !"
+        assert pmx_room_name is not None, \
             "Assert: [statistic.save_all_type_of_messages] " \
-            "Пропущен параметр <proom_name> !"
-        assert puser_id is not None, \
+            "Пропущен параметр <pmx_room_name> !"
+        assert pmx_user_name is not None, \
             "Assert: [statistic.save_all_type_of_messages] " \
-            "Пропущен параметр <puser_id> !"
-        assert puser_name is not None, \
-            "Assert: [statistic.save_all_type_of_messages] " \
-            "Пропущен параметр <puser_name> !"
+            "Пропущен параметр <pmx_user_name> !"
 
         result: bool = False
-        if self.is_enabled(proom_name, UNIT_ID):
+        if self.is_enabled(pmx_room_name, UNIT_ID):
 
             # *** Это не бот написал? Чужой бот, не наш?
-            if puser_name not in self.config.alien_bots:
+            if pmx_user_name not in self.config.alien_bots:
 
                 # Проверить, нет ли уже этого чата в таблице чатов
-                room_id = self.get_room_id(proom_id)
+                room_id = self.get_room_id(pmx_room_id)
                 if room_id is None:
 
                     # *** Нету еще, новый чат - добавить, и получить id
-                    room_id = self.add_room_to_base(proom_id, proom_name)
+                    room_id = self.add_room_to_base(pmx_room_id, pmx_room_name)
                 # *** Проверить, нет ли юзера в таблице тг юзеров
-                user_id = self.get_user_id(puser_id)
+                user_id = self.get_user_id(pmx_user_name)
                 if user_id is None:
 
                     # *** Нету, новый пользователь
-                    user_id = self.add_user_to_base(puser_id, puser_name)
+                    user_id = self.add_user_to_base(pmx_user_name)
                 # *** Имеется ли в БД статистика по этому пользователю?
                 user_stat = self.get_user_stat(room_id, user_id)
                 if user_stat is not None:
@@ -395,18 +400,18 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    def statistic(self, proom_id: int, proom_name: str, puser_name, pmessage_text: str) -> str:
+    def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
         """Обработчик команд."""
 
-        assert proom_id is not None, \
+        assert pmx_room_id is not None, \
             "Assert: [statistic.statistic] " \
-            "Пропущен параметр <proom_id> !"
-        assert proom_name is not None, \
+            "Пропущен параметр <pmx_room_id> !"
+        assert pmx_room_name is not None, \
             "Assert: [statistic.statistic] " \
-            "Пропущен параметр <proom_name> !"
-        assert puser_name is not None, \
+            "Пропущен параметр <pmx_room_name> !"
+        assert pmx_user_name is not None, \
             "Assert: [statistic.statistic] " \
-            "Пропущен параметр <puser_name> !"
+            "Пропущен параметр <pmx_user_name> !"
         assert pmessage_text is not None, \
             "Assert: [statistic.statistic] " \
             "Пропущен параметр <pmessage_text> !"
@@ -415,11 +420,11 @@ class CStatistic(basis.CBasis):
         answer: str = ""
         order_by: int = 0
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_process_command(proom_name, pmessage_text, UNIT_ID, COMMANDS):
+        if self.can_process_command(pmx_room_name, pmessage_text, UNIT_ID, COMMANDS):
 
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
-                answer = self.get_commands(proom_name)
+                answer = self.get_commands(pmx_room_name)
 
             else:
 
@@ -435,16 +440,16 @@ class CStatistic(basis.CBasis):
                             order_by = 1
                     if command == TOP_10_GROUP:
 
-                        answer = self.get_statistic(proom_id, 10, order_by)
+                        answer = self.get_statistic(pmx_room_id, 10, order_by)
                     elif command == TOP_25_GROUP:
 
-                        answer = self.get_statistic(proom_id, 25, order_by)
+                        answer = self.get_statistic(pmx_room_id, 25, order_by)
                     elif command == TOP_50_GROUP:
 
-                        answer = self.get_statistic(proom_id, 50, order_by)
+                        answer = self.get_statistic(pmx_room_id, 50, order_by)
                     elif command == PERSONAL_GROUP:
 
-                        answer = self.get_personal_information(proom_id, puser_name)
+                        answer = self.get_personal_information(pmx_room_id, pmx_user_name)
         return answer
 
     async def destroy(self):
