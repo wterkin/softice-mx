@@ -298,12 +298,13 @@ class CTheolog(basis.CBasis):
         books: str = ""
         for book in BOOKS_LIST:
 
-            if not book[0][0].isdigit():
+            books += f"{book[2]} ({book[1]}), "
+            #if not book[0][0].isdigit():
 
-                books += f"{book[0].capitalize()}({book[1]}), "
-            else:
+            #    books += f"{book[2]}({book[1]}), "
+            #else:
 
-                books += f"{book[0]}({book[1]}), "
+            #    books += f"{book[2]}({book[1]}), "
         return books
 
 

@@ -191,7 +191,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
                     self.assertNotEqual(stat, None)
 
-    # *** Перенести её выше и заменить add_stat на этот тест
+
     async def test_save_all_type_of_messages(self):
 
         # def save_all_type_of_messages(self, pmx_room_id: int, pmx_room_name: str,
@@ -202,26 +202,37 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                   "sender": TEST_USER_NAME,
                   "origin_server_ts": ""
                   }
+        url: str = "mxc://sibnsk.net/bhJWdVHztMKSsfxlJasFFvca"
         event = nio.RoomMessageText(source,
           "Антошка, Антошка, сыграй нам на гармошке", None, None)
-        # event.body =
+
         self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
-        event = nio.RoomMessageVideo(source, "mxc://sibnsk.net/bhJWdVHztMKSsfxlJasFFvca",
-                                     None)
+        event = nio.RoomMessageVideo(source, url, None)
+        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+                                                                 TEST_ROOM_NAME,
+                                                                 TEST_USER_NAME,
+                                                                 event))
+        event = nio.RoomMessageAudio(source, url, None)
+        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+                                                                 TEST_ROOM_NAME,
+                                                                 TEST_USER_NAME,
+                                                                 event))
+        event = nio.RoomMessageImage(source, url, None)
+        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+                                                                 TEST_ROOM_NAME,
+                                                                 TEST_USER_NAME,
+                                                                 event))
+        event = nio.RoomMessageFile(source, url, None)
         self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
 
-        """
-        self.assertTrue(self.statistic.save_all_type_of_messages(event))
-        self.assertFalse(self.statistic.save_all_type_of_messages(event))
-        self.assertFalse(self.statistic.save_all_type_of_messages(event))
-        self.assertFalse(self.statistic.save_all_type_of_messages(event))
 
+    """
 
     def test_statistic(self):
 
