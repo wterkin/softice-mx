@@ -192,13 +192,14 @@ class CStatistic(basis.CBasis):
         answer: str = ""
         sess = await self.database.get_session()
         # *** Получим данные юзера
+        #rint(f"*** Statistic ** gpi ** start ** {pmx_user_name}**")
         sel = self.database.query_data(db.CUser)
         sel = sel.where(db.CUser.fusername==pmx_user_name)
-        # rint(f"*** Statistic ** gpi ** start **")
         async with sess() as session:
 
             user_result = await session.execute(sel)
             user = user_result.scalar_one_or_none()
+            # rint(f"*** Statistic ** gpi ** {user=} **")
             if user is not None:
 
                 # *** Получим ID чата в базе
@@ -206,6 +207,7 @@ class CStatistic(basis.CBasis):
                 sel = sel.where(db.CRoom.froomid==proom_id)
                 room_result = await session.execute(sel)
                 room = room_result.scalar_one_or_none()
+                # rint(f"*** Statistic ** gpi ** {room=} **")
                 if room is not None:
 
                     # *** Получим статистику юзера в чате
@@ -214,6 +216,8 @@ class CStatistic(basis.CBasis):
                     sel = sel.where(db.CStat._froomid == room.id)
                     stat_result = await session.execute(sel)
                     stat = stat_result.scalar_one_or_none()
+                    # rint(f"*** Statistic ** gpi ** {stat=} **")
+
                     if stat is not None:
 
                         answer = f"{pmx_user_name} наговорил {stat.phrases} фраз, " \
@@ -242,7 +246,7 @@ class CStatistic(basis.CBasis):
         query = select(db.CRoom, db.CStat, db.CUser)
         query = query.where(db.CStat._froomid==room_id)
         query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
-        query = query.join(db.CUser, db.CUser.id == db.CStat._fuserid)
+        query = query.join(db.CUser, db.CStat._fuserid == db.CUser.id)
         if porder_by == PHRASES_ORDER:
 
             query = query.order_by(db.CStat._fphrases.desc())
@@ -272,14 +276,22 @@ class CStatistic(basis.CBasis):
             value = await session.execute(query)
             result = value.scalars().all()
         answer = "Самые общительные:\n"
+        print(f"*** Statistic ** gst ** {result=} **")
         for number, item in enumerate(result):
 
-            answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
-                      f" фраз, {item[1].fwords} слов, " \
-                      f"{0 if item[1].files is None else item[1].files} файл., " \
-                      f"{0 if item[1].images is None else item[1].images} картин., " \
-                      f"{0 if item[1].audios is None else item[1].audios} звук. и " \
-                      f"{0 if item[1].videos is None else item[1].videos} вид. \n"
+            print(f"*** Statistic ** gst ** {item=} **")
+            # answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
+                      # f" фраз, {item[1].fwords} слов, " \
+                      # f"{0 if item[1].files is None else item[1].files} файл., " \
+                      # f"{0 if item[1].images is None else item[1].images} картин., " \
+                      # f"{0 if item[1].audios is None else item[1].audios} звук. и " \
+                      # f"{0 if item[1].videos is None else item[1].videos} вид. \n"
+            # answer += f"{number + 1} : {item.username} : {item.phrases}" \
+                      # f" фраз, {item.words} слов, " \
+                      # f"{0 if item.files is None else item.files} файл., " \
+                      # f"{0 if item.images is None else item.images} картин., " \
+                      # f"{0 if item.audios is None else item.audios} звук. и " \
+                      # f"{0 if item.videos is None else item.videos} вид. \n"
         answer += f"Отсортировано по количеству {SORTED_BY[porder_by-1]}. \n"
         return answer
 
@@ -291,6 +303,7 @@ class CStatistic(basis.CBasis):
             "Assert: [statistic.get_user_id] " \
             "Пропущен параметр <pmx_user_name> !"
 
+        # rint(f"*** Statistic ** gui ** {pmx_user_name=}**")
         result: int = ERROR_CODE
         sel = self.database.query_data(db.CUser)
         sel = sel.where(db.CUser.fusername==pmx_user_name)
@@ -302,6 +315,7 @@ class CStatistic(basis.CBasis):
             if user is not None:
 
                 result = user.id
+        # rint(f"*** Statistic ** gui ** {result=}**")
         return result
 
 
@@ -316,15 +330,15 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <pmx_user_name> !"
 
         result: tuple = None
-        # rint(f"*** Statistic ** gus ** {pmx_user_name} **")
+        # rint(f"*** Statistic ** gus ** {pmx_user_name=} **")
         user_id = await self.get_user_id(pmx_user_name)
         if user_id != ERROR_CODE:
 
+            # rint(f"*** Statistic ** gus ** {user_id=} **")
             room_id = await self.get_room_id(pmx_room_id)
             if room_id != ERROR_CODE:
 
-                # rint(f"*** Statistic ** gus ** {user_id} **")
-                # print(f"*** Statistic ** gus ** {room_id} **")
+                # rint(f"*** Statistic ** gus ** {room_id=} **")
 
                 sel = self.database.query_data(db.CStat)
                 sel = sel.where(db.CStat._fuserid==user_id)
@@ -332,8 +346,10 @@ class CStatistic(basis.CBasis):
                 sess = await self.database.get_session()
                 async with sess() as session:
 
+                    # rint(f"*** Statistic ** gus ** before exec **")
                     res = await session.execute(sel)
                     result = res.scalar_one_or_none()
+        # rint(f"*** Statistic ** gus ** {result=} **")
         return result
 
 
@@ -353,55 +369,70 @@ class CStatistic(basis.CBasis):
             "Пропущен параметр <pmx_user_name> !"
 
         result: bool = False
+        # rint(f"*** Statistic ** sat ** begin {pmx_user_name=}**")
         # *** Это не бот написал? Чужой бот, не наш?
-        if pmx_user_name in self.config.alien_bots:
+        if pmx_user_name not in self.config.alien_bots:
 
+            # rint(f"*** Statistic ** sat ** not bot **")
             # Проверить, нет ли уже этого чата в таблице чатов
-            room_id = await self.get_room_id(pmx_room_id)
-            if room_id is None:
+            room_id = await self.get_room_id(pmx_room_name)
+            if room_id == ERROR_CODE:
 
                 # *** Нету еще, новый чат - добавить, и получить id
+                # rint(f"*** Statistic ** sat ** {pmx_room_name=} **")
                 room_id = await self.add_room_to_base(pmx_room_id, pmx_room_name)
-                # *** Проверить, нет ли юзера в таблице тг юзеров
-                user_id = await self.get_user_id(pmx_user_name)
-                if user_id is None:
+            # rint(f"*** Statistic ** sat ** {room_id=} **")
+            # *** Проверить, нет ли юзера в таблице тг юзеров
+            # rint(f"*** Statistic ** sat ** {pmx_user_name=}**")
+            user_id = await self.get_user_id(pmx_user_name)
+            if user_id == ERROR_CODE:
 
-                    # *** Нету, новый пользователь
-                    user_id = await self.add_user_to_base(pmx_user_name)
+                # *** Нету, новый пользователь
+                user_id = await self.add_user_to_base(pmx_user_name)
+                # rint(f"*** Statistic ** sat ** {user_id=} **")
 
-                # *** Имеется ли в БД статистика по этому пользователю?
-                user_stat = await self.get_user_stat(room_id, user_id)
-                if user_stat is None:
+            # *** Имеется ли в БД статистика по этому пользователю?
+            # rint(f"*** Statistic ** sat ** before stat **")
+            user_stat = await self.get_user_stat(pmx_room_id, pmx_user_name)
+            if user_stat is None:
 
-                    user_stat = db.CStat
+                user_stat = db.CStat(user_id, room_id)
+                user_stat.phrases = 0
+                user_stat.letters = 0
+                user_stat.words = 0
+                user_stat.videos = 0
+                user_stat.audios = 0
+                user_stat.images = 0
+                user_stat.files = 0
+            # *** Изменяем статистику юзера в зависимости от типа сообщения
+            # rint(f"*** Statistic ** sat ** {user_stat=} **")
+            if isinstance(pevent, RoomMessageText):
 
-                # *** Изменяем статистику юзера в зависимости от типа сообщения
-                if isinstance(pevent, RoomMessageText):
+                text: str = pevent.body.strip()
+                if text[0] != self.config.command_prefix:
 
-                    text: str = pevent.body.strip()
-                    if text[0] != self.config.command_prefix:
+                    user_stat.phrases += 1
+                    user_stat.letters += len(text)
+                    user_stat.words += len(text.split(" "))
+            elif isinstance(pevent, RoomMessageVideo):
 
-                        user_stat.phrases += 1
-                        user_stat.letters += len(text)
-                        user_stat.words += len(text.split(" "))
-                elif isinstance(pevent, RoomMessageVideo):
+                user_stat.videos += 1
+            elif isinstance(pevent, RoomMessageAudio):
 
-                    user_stat.videos += 1
-                elif isinstance(pevent, RoomMessageAudio):
+                user_stat.audios += 1
+            elif isinstance(pevent, RoomMessageImage):
 
-                    user_stat.audios += 1
-                elif isinstance(pevent, RoomMessageImage):
+                user_stat.images += 1
+            elif isinstance(pevent, RoomMessageFile):
 
-                    user_stat.audios += 1
-                elif isinstance(pevent, RoomMessageFile):
-
-                    user_stat.files += 1
-                await self.database.commit_changes(user_stat)
-                result = True
+                user_stat.files += 1
+            # rint(f"*** Statistic ** sat ** finish {user_stat=} **")
+            await self.database.commit_changes(user_stat)
+            result = True
         return result
 
 
-    def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
+    async def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
         """Обработчик команд."""
 
         assert pmx_room_id is not None, \
@@ -423,8 +454,10 @@ class CStatistic(basis.CBasis):
         word_list: list = self.parse_input(pmessage_text)
         if self.can_process_command(pmx_room_name, pmessage_text, UNIT_ID, COMMANDS):
 
+            # *** Если это запрос списка команд..
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
+                # *** Возвращаем список команд
                 answer = self.get_commands(pmx_room_name)
 
             else:
@@ -433,24 +466,27 @@ class CStatistic(basis.CBasis):
                 command: int = self.identify_command(word_list[0], COMMANDS)
                 if command >= 0:
 
+                    # *** Если длина списка команд больше 1 - это указание сортировки
                     if len(word_list) > 1 and word_list[1].isdigit():
 
+                        # *** Смотрим, как будем сортировать вывод
                         order_by = int(word_list[1])
                         if order_by < 1 or order_by > 6:
 
                             order_by = 1
                     if command == TOP_10_GROUP:
 
-                        answer = self.get_statistic(pmx_room_id, 10, order_by)
+                        answer = await self.get_statistic(pmx_room_id, 10, order_by)
                     elif command == TOP_25_GROUP:
 
-                        answer = self.get_statistic(pmx_room_id, 25, order_by)
+                        answer = await self.get_statistic(pmx_room_id, 25, order_by)
                     elif command == TOP_50_GROUP:
 
-                        answer = self.get_statistic(pmx_room_id, 50, order_by)
+                        answer = await self.get_statistic(pmx_room_id, 50, order_by)
                     elif command == PERSONAL_GROUP:
 
-                        answer = self.get_personal_information(pmx_room_id, pmx_user_name)
+                        # rint(f"*** Statistic ** stat ** persinf ** {pmx_user_name=} ***")
+                        answer = await self.get_personal_information(pmx_room_id, pmx_user_name)
         return answer
 
 

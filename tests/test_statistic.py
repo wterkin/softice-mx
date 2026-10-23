@@ -120,6 +120,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_personal_information(self):
 
+
         user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id == 1:
 
@@ -206,48 +207,57 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
         event = nio.RoomMessageText(source,
           "Антошка, Антошка, сыграй нам на гармошке", None, None)
 
-        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+        self.assertTrue(await self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
         event = nio.RoomMessageVideo(source, url, None)
-        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+        self.assertTrue(await self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
         event = nio.RoomMessageAudio(source, url, None)
-        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+        self.assertTrue(await self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
         event = nio.RoomMessageImage(source, url, None)
-        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+        self.assertTrue(await self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
         event = nio.RoomMessageFile(source, url, None)
-        self.assertTrue(self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
+        self.assertTrue(await self.statistic.save_all_type_of_messages(TEST_ROOM_ID,
                                                                  TEST_ROOM_NAME,
                                                                  TEST_USER_NAME,
                                                                  event))
 
 
+
+    async def test_statistic(self):
+
+        # def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
+        user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
+        if user_id == 1:
+
+            room_id: int = await self.statistic.add_room_to_base(TEST_ROOM_ID, TEST_ROOM_NAME)
+            if room_id == 1:
+
+                result = await self.add_stat(room_id, user_id)
+                if result == 1:
+
+                    self.assertTrue(await self.statistic.statistic(1, self.config.test_chat, "Master", "!top10"))
+                    self.assertIn("пв10", await self.statistic.statistic(1, self.config.test_chat, "Master", "!стат"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 1"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 2"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 3"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 4"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 5"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 6"))
+                    self.assertIn(f"{TEST_USER_NAME} наболтал", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, TEST_USER_NAME, "!лич"))
+
+
     """
-
-    def test_statistic(self):
-
-        # def statistic(self, pchat_id: int, pchat_title: str, puser_title, pmessage_text: str):
-        self.assertTrue(self.statistic.statistic(1, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top10"))
-        self.assertIn("перв10", self.statistic.statistic(1, test_softice.TESTPLACE_CHAT_NAME, "Master", "!стат"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top10 1"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top25 2"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top50 3"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top10 4"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top25 5"))
-        self.assertIn("Самые говорливые", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!top50 6"))
-        self.assertIn("Master наболтал", self.statistic.statistic(777, test_softice.TESTPLACE_CHAT_NAME, "Master", "!pers"))
-
-
     def tearDown(self):
 
         self.database.disconnect()

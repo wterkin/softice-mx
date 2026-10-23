@@ -220,7 +220,7 @@ class CStat(CAncestor):
     def letters(self, pletters):
         """Letters"""
 
-        assert pletters > 0, \
+        assert pletters >= 0, \
             "Количество букв не может быть отрицательным"
         self._fletters = pletters
 
@@ -235,7 +235,7 @@ class CStat(CAncestor):
     def words(self, pwords):
         """Words"""
 
-        assert pwords > 0, \
+        assert pwords >= 0, \
             "Количество слов не может быть отрицательным"
         self._fwords = pwords
 
@@ -251,7 +251,7 @@ class CStat(CAncestor):
     def phrases(self, pphrases):
         """Phrases"""
 
-        assert pphrases > 0, \
+        assert pphrases >= 0, \
             "Количество предложений не может быть отрицательным"
         self._fphrases = pphrases
 
@@ -267,7 +267,7 @@ class CStat(CAncestor):
     def emotes(self, pemotes):
         """Emotes"""
 
-        assert pemotes > 0, \
+        assert pemotes >= 0, \
             "Количество эмоций не может быть отрицательным"
         self._femotes = pemotes
 
@@ -283,7 +283,7 @@ class CStat(CAncestor):
     def notices(self, pnotices):
         """Notices"""
 
-        assert pnotices > 0, \
+        assert pnotices >= 0, \
             "Количество примечаний не может быть отрицательным"
         self._fnotices = pnotices
 
@@ -299,7 +299,7 @@ class CStat(CAncestor):
     def images(self, pimages):
         """Images"""
 
-        assert pimages > 0, \
+        assert pimages >= 0, \
             "Количество изображений не может быть отрицательным"
         self._fimages = pimages
 
@@ -315,7 +315,7 @@ class CStat(CAncestor):
     def audios(self, paudios):
         """Audios"""
 
-        assert paudios > 0, \
+        assert paudios >= 0, \
             "Количество звукозаписей не может быть отрицательным"
         self._faudios = paudios
 
@@ -330,7 +330,7 @@ class CStat(CAncestor):
     def videos(self, pvideos):
         """Videos"""
 
-        assert pvideos > 0, \
+        assert pvideos >= 0, \
             "Количество видеозаписей не может быть отрицательным"
         self._fvideos = pvideos
 
@@ -345,7 +345,7 @@ class CStat(CAncestor):
     def files(self, pfiles):
         """Files"""
 
-        assert pfiles > 0, \
+        assert pfiles >= 0, \
             "Количество файлов не может быть отрицательным"
         self._ffiles = pfiles
 
