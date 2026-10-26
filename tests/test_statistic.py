@@ -233,10 +233,10 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                                                                  event))
 
 
-
     async def test_statistic(self):
 
         # def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
+        await self._clean_tables()
         user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id == 1:
 
@@ -254,7 +254,7 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                     self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 4"))
                     self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 5"))
                     self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 6"))
-                    self.assertIn(f"{TEST_USER_NAME} наболтал", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, TEST_USER_NAME, "!лич"))
+                    self.assertIn(f"{TEST_USER_NAME} наговорил", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, TEST_USER_NAME, "!лич"))
 
 
     """

@@ -151,6 +151,7 @@ class CStatistic(basis.CBasis):
                 room = value.scalar_one_or_none()
                 if room is not None:
 
+                    print(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
                     result = room.id
 
         except SQLAlchemyError:
@@ -277,9 +278,9 @@ class CStatistic(basis.CBasis):
             result = value.scalars().all()
         answer = "Самые общительные:\n"
         print(f"*** Statistic ** gst ** {result=} **")
-        for number, item in enumerate(result):
+        # for number, item in enumerate(result):
 
-            print(f"*** Statistic ** gst ** {item=} **")
+            # rint(f"*** Statistic ** gst ** {item=} **")
             # answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
                       # f" фраз, {item[1].fwords} слов, " \
                       # f"{0 if item[1].files is None else item[1].files} файл., " \
@@ -375,12 +376,13 @@ class CStatistic(basis.CBasis):
 
             # rint(f"*** Statistic ** sat ** not bot **")
             # Проверить, нет ли уже этого чата в таблице чатов
-            room_id = await self.get_room_id(pmx_room_name)
+            room_id = await self.get_room_id(pmx_room_id)
+            print(f"*** Statistic ** sat ** [1] {pmx_room_name=} ** {room_id=} **")
             if room_id == ERROR_CODE:
 
                 # *** Нету еще, новый чат - добавить, и получить id
-                # rint(f"*** Statistic ** sat ** {pmx_room_name=} **")
                 room_id = await self.add_room_to_base(pmx_room_id, pmx_room_name)
+                print(f"*** Statistic ** sat ** [2] {pmx_room_name=} ** {room_id=}**")
             # rint(f"*** Statistic ** sat ** {room_id=} **")
             # *** Проверить, нет ли юзера в таблице тг юзеров
             # rint(f"*** Statistic ** sat ** {pmx_user_name=}**")
