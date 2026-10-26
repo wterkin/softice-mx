@@ -236,7 +236,6 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     async def test_statistic(self):
 
         # def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
-        await self._clean_tables()
         user_id: int = await self.statistic.add_user_to_base(TEST_USER_NAME)
         if user_id == 1:
 

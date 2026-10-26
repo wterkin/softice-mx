@@ -151,7 +151,7 @@ class CStatistic(basis.CBasis):
                 room = value.scalar_one_or_none()
                 if room is not None:
 
-                    print(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
+                    # rint(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
                     result = room.id
 
         except SQLAlchemyError:
@@ -273,20 +273,22 @@ class CStatistic(basis.CBasis):
         query = query.limit(pcount)
         sess = await self.database.get_session()
         async with sess() as session:
+        # async with await self.database.get_session() as session:
 
             value = await session.execute(query)
-            result = value.scalars().all()
+            result = value.all()
         answer = "Самые общительные:\n"
-        print(f"*** Statistic ** gst ** {result=} **")
-        # for number, item in enumerate(result):
+        # rint(f"*** Statistic ** gst ** {result=} **")
+        # for number, room, stat, user in enumerate(result):
 
+        for room, stat, user in result:
             # rint(f"*** Statistic ** gst ** {item=} **")
-            # answer += f"{number + 1} : {item[2].fusername} : {item[1].phrases}" \
-                      # f" фраз, {item[1].fwords} слов, " \
-                      # f"{0 if item[1].files is None else item[1].files} файл., " \
-                      # f"{0 if item[1].images is None else item[1].images} картин., " \
-                      # f"{0 if item[1].audios is None else item[1].audios} звук. и " \
-                      # f"{0 if item[1].videos is None else item[1].videos} вид. \n"
+            answer += f"number + 1 : {user.fusername} : {stat.phrases}" \
+                      f" фраз, {stat.words} слов, " \
+                      f"{0 if stat.files is None else stat.files} файл., " \
+                      f"{0 if stat.images is None else stat.images} картин., " \
+                      f"{0 if stat.audios is None else stat.audios} звук. и " \
+                      f"{0 if stat.videos is None else stat.videos} вид. \n"
             # answer += f"{number + 1} : {item.username} : {item.phrases}" \
                       # f" фраз, {item.words} слов, " \
                       # f"{0 if item.files is None else item.files} файл., " \
@@ -377,12 +379,12 @@ class CStatistic(basis.CBasis):
             # rint(f"*** Statistic ** sat ** not bot **")
             # Проверить, нет ли уже этого чата в таблице чатов
             room_id = await self.get_room_id(pmx_room_id)
-            print(f"*** Statistic ** sat ** [1] {pmx_room_name=} ** {room_id=} **")
+            # rint(f"*** Statistic ** sat ** [1] {pmx_room_name=} ** {room_id=} **")
             if room_id == ERROR_CODE:
 
                 # *** Нету еще, новый чат - добавить, и получить id
                 room_id = await self.add_room_to_base(pmx_room_id, pmx_room_name)
-                print(f"*** Statistic ** sat ** [2] {pmx_room_name=} ** {room_id=}**")
+                # rint(f"*** Statistic ** sat ** [2] {pmx_room_name=} ** {room_id=}**")
             # rint(f"*** Statistic ** sat ** {room_id=} **")
             # *** Проверить, нет ли юзера в таблице тг юзеров
             # rint(f"*** Statistic ** sat ** {pmx_user_name=}**")
