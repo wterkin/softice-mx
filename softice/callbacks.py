@@ -40,6 +40,7 @@ from softice.manager import CManager
 from softice.meteorolog import CMeteorolog
 from softice.moderator import CModerator
 from softice.stargazer import CStarGazer
+from softice.statistic import CStatistic
 from softice.theolog import CTheolog
 
 logger = logging.getLogger(__name__)
@@ -114,6 +115,7 @@ class Callbacks:
         self.meteorolog: CMeteorolog = CMeteorolog(self.config)
         self.moderator: CModerator = CModerator(self.config, self.client)
         self.stargazer: CStarGazer = CStarGazer(self.config)
+        self.statistic: CStatistic = CStatistic(self.config)
         self.theolog: CTheolog = CTheolog(self.config)
         self.first_run: bool = True
         self.last_message: str = ""
@@ -284,6 +286,14 @@ class Callbacks:
                     answer = await self.stargazer.stargazer(room.name, message)
                 if not answer:
 
+                    # *** Статистику есть что сказать?
+                    #async def statistic(self, pmx_room_id: int, pmx_room_name: str,
+                    #pmx_user_name, pmessage_text: str) -> str:
+
+                    answer = await self.statistic.statistic(room.room_id, room.name,
+                                                            event.sender, message)
+                if not answer:
+
                     # *** Теологу есть что сказать?
                     answer = await self.theolog.theolog(room.name, message)
                 # *** Коллектор вызывается последним.
@@ -396,6 +406,10 @@ class Callbacks:
 
             answer += result + "\n"
         result = self.stargazer.get_hint(pchat_title)
+        if result:
+
+            answer += result + "\n"
+        result = self.statistic.get_hint(pchat_title)
         if result:
 
             answer += result + "\n"
