@@ -124,6 +124,37 @@ class CBasis(prototype.CPrototype):
         return ""
 
 
+    async def get_display_name_in_room(self, room_id: str, user_name: str) -> str:
+        """ Функция возвращает локальное имя пользователя в заданной комнате. """
+
+        assert room_id is not None, \
+            "Assert: [callbacks.get_display_name_in_room] No <room_id> parameter specified!"
+        assert user_name is not None, \
+            "Assert: [callbacks.get_display_name_in_room] No <user_name> parameter specified!"
+
+        fallback_name = user_name.split(":")[0][1:]
+
+        try:
+
+            state_resp = await self.client.room_get_state_event(room_id, "m.room.member", user_name)
+            if hasattr(state_resp, 'content') and isinstance(state_resp.content, dict):
+
+                # Пробуем все возможные ключи, которые использует Matrix
+                local_name = (
+                    state_resp.content.get("displayname") or
+                    state_resp.content.get("display_name")
+                )
+                if local_name:
+
+                    return local_name
+        except Exception as e:
+            print(f"[DEBUG] Ошибка запроса state: {e}")
+
+        # Fallback
+        return fallback_name
+
+
+
     def identify_command(self, pword: str, pcommands : list) -> int:  # noqa
         """Распознает команду и возвращает её код, в случае неудачи  -1."""
 

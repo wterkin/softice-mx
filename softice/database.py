@@ -8,6 +8,7 @@ from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, 
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # py lint: disable=C0301
 # py lint: disable=line-too-long
@@ -177,7 +178,7 @@ class CStat(CAncestor):
         self._froomid = proom_id
         self._fsilence = False
 
-    @property
+    @hybrid_property
     def userid(self):
         """User ID"""
 
@@ -193,7 +194,7 @@ class CStat(CAncestor):
         self._fuserid = puser_id
 
 
-    @property
+    @hybrid_property
     def roomid(self):
         """Room ID"""
 
@@ -209,7 +210,7 @@ class CStat(CAncestor):
         self._froomid = proom_id
 
 
-    @property
+    @hybrid_property
     def letters(self):
         """Letters"""
 
@@ -225,7 +226,7 @@ class CStat(CAncestor):
         self._fletters = pletters
 
 
-    @property
+    @hybrid_property
     def words(self):
         """Words"""
         return self._fwords
@@ -240,7 +241,7 @@ class CStat(CAncestor):
         self._fwords = pwords
 
 
-    @property
+    @hybrid_property
     def phrases(self):
         """Phrases"""
 
@@ -256,7 +257,7 @@ class CStat(CAncestor):
         self._fphrases = pphrases
 
 
-    @property
+    @hybrid_property
     def emotes(self):
         """Emotes"""
 
@@ -272,7 +273,7 @@ class CStat(CAncestor):
         self._femotes = pemotes
 
 
-    @property
+    @hybrid_property
     def notices(self):
         """Notices"""
 
@@ -288,7 +289,7 @@ class CStat(CAncestor):
         self._fnotices = pnotices
 
 
-    @property
+    @hybrid_property
     def images(self):
         """Images"""
 
@@ -304,7 +305,7 @@ class CStat(CAncestor):
         self._fimages = pimages
 
 
-    @property
+    @hybrid_property
     def audios(self):
         """Audios"""
 
@@ -320,7 +321,7 @@ class CStat(CAncestor):
         self._faudios = paudios
 
 
-    @property
+    @hybrid_property
     def videos(self):
         """Videos"""
 
@@ -334,7 +335,7 @@ class CStat(CAncestor):
             "Количество видеозаписей не может быть отрицательным"
         self._fvideos = pvideos
 
-    @property
+    @hybrid_property
     def files(self):
         """Files"""
 
@@ -349,7 +350,7 @@ class CStat(CAncestor):
             "Количество файлов не может быть отрицательным"
         self._ffiles = pfiles
 
-    @property
+    @hybrid_property
     def silence(self):
         """Silence"""
 

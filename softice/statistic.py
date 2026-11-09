@@ -213,8 +213,8 @@ class CStatistic(basis.CBasis):
 
                     # *** Получим статистику юзера в чате
                     sel = self.database.query_data(db.CStat) # .where(db.CStat.userid==user.id)
-                    sel = sel.where(db.CStat._fuserid == user.id)
-                    sel = sel.where(db.CStat._froomid == room.id)
+                    sel = sel.where(db.CStat.userid == user.id)
+                    sel = sel.where(db.CStat.roomid == room.id)
                     stat_result = await session.execute(sel)
                     stat = stat_result.scalar_one_or_none()
                     # rint(f"*** Statistic ** gpi ** {stat=} **")
@@ -245,30 +245,30 @@ class CStatistic(basis.CBasis):
 
         room_id = await self.get_room_id(pmx_room_id)
         query = select(db.CRoom, db.CStat, db.CUser)
-        query = query.where(db.CStat._froomid==room_id)
-        query = query.join(db.CStat, db.CStat._froomid == db.CRoom.id)
-        query = query.join(db.CUser, db.CStat._fuserid == db.CUser.id)
+        query = query.where(db.CStat.roomid==room_id)
+        query = query.join(db.CStat, db.CStat.roomid == db.CRoom.id)
+        query = query.join(db.CUser, db.CStat.userid == db.CUser.id)
         if porder_by == PHRASES_ORDER:
 
-            query = query.order_by(db.CStat._fphrases.desc())
+            query = query.order_by(db.CStat.phrases)
         elif porder_by == WORDS_ORDER:
 
-            query = query.order_by(db.CStat._fwords.desc())
+            query = query.order_by(db.CStat.words)
         elif porder_by == IMAGES_ORDER:
 
-            query = query.order_by(db.CStat._fimages.desc())
+            query = query.order_by(db.CStat.images)
         elif porder_by == AUDIOS_ORDER:
 
-            query = query.order_by(db.CStat._faudios.desc())
+            query = query.order_by(db.CStat.audios)
         elif porder_by == VIDEOS_ORDER:
 
-            query = query.order_by(db.CStat._fvideos.desc())
+            query = query.order_by(db.CStat.videos)
         elif porder_by == FILES_ORDER:
 
-            query = query.order_by(db.CStat._ffiles.desc())
+            query = query.order_by(db.CStat.files)
         else:
 
-            query = query.order_by(db.CStat._fphrases.desc())
+            query = query.order_by(db.CStat.phrases)
             # stat = query.limit(pcount)
         query = query.limit(pcount)
         sess = await self.database.get_session()
@@ -280,10 +280,12 @@ class CStatistic(basis.CBasis):
         answer = "Самые общительные:\n"
         # rint(f"*** Statistic ** gst ** {result=} **")
         # for number, room, stat, user in enumerate(result):
-
+        local_name: str
         for room, stat, user in result:
+
             # rint(f"*** Statistic ** gst ** {item=} **")
-            answer += f"number + 1 : {user.fusername} : {stat.phrases}" \
+            local_name = await self.get_display_name_in_room(room.froomid, user.fusername)
+            answer += f"number + 1 : {local_name} : {stat.phrases}" \
                       f" фраз, {stat.words} слов, " \
                       f"{0 if stat.files is None else stat.files} файл., " \
                       f"{0 if stat.images is None else stat.images} картин., " \
@@ -344,8 +346,8 @@ class CStatistic(basis.CBasis):
                 # rint(f"*** Statistic ** gus ** {room_id=} **")
 
                 sel = self.database.query_data(db.CStat)
-                sel = sel.where(db.CStat._fuserid==user_id)
-                sel = sel.where(db.CStat._froomid==room_id)
+                sel = sel.where(db.CStat.userid==user_id)
+                sel = sel.where(db.CStat.roomid==room_id)
                 sess = await self.database.get_session()
                 async with sess() as session:
 
@@ -436,7 +438,8 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    async def statistic(self, pmx_room_id: int, pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
+    async def statistic(self, pmx_room_id: int, pmx_room_name: str,
+                        pmx_user_name, pmessage_text: str) -> str:
         """Обработчик команд."""
 
         assert pmx_room_id is not None, \
