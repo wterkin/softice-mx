@@ -25,7 +25,7 @@ RUSSIAN_DATETIME_FORMAT = "%d.%m.%Y %H:%M:%S"
 WAITING_TIME: float = 0.1
 
 ENGINE: str = "postgresql+asyncpg"
-DB_USER: str = "softice"
+DB_USER: str = "softice_mx"
 DB_PASSWORD: str = "qz7$tEr"
 DB_HOST: str = "localhost"
 # DATABASE: str = "softice"
