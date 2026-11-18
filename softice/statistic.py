@@ -65,6 +65,7 @@ class CStatistic(basis.CBasis):
 
         super().__init__(pconfig)
         self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
+
         print("Статистик стартовал.")
 
 
@@ -145,15 +146,19 @@ class CStatistic(basis.CBasis):
             sel = self.database.query_data(db.CRoom)
             sel = sel.where(db.CRoom.froomid==pmx_room_id)
             sess = await self.database.get_session()
-            async with sess() as session:
+            if sess:
 
-                value = await session.execute(sel)
-                room = value.scalar_one_or_none()
-                if room is not None:
+                async with sess() as session:
 
-                    # rint(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
-                    result = room.id
+                    value = await session.execute(sel)
+                    room = value.scalar_one_or_none()
+                    if room is not None:
 
+                        # rint(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
+                        result = room.id
+            else:
+
+                print(f"*** Statistic ** gri ** [1] sess is None! ")
         except SQLAlchemyError:
 
             result = ERROR_CODE

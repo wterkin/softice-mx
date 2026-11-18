@@ -135,6 +135,7 @@ class Callbacks:
             await self.librarian.reload()
             await self.majordomo.reload()
             await self.moderator.reload()
+            await self.statistic.init()
             # await self.load_timestamp()
 
 

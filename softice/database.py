@@ -430,7 +430,13 @@ class CDataBase:
                                                 )
                 self.AsyncSessionLocal = async_sessionmaker(bind=self.engine,
                                                             expire_on_commit=False)
-                self.connected = True
+                if self.AsyncSessionLocal:
+
+                    self.connected = True
+                else:
+
+                    print(f"*** Database ** cn ** self.AsyncSessionLocal is None! **")
+
 
             except exc.SQLAlchemyError:
 
