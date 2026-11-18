@@ -462,7 +462,7 @@ class CStatistic(basis.CBasis):
 
         command: int
         answer: str = ""
-        order_by: int = 0
+        order_by: int = 1
         word_list: list = self.parse_input(pmessage_text)
         if self.can_process_command(pmx_room_name, pmessage_text, UNIT_ID, COMMANDS):
 
