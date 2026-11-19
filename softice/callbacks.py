@@ -115,7 +115,7 @@ class Callbacks:
         self.meteorolog: CMeteorolog = CMeteorolog(self.config)
         self.moderator: CModerator = CModerator(self.config, self.client)
         self.stargazer: CStarGazer = CStarGazer(self.config)
-        self.statistic: CStatistic = CStatistic(self.config)
+        self.statistic: CStatistic = CStatistic(self.config, "softice_mx")
         self.theolog: CTheolog = CTheolog(self.config)
         self.first_run: bool = True
         self.last_message: str = ""

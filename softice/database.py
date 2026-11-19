@@ -390,6 +390,7 @@ class CDataBase:
         self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
+        print(f"*** Database ** in ** {self.database_name} **")
         self.connected: bool = False
 
 

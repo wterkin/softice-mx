@@ -53,7 +53,7 @@ UNIT_ID: str = "statistic"
 SORTED_BY: tuple = ("фраз", "слов", "стикеров", "картинок",
                     "звуковых сообщений", "видео сообщений")
 
-DATABASE_NAME: str = "softice"
+# DATABASE_NAME: str = "softice"
 
 ERROR_CODE: int = -1
 
@@ -61,7 +61,7 @@ ERROR_CODE: int = -1
 class CStatistic(basis.CBasis):
     """Класс статистика."""
 
-    def __init__(self, pconfig: dict, pdatabase_name: str = DATABASE_NAME):
+    def __init__(self, pconfig: dict, pdatabase_name: str):  # = DATABASE_NAME):
 
         super().__init__(pconfig)
         self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
