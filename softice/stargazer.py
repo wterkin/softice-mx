@@ -236,37 +236,37 @@ class CStarGazer(basis.CBasis):
         return answer
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [stargazer.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [stargazer.can_process_command] " \
             "Пропущен параметр <pmessage> !"
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [stargazer.get_commands] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [stargazer.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
     # pylint: disable=pointless-string-statement
     """
@@ -307,11 +307,11 @@ class CStarGazer(basis.CBasis):
 
 
 
-    async def stargazer(self, pchat_title: str, pmessage_text: str) -> str:
+    async def stargazer(self, proom_name: str, pmessage_text: str) -> str:
         """Обработчик команд звездочёта."""
 
-        assert pchat_title is not None, \
-            "Assert: [stargazer.stargazer] No <pchat_title> parameter specified!"
+        assert proom_name is not None, \
+            "Assert: [stargazer.stargazer] No <proom_name> parameter specified!"
         assert pmessage_text is not None, \
             "Assert: [stargazer.stargazer] No <pmessage_text> parameter specified!"
 
@@ -320,12 +320,12 @@ class CStarGazer(basis.CBasis):
         year: int
         now_date: dtime.date = dtime.date.today()
         today: str
-        if self.can_process_command(pchat_title, pmessage_text):
+        if self.can_process_command(proom_name, pmessage_text):
 
             # *** Возможно, запросили меню.
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
-                answer = self.get_commands(pchat_title)
+                answer = self.get_commands(proom_name)
             # *** Запросили Пасху?
             elif word_list[0] in COMMANDS[EASTER_GROUP]:
 

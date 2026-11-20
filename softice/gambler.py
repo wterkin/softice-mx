@@ -58,39 +58,39 @@ class CGambler(basis.CBasis):
         print("Игрун стартовал.")
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [gambler.can_class_process] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [gambler.can_class_process] " \
             "Пропущен параметр <pmessage> !"
 
         # rint(f"+++ Gmb +++ cpc +++ {COMMANDS=}")
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [gambler.get_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
         # rint(f"+++ Gmb +++ gc +++")
-        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [gambler.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMANDS])
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
     async def reload(self):
@@ -188,15 +188,15 @@ class CGambler(basis.CBasis):
         return answer
 
 
-    def gambler(self, pchat_title, pmessage_text: str):
+    def gambler(self, proom_name, pmessage_text: str):
         """Основной метод класса."""
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # if self.can_class_process(pchat_title, pmessage_text):
+        # if self.can_class_process(proom_name, pmessage_text):
         # rint("+++ Gmb +++ gmbl +++ ")
 
-        if self.can_process_command(pchat_title, pmessage_text):
+        if self.can_process_command(proom_name, pmessage_text):
 
             # *** Получим код команды
             command: int = self.identify_command(word_list[0], COMMANDS)
@@ -209,7 +209,7 @@ class CGambler(basis.CBasis):
                 answer = self.throw_coin()
             elif command == HINT_COMMANDS:
 
-                answer = self.get_commands(pchat_title)
+                answer = self.get_commands(proom_name)
             else:
 
                 answer = "Я не знаю такой игры"

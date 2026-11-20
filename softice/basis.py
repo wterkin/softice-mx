@@ -11,7 +11,8 @@ import asyncio
 import json
 import aiofiles
 from nio import AsyncClient
-from softice import prototype, config
+from softice import prototype
+from softice.config import Config
 
 BACKSLASH: str = "\\"
 OUT_MSG_LOG_LEN = 60
@@ -21,7 +22,7 @@ MESSAGE_NOT_FOUND: str = "Извините, по вашему запросу н�
 class CBasis(prototype.CPrototype):
     """Базовый класс для классов модулей бота.. """
 
-    def __init__(self, pconfig: config.Config):
+    def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
         "Assert: [CBasis.__init__] " \
@@ -30,20 +31,20 @@ class CBasis(prototype.CPrototype):
         self.config = pconfig
 
 
-    def can_process(self, pchat_title: str, punit_id: str,
+    def can_process(self, proom_name: str, punit_id: str,
                     pmessage_text: str, pcommands: list) -> bool:
         """Возвращает True, если модуль может обработать команду."""
-        assert pchat_title is not None, \
-            "Assert: [CBasis.can_process] Пропущен параметр <pchat_title> !"
+        assert proom_name is not None, \
+            "Assert: [CBasis.can_process] Пропущен параметр <proom_name> !"
         assert punit_id is not None, \
             "Assert: [CBasis.can_process] Пропущен параметр <punit_id> !"
         assert pmessage_text is not None, \
             "Assert: [CBasis.can_process] Пропущен параметр <pmessage_text> !"
 
         found: bool = False
-        # rint(f"+++ Bas +++ 1 +++ {pchat_title=}")
+        # rint(f"+++ Bas +++ 1 +++ {proom_name=}")
         # rint(f"+++ Bas +++ 2 +++ {punit_id=}")
-        if self.is_enabled(pchat_title, punit_id):
+        if self.is_enabled(proom_name, punit_id):
 
             word_list: list = self.parse_input(pmessage_text)
             # rint(f"+++ Bas +++ 2 +++ {word_list=}")
@@ -59,13 +60,13 @@ class CBasis(prototype.CPrototype):
         return found
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,
+    def can_process_command(self, proom_name: str, pmessage: str,
                             punit_id: str, pcommands: list) -> bool:
         """Возвращает True, если хайдзин может обработать эту команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CBasis.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [CBasis.can_process_command] " \
             "Пропущен параметр <pmessage> !"
@@ -74,7 +75,7 @@ class CBasis(prototype.CPrototype):
         # rint(f"+++ Bas +++ cpc +++ {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
-        if self.is_enabled(pchat_title, punit_id):
+        if self.is_enabled(proom_name, punit_id):
 
             # rint(f"+++ Bas +++ cpc +++ enabled")
             # *** Парсим сообщение
@@ -90,16 +91,16 @@ class CBasis(prototype.CPrototype):
         return can_process
 
 
-    def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
+    def get_commands(self, proom_name: str, punit_id: str, pdescriptions: list) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CBasis.get_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
         commands: str = ""
 
-        if self.is_enabled(pchat_title, punit_id):
+        if self.is_enabled(proom_name, punit_id):
 
             # rint(f"+++ Bas +++ 1 +++")
 
@@ -108,13 +109,13 @@ class CBasis(prototype.CPrototype):
         return commands
 
 
-    def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:
+    def get_hint(self, proom_name: str, punit_id: str, phints: str) -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
            модуль возвращает полный список команд, доступных пользователю."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CBasis.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert punit_id is not None, \
             "Assert: [CBasis.get_hint] " \
             "Пропущен параметр <punit_id> !"
@@ -122,7 +123,7 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.get_hint] " \
             "Пропущен параметр <phints> !"
 
-        if self.is_enabled(pchat_title, punit_id):
+        if self.is_enabled(proom_name, punit_id):
 
             return ", ".join(phints)
         return ""
@@ -182,17 +183,17 @@ class CBasis(prototype.CPrototype):
         return result
 
 
-    def is_enabled(self, pchat_title: str, punit_id: str) -> bool:
+    def is_enabled(self, proom_name: str, punit_id: str) -> bool:
         """Возвращает True, если в этом чате даный модуль разрешен."""
 
-        assert pchat_title is not None, \
-            "Assert: [CBasis.is_enabled] Пропущен параметр <pchat_title> !"
+        assert proom_name is not None, \
+            "Assert: [CBasis.is_enabled] Пропущен параметр <proom_name> !"
         assert punit_id is not None, \
             "Assert: [CBasis.is_enabled] Пропущен параметр <punit_id> !"
 
-        if pchat_title in self.config.chats:
+        if proom_name in self.config.chats:
 
-            return punit_id in self.config.chats[pchat_title]
+            return punit_id in self.config.chats[proom_name]
         return False
 
 

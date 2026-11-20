@@ -13,7 +13,7 @@ from nio import RoomMessageText, RoomMessageVideo, RoomMessageAudio,\
                 RoomMessageImage, RoomMessageFile, AsyncClient
 from softice import basis
 from softice import database as db
-
+from softice.config import Config
 TOP_10_GROUP: int = 0
 TOP_25_GROUP: int = 1
 TOP_50_GROUP: int = 2
@@ -60,7 +60,7 @@ ERROR_CODE: int = -1
 class CStatistic(basis.CBasis):
     """Класс статистика."""
 
-    def __init__(self, pconfig: dict, pdatabase_name: str):  # = DATABASE_NAME):
+    def __init__(self, pconfig: Config, pdatabase_name: str):  # = DATABASE_NAME):
 
         super().__init__(pconfig)
         self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
@@ -118,17 +118,17 @@ class CStatistic(basis.CBasis):
         return user.id
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [statistic.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [statistic.can_process_command] " \
             "Пропущен параметр <pmessage> !"
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
     async def get_room_id(self, pmx_room_id: str) -> int:
@@ -161,24 +161,24 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [statistic.get_commands] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [statistic.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
     async def get_personal_information(self, proom_id: str, pmx_user_name: str) -> str:

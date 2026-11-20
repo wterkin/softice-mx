@@ -50,17 +50,17 @@ class CModerator(basis.CBasis):
         self.bad_words: list = []
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [moderator.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [moderator.can_process_command] " \
             "Пропущен параметр <pmessage> !"
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
     def check_bad_words_ex(self, pmessage: str) -> str:
@@ -158,13 +158,13 @@ class CModerator(basis.CBasis):
             print(f"Не удалось удалить сообщение. Ответ сервера: {response}")
 
 
-    async def moderator(self, pchat_title: str, pmessage: str,
+    async def moderator(self, proom_name: str, pmessage: str,
                         plocal_name: str, puser_name: str) -> str:
         """Процедура разбора запроса пользователя."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [moderator.moderator] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [moderator.moderator] " \
             "Пропущен параметр <pmessage> !"
@@ -179,7 +179,7 @@ class CModerator(basis.CBasis):
         if pmessage:
 
             # *** Порядок. Возможно, запрошена команда. Мы ее умеем?
-            if self.can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS):
+            if self.can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS):
 
                 # *** Пользователь хочет перезагрузить словарь мата.
                 can_reload = self.is_master(puser_name)

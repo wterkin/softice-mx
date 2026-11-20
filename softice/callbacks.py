@@ -261,44 +261,44 @@ class Callbacks:
         logger.info(f"Joined {room.room_id}")
 
 
-    def send_hints(self, pchat_title: str) -> str:
+    def send_hints(self, proom_name: str) -> str:
         """Проверяет, не была ли запрошена подсказка."""
 
         # *** Собираем ответы модулей на запрос помощи
         answer: str = ""
-        result: str = self.barman.get_hint(pchat_title)
+        result: str = self.barman.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.gambler.get_hint(pchat_title)
+        result = self.gambler.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.haijin.get_hint(pchat_title)
+        result = self.haijin.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.librarian.get_hint(pchat_title)
+        result = self.librarian.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.majordomo.get_hint(pchat_title)
+        result = self.majordomo.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.meteorolog.get_hint(pchat_title)
+        result = self.meteorolog.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.stargazer.get_hint(pchat_title)
+        result = self.stargazer.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.statistic.get_hint(pchat_title)
+        result = self.statistic.get_hint(proom_name)
         if result:
 
             answer += result + "\n"
-        result = self.theolog.get_hint(pchat_title)
+        result = self.theolog.get_hint(proom_name)
         if result:
 
             answer += result + "\n"

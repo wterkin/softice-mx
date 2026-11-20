@@ -52,13 +52,13 @@ class CManager(basis.CBasis):
             file.unlink()
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         # """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [manager.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
-        return super().get_hint(pchat_title, UNIT_ID, HINT)
+            "Пропущен параметр <proom_name> !"
+        return super().get_hint(proom_name, UNIT_ID, HINT)
 
 
     async def reload(self):

@@ -151,18 +151,18 @@ class CLibrarian(basis.CBasis):
         print("Библиотекарь стартовал.")
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,  punit_id: str = "",
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CLibrarian.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [CLibrarian.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
 
@@ -213,33 +213,33 @@ class CLibrarian(basis.CBasis):
         return answer
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CLibrarian.get_commands] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CLibrarian.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_COMMAND])
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMAND])
 
 
-    async def librarian(self, pchat_title, puser_name: str,
+    async def librarian(self, proom_name, puser_name: str,
                         pevent_sender: str, pmessage_text: str) -> str:
         """Процедура разбора запроса пользователя."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [CLibrarian.librarian] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert puser_name is not None, \
             "Assert: [CLibrarian.librarian] " \
             "Пропущен параметр <puser_name> !"
@@ -247,7 +247,7 @@ class CLibrarian(basis.CBasis):
         command: int
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        if self.can_process_command(pchat_title, pmessage_text):
+        if self.can_process_command(proom_name, pmessage_text):
 
             # rint(f"*** Libr:libr * {pevent_sender=}")
             # rint(f"*** Libr:libr * {self.config.master=}")
@@ -285,7 +285,7 @@ class CLibrarian(basis.CBasis):
                               f"только {self.config.master} может сохранять цитаты!")
             elif word_list[0] in COMMANDS[HINT_COMMAND]:
 
-                answer = self.get_commands(pchat_title)
+                answer = self.get_commands(proom_name)
             else:
 
                 # *** Получим код команды

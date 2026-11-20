@@ -14,23 +14,23 @@ class CPrototype:
         pass
 
     @abstractmethod
-    def can_process_command(self, pchat_title: str, pmessage: str,
+    def can_process_command(self, proom_name: str, pmessage: str,
                             punit_id: str, pcommands: list) -> bool:
         """Возвращает True, если модуль может обработать команду."""
 
     @abstractmethod
-    def can_process(self, pchat_title: str, punit_id: str,
+    def can_process(self, proom_name: str, punit_id: str,
                     pmessage_text: str, pcommands: list) -> bool:
         """Возвращает True, если модуль может обработать команду."""
 
 
     @abstractmethod
-    def get_commands(self, pchat_title: str, punit_id: str, pdescriptions: list) -> str:
+    def get_commands(self, proom_name: str, punit_id: str, pdescriptions: list) -> str:
         """Возвращает список команд модуля, доступных пользователю."""
 
 
     @abstractmethod
-    def get_hint(self, pchat_title: str, punit_id: str, phints: str) -> str:
+    def get_hint(self, proom_name: str, punit_id: str, phints: str) -> str:
         """Возвращает команду верхнего уровня, в ответ на которую
            модуль возвращает полный список команд, доступных пользователю."""
 
@@ -41,7 +41,7 @@ class CPrototype:
 
 
     @abstractmethod
-    def is_enabled(self, pchat_title: str, punit_id: str) -> bool:
+    def is_enabled(self, proom_name: str, punit_id: str) -> bool:
         """Возвращает True, если на этом канале этот модуль разрешен."""
 
 

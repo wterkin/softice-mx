@@ -9,6 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
 from sqlalchemy.ext.hybrid import hybrid_property
 
+from softice.config import Config
+
 # py lint: disable=C0301
 # py lint: disable=line-too-long
 
@@ -382,9 +384,9 @@ class CStat(CAncestor):
 class CDataBase:
     """Класс для работы с базой данных."""
 
-    def __init__(self, pconfig, pdatabase_name: str):
+    def __init__(self, pconfig: Config, pdatabase_name: str):
         """Конструктор класса."""
-        self.config: dict = pconfig
+        self.config: Config = pconfig
         self.AsyncSessionLocal = None
         self.engine = None
         self.busy: bool = False

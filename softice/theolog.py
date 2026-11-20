@@ -190,18 +190,18 @@ class CTheolog(basis.CBasis):
         print("Теолог стартовал.")
 
 
-    def can_process_command(self, pchat_title: str, pmessage: str,
+    def can_process_command(self, proom_name: str, pmessage: str,
                             punit_id: str = "", pcommands: list = None) -> bool:  # ok
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [theolog.can_process_command] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
             "Assert: [theolog.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        return super().can_process_command(pchat_title, pmessage, UNIT_ID, COMMANDS)
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
     def can_process_book(self, pword: str) -> bool:  # ok
@@ -279,22 +279,22 @@ class CTheolog(basis.CBasis):
 
 
 
-    def get_commands(self, pchat_title: str, punit_id: str="", pdescriptions: list=None) -> str:
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [theolog.get_commands] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_commands(pchat_title, UNIT_ID, DESCRIPTIONS)
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def get_books(self, pchat_title: str) -> str:
+    def get_books(self, proom_name: str) -> str:
         """Возвращает список книг Библии."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [theolog.get_books] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
         books: str = ""
         for book in BOOKS_LIST:
@@ -309,14 +309,14 @@ class CTheolog(basis.CBasis):
         return books
 
 
-    def get_hint(self, pchat_title: str, punit_id: str = "", phints: str = "") -> str:
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
         """Возвращает список команд, поддерживаемых модулем.  """
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
             "Assert: [haijin.get_hint] " \
-            "Пропущен параметр <pchat_title> !"
+            "Пропущен параметр <proom_name> !"
 
-        return super().get_hint(pchat_title, UNIT_ID, COMMANDS[HINT_GROUP])
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
     async def find_in_testament(self, ptestament: str, pphrase: str,
@@ -414,11 +414,11 @@ class CTheolog(basis.CBasis):
         pass
 
 
-    async def theolog(self, pchat_title: str, pmessage_text: str) -> str:
+    async def theolog(self, proom_name: str, pmessage_text: str) -> str:
         """Обрабатывает запросы теолога."""
 
-        assert pchat_title is not None, \
-            "Assert: [theolog.theolog] No <pchat_title> parameter specified!"
+        assert proom_name is not None, \
+            "Assert: [theolog.theolog] No <proom_name> parameter specified!"
         assert pmessage_text is not None, \
             "Assert: [theolog.theolog] No <pmessage_text> parameter specified!"
 
@@ -433,7 +433,7 @@ class CTheolog(basis.CBasis):
         specified_line: int = DEFAULT_SPECIFIED_LINE
         # rint(f"+++ Th +++ th +++ * 000 ")
         # *** Можем обработать?
-        if self.can_process_command(pchat_title, pmessage_text, UNIT_ID, COMMANDS) or \
+        if self.can_process_command(proom_name, pmessage_text, UNIT_ID, COMMANDS) or \
             self.can_process_book(word_list[0]):
 
             # rint(f"+++ Th +++ th +++ * 111 ")
@@ -442,11 +442,11 @@ class CTheolog(basis.CBasis):
 
                 if word_list[COMMAND_ARG] in COMMANDS[HINT_GROUP]:
 
-                    return self.get_commands(pchat_title)
+                    return self.get_commands(proom_name)
                 # *** Либо запрос списка книг
                 if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
-                    return self.get_books(pchat_title)
+                    return self.get_books(proom_name)
             # rint(f"+++ Th +++ th +++ * 111 ")
             # *** Если есть больше одного параметра, то смотрим, что там запросили
             if param_count > 1:
