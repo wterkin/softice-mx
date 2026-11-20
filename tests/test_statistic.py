@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 
 import unittest
+from unittest.mock import Mock
 
 import datetime as dtime
 
@@ -139,18 +140,20 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
     async def test_get_statistic(self):
 
         # async def get_statistic(self, proom_id: str, pcount: int, porder_by: int) -> str:
+        fake_client = Mock(spec=nio.AsyncClient)
+        fake_client.user = "@fake_user:example.com"
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.PHRASES_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.PHRASES_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.PHRASES_ORDER))
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.WORDS_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.WORDS_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.WORDS_ORDER))
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.IMAGES_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.IMAGES_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.IMAGES_ORDER))
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.AUDIOS_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.AUDIOS_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.AUDIOS_ORDER))
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.VIDEOS_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.VIDEOS_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.VIDEOS_ORDER))
         self.assertIn(f"Отсортировано по количеству {statistic.SORTED_BY[statistic.FILES_ORDER-1]}",
-                      await self.statistic.get_statistic(TEST_ROOM_ID, 5, statistic.FILES_ORDER))
+                      await self.statistic.get_statistic(fake_client, TEST_ROOM_ID, 5, statistic.FILES_ORDER))
         await self.statistic.destroy()
 
 
@@ -245,15 +248,17 @@ class CTestStatistic(unittest.IsolatedAsyncioTestCase):
                 result = await self.add_stat(room_id, user_id)
                 if result == 1:
 
-                    self.assertTrue(await self.statistic.statistic(1, self.config.test_chat, "Master", "!top10"))
-                    self.assertIn("пв10", await self.statistic.statistic(1, self.config.test_chat, "Master", "!стат"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 1"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 2"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 3"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 4"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 5"))
-                    self.assertIn("Самые общительные", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 6"))
-                    self.assertIn(f"{TEST_USER_NAME} наговорил", await self.statistic.statistic(TEST_ROOM_ID, self.config.test_chat, TEST_USER_NAME, "!лич"))
+                    fake_client = Mock(spec=nio.AsyncClient)
+                    fake_client.user = "@fake_user:example.com"
+                    self.assertTrue(await self.statistic.statistic(fake_client, 1, self.config.test_chat, "Master", "!top10"))
+                    self.assertIn("пв10", await self.statistic.statistic(fake_client, 1, self.config.test_chat, "Master", "!стат"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 1"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 2"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 3"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top10 4"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top25 5"))
+                    self.assertIn("Самые общительные", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, "Master", "!top50 6"))
+                    self.assertIn(f"{TEST_USER_NAME} наговорил", await self.statistic.statistic(fake_client, TEST_ROOM_ID, self.config.test_chat, TEST_USER_NAME, "!лич"))
 
 
     """
