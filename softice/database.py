@@ -390,7 +390,7 @@ class CDataBase:
         self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
-        print(f"*** Database ** in ** {self.database_name} **")
+        # rint(f"*** Database ** in ** {self.database_name} **")
         self.connected: bool = False
 
 
@@ -434,9 +434,8 @@ class CDataBase:
                 if self.AsyncSessionLocal:
 
                     self.connected = True
-                else:
-
-                    print(f"*** Database ** cn ** self.AsyncSessionLocal is None! **")
+                # else:
+                #    print(f"*** Database ** cn ** self.AsyncSessionLocal is None! **")
 
 
             except exc.SQLAlchemyError:

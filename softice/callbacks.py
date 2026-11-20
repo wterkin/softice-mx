@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 """Основной модуль управления ботом."""
 import logging
-
-#from typing import Optional
+import os
 from datetime import datetime
-#from pathlib import Path
-#import json
-#import aiofiles
 
 # pylint: disable=import-error
 from nio import (
@@ -16,18 +12,18 @@ from nio import (
     MatrixRoom,
     MegolmEvent,
     RoomGetEventError,
-    RoomMessage,
+    # RoomMessage,
     RoomMessageText,
-    RoomMessageImage,
-
+    # RoomMessageImage,
+    UploadResponse,
     UnknownEvent,
 )  # noqa
 # pylint: enable=import-error
 
-# from softice.bot_commands import Command
+from PIL import Image
+
 from softice.chat_functions import make_pill, react_to_event, send_text_to_room
 from softice.config import Config
-# from softice.message_responses import Message
 from softice.storage import Storage
 from softice.babbler import CBabbler
 from softice.barman import CBarman
@@ -48,9 +44,6 @@ logger = logging.getLogger(__name__)
 # pylint: disable=logging-fstring-interpolation
 
 MINIMUM_USER_QUANTITY: int = 2
-#if config.debug:
-#else:
-#    OBSOLETE_PERIOD: int = 3000
 HELP_MESSAGE: str = ("Все команды к боту должны начинаться с ! (восклицательного знака). "
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
@@ -59,51 +52,22 @@ OBSOLETE_PERIOD: int = 60000 # millisec
 TIMESTAMP_FILE: str = "timestamp.json"
 TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
 
-"""
-async def safe_read_json(filepath: str) -> Optional[dict]:
-    ""Безопасное чтение JSON с обработкой ошибок.""
-    try:
-        async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
-            content = await f.read()
-            return json.loads(content)
-    except FileNotFoundError:
-        print(f"Файл {filepath} не найден")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"Ошибка парсинга JSON в {filepath}: {e}")
-        return None
 
-async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
-    ""Безопасная запись JSON с обработкой ошибок.""
-    try:
-        # Создаём директорию, если её нет
-        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-
-        async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
-            content = json.dumps(data, indent=indent, ensure_ascii=False)
-            await f.write(content)
-        return True
-    except Exception as e:
-        print(f"Ошибка записи в {filepath}: {e}")
-        return False
-
-"""
+# pylint: disable=too-many-instance-attributes
 class Callbacks:
     """Класс обратных вызовов."""
     def __init__(self, client: AsyncClient, store: Storage, config: Config):
         """
         Args:
             client: nio client used to interact with matrix.
-
             store: Bot storage.
-
             config: Bot configuration parameters.
         """
         self.client = client
         self.store = store
         self.config = config
         self.command_prefix = config.command_prefix
-
+        # *** Создаём объекты классов
         self.babbler: CBabbler = CBabbler(self.config)
         self.barman: CBarman = CBarman(self.config)
         self.collector: CCollector = CCollector(self.config)
@@ -120,7 +84,7 @@ class Callbacks:
         self.first_run: bool = True
         self.last_message: str = ""
         self.manager.delete_restart_flag()
-        # self.last_timestamp: int = 0  # in millisec
+
 
     async def run_once(self):
         """Функция выполняется один раз в начале работы."""
@@ -128,7 +92,7 @@ class Callbacks:
         if self.first_run:
 
             self.first_run = False
-            print("*** Run once.")
+            # print("*** Run once.")
             await self.babbler.reload()
             await self.barman.reload()
             await self.haijin.reload()
@@ -136,9 +100,6 @@ class Callbacks:
             await self.majordomo.reload()
             await self.moderator.reload()
             await self.statistic.init()
-            # await self.load_timestamp()
-
-
 
 
     async def is_obsolete(self, pevent: RoomMessageText) -> bool:
@@ -148,25 +109,7 @@ class Callbacks:
         delta: int = now_time - pevent.server_timestamp
         return delta >= OBSOLETE_PERIOD
 
-    """
-    async def load_timestamp(self) -> None:
-        ""Читает из внешнего файла сохранённый timestamp.""
-
-        timestamp_dict: dict = {"timestamp" : "0"}
-        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
-        if filepath.exists():
-
-            timestamp_dict = await safe_read_json(str(filepath))
-        self.last_timestamp = int(timestamp_dict["timestamp"])
-        print(f":: clbk.is_obsolete :: время восстановлено {self.last_timestamp=}")
-
-
-    async def save_timestamp(self) -> bool:
-        ""Сохраняет timestamp""
-        timestamp_dict: dict = {"timestamp" : str(self.last_timestamp)}
-        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
-        return await safe_write_json(str(filepath), timestamp_dict)
-    """
+    # pylint: disable=too-many-branches
     # *** Основная процедура вызывается при каждом пришедшем сообщении
     async def message(self, room: MatrixRoom, event: RoomMessageText) -> None:
         """Callback for when a message event is received
@@ -174,17 +117,6 @@ class Callbacks:
             room: The room the event came from.
             event: The event defining the message.
         """
-        # rint(f"Тип event: {type(event)}")
-        # rint(f"Класс event: {event.__class__.__name__}")
-        # rint(f"Это строка? {isinstance(event, str)}")
-        # rint(f"Это RoomMessage? {isinstance(event, RoomMessage)}")
-        # rint(f"Это RoomMessageText? {isinstance(event, RoomMessageText)}")
-        # rint(f"Это RoomMessageImage? {isinstance(event, RoomMessageImage)}")
-        # rint("-" * 40)
-
-        # if self.config.debug:
-
-            # rint(":: clbk.message :: message income! ::")
         # *** Вызываем процедуру, которая выполняется один раз.
         await self.run_once()
         answer: str = ""
@@ -206,41 +138,21 @@ class Callbacks:
             # *** Получим текст сообщения
             message: str = event.body
 
-            #if self.config.debug:
-
             # rint(f":: clbk.message :: i :: {message}")
             # *** Выведем в лог отладочное сообщение
             logger.debug(
                 f"Bot message received for room {room.display_name} | "
                 f"{room.user_name(event.sender)}: {message}"
             )
-            # if self.config.debug:
-
-                # rint(f":: clbk.message :: evn :: {event}")
-                # rint(f":: clbk.message :: {room.room_id=}")
-                # rint(f":: clbk.message :: {room.name=}")
-
-            # Process as message if in a public room without command prefix
-            # room.is_group is often a DM, but not always.
-            # room.is_group does not allow room aliases
-            # room.member_count > 2 ... we assume a public room
-            # room.member_count <= 2 ... we assume a DM
-                # General message listener
-            # message = Message(self.client, self.store, self.config, msg, room, event)
-            # await message.process()
-            # async def get_display_name_in_room(client, room_id: str, user_id: str) -> str:
             local_name: str = await self.get_display_name_in_room(room.room_id, event.sender)
-            # rint(f"***** {local_name=}")
             has_command_prefix = message.startswith(self.command_prefix)
-            #if self.config.debug:
-
-            #    print(f":: clbk.message :: cp :: {self.command_prefix}")
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
                 # *** Может, запросили помощь?
                 if "help" in message:
 
+                    # *** Выведем подсказку
                     answer = self.send_hints(room.name)
                 if not answer:
 
@@ -258,9 +170,9 @@ class Callbacks:
 
                     # *** Хайдзину есть что сказать?
                     answer = await self.haijin.haijin(room.name, local_name, event.sender, message)
-                    # rint(f"+++ Cllb +++ 1 +++ {answer=}")
                 if not answer:
 
+                    # *** Библиотекарю есть что сказать?
                     answer = await self.librarian.librarian(room.name, local_name,
                                                             event.sender, message)
                 if not answer:
@@ -288,9 +200,6 @@ class Callbacks:
                 if not answer:
 
                     # *** Статистику есть что сказать?
-                    #async def statistic(self, pmx_room_id: int, pmx_room_name: str,
-                    #pmx_user_name, pmessage_text: str) -> str:
-
                     answer = await self.statistic.statistic(room.room_id, room.name,
                                                             event.sender, message)
                 if not answer:
@@ -305,47 +214,21 @@ class Callbacks:
             else:
 
                 # *** Просто сообщение
-                # def talk(self, proom: str, pmessage: str) -> str:
-                # ToDo: Вот тут вывести картинку, если есть
-                # rint(f"+++ Cllb +++ 2 +++ {answer=}")
                 answer = await self.moderator.control_talking(room, event, local_name)
                 if not answer:
 
                     answer, file_name = await self.babbler.talk(room.name, message)
+                    if file_name:
+
+                        self.send_jpg(room.room_id, file_name)
             if answer:
 
-                # answer = answer.strip()
-
-                # rint(f"+++ Cllb +++ 3 +++ {answer=}")
-                # if self.config.debug:
-
-                # rint(f":: clbk.message :: s :: {answer} {self.last_message}")
                 if answer != self.last_message:
 
                     await send_text_to_room(self.client, room.room_id, answer.strip(), False, False)
                     self.last_message = answer
-            # return
-
-        # else:
-            # if self.config.debug:
-
-            #    rint(":: clbk.message :: O ::")
         return
 
-        # Otherwise if this is in a 1-1 with the bot or features a command prefix,
-        # treat it as a command
-        # rint(f"*** {self.command_prefix=}")
-
-        #if has_command_prefix:
-        #    Remove the command prefix
-        #    rint("Таки это команда!")
-        #    msg = msg[len(self.command_prefix) :]
-
-        # rint(f"*** {msg=}")
-        # rint(f"*** {room=}")
-        # rint(f"*** {event=}")
-        # command = Command(self.client, self.store, self.config, msg, room, event)
-        # await command.process()
 
     async def invite(self, room: MatrixRoom, event: InviteMemberEvent) -> None:
         """Callback for when an invite is received. Join the room specified in the invite.
@@ -357,21 +240,25 @@ class Callbacks:
 
         # Attempt to join 3 times before giving up
         for attempt in range(3):
+
             result = await self.client.join(room.room_id)
-            # if type(result) == JoinError:
             if isinstance(result, JoinError):
+
                 logger.error(
                     f"Error joining room {room.room_id} (attempt %d): %s",
                     attempt,
                     result.message,
                 )
             else:
+
                 break
         else:
+
             logger.error("Unable to join room: %s", room.room_id)
 
         # Successfully joined room
         logger.info(f"Joined {room.room_id}")
+
 
     def send_hints(self, pchat_title: str) -> str:
         """Проверяет, не была ли запрошена подсказка."""
@@ -382,10 +269,6 @@ class Callbacks:
         if result:
 
             answer += result + "\n"
-        #result = self.bellringer.get_hint(pchat_title)
-        #if result:
-
-            #answer += result + "\n"
         result = self.gambler.get_hint(pchat_title)
         if result:
 
@@ -423,6 +306,7 @@ class Callbacks:
             return HELP_MESSAGE + answer
         return answer
 
+
     async def invite_event_filtered_callback(
         self, room: MatrixRoom, event: InviteMemberEvent
     ) -> None:
@@ -435,6 +319,7 @@ class Callbacks:
         if event.state_key == self.client.user_id:
             # This is our own membership (invite) event
             await self.invite(room, event)
+
 
     async def _reaction(
         self, room: MatrixRoom, event: UnknownEvent, reacted_to_id: str
@@ -478,6 +363,7 @@ class Callbacks:
             reply_to_event_id=reacted_to_id,
         )
 
+
     async def decryption_failure(self, room: MatrixRoom, event: MegolmEvent) -> None:
         """Callback for when an event fails to decrypt. Inform the user.
 
@@ -505,6 +391,7 @@ class Callbacks:
             event.event_id,
             red_x_and_lock_emoji,
         )
+
 
     async def unknown(self, room: MatrixRoom, event: UnknownEvent) -> None:
         """Callback for when an event with a type that is unknown to matrix-nio is received.
@@ -539,7 +426,7 @@ class Callbacks:
             "Assert: [callbacks.get_display_name_in_room] No <user_id> parameter specified!"
 
         fallback_name = user_id.split(":")[0][1:]
-
+        # pylint: disable=broad-exception-caught
         try:
 
             state_resp = await self.client.room_get_state_event(room_id, "m.room.member", user_id)
@@ -558,3 +445,43 @@ class Callbacks:
 
         # Fallback
         return fallback_name
+
+
+    async def send_jpg(self, proom_id: str, pimage: str):
+        """Функция отправляет заданный JPG файл в заданную комнату"""
+
+        # Получаем размеры изображения и вес файла
+        with Image.open(pimage) as img:
+
+            width, height = img.size
+        file_size = os.path.getsize(pimage)
+
+        # 1. Загружаем файл на медиа-сервер Matrix
+        with open(pimage, "rb") as f:
+
+            resp, _ = await self.client.upload(
+                f,
+                content_type="image/jpeg",
+                filename=os.path.basename(pimage),
+                filesize=file_size,
+            )
+        if isinstance(resp, UploadResponse):
+
+            # 2. Отправляем событие m.image в комнату
+            content = {
+
+                "body": os.path.basename(pimage),
+                "info": {
+                    "size": file_size,
+                    "mimetype": "image/jpeg",
+                    "w": width,
+                    "h": height,
+                },
+                "msgtype": "m.image",
+                "url": resp.content_uri,  # mxc:// ссылка с сервера
+            }
+            await self.client.room_send(
+                room_id=proom_id,
+                message_type="m.room.message",
+                content=content
+            )

@@ -3,8 +3,9 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль прототипа классов модулей бота."""
 
-import asyncio
 import os
+from typing import Optional
+import asyncio
 from datetime import datetime as dtime
 from softice import prototype
 
@@ -23,7 +24,6 @@ class CBasis(prototype.CPrototype):
         "Пропущен параметр <pconfig> !"
 
         self.config = pconfig
-
 
 
     def can_process(self, pchat_title: str, punit_id: str,
@@ -152,7 +152,6 @@ class CBasis(prototype.CPrototype):
 
         # Fallback
         return fallback_name
-
 
 
     def identify_command(self, pword: str, pcommands : list) -> int:  # noqa
@@ -295,3 +294,53 @@ class CBasis(prototype.CPrototype):
 
     async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
+
+
+    async def safe_read_json(filepath: str) -> Optional[dict]:
+        """Безопасное чтение JSON с обработкой ошибок."""
+        try:
+            async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
+                content = await f.read()
+                return json.loads(content)
+        except FileNotFoundError:
+            print(f"Файл {filepath} не найден")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"Ошибка парсинга JSON в {filepath}: {e}")
+            return None
+
+
+    async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
+        """Безопасная запись JSON с обработкой ошибок."""
+        try:
+            # Создаём директорию, если её нет
+            Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
+            async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+                content = json.dumps(data, indent=indent, ensure_ascii=False)
+                await f.write(content)
+            return True
+        except Exception as e:
+            print(f"Ошибка записи в {filepath}: {e}")
+            return False
+
+
+    """
+    async def load_timestamp(self) -> None:
+        ""Читает из внешнего файла сохранённый timestamp.""
+
+        timestamp_dict: dict = {"timestamp" : "0"}
+        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
+        if filepath.exists():
+
+            timestamp_dict = await safe_read_json(str(filepath))
+        self.last_timestamp = int(timestamp_dict["timestamp"])
+        print(f":: clbk.is_obsolete :: время восстановлено {self.last_timestamp=}")
+
+
+    async def save_timestamp(self) -> bool:
+        ""Сохраняет timestamp""
+        timestamp_dict: dict = {"timestamp" : str(self.last_timestamp)}
+        filepath = Path(self.config.data_folder) / TIMESTAMP_FILE
+        return await safe_write_json(str(filepath), timestamp_dict)
+    """
