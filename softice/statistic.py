@@ -10,8 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 from nio import RoomMessageText, RoomMessageVideo, RoomMessageAudio,\
-                RoomMessageImage, RoomMessageFile
-
+                RoomMessageImage, RoomMessageFile, AsyncClient
 from softice import basis
 from softice import database as db
 
@@ -156,9 +155,6 @@ class CStatistic(basis.CBasis):
 
                         # rint(f"*** Statistic ** gri ** [1] {pmx_room_id=} ** {room.id=}**")
                         result = room.id
-            else:
-
-                print(f"*** Statistic ** gri ** [1] sess is None! ")
         except SQLAlchemyError:
 
             result = ERROR_CODE
@@ -235,9 +231,13 @@ class CStatistic(basis.CBasis):
         return answer
 
 
-    async def get_statistic(self, pmx_room_id: str, pcount: int, porder_by: int) -> str:
+    async def get_statistic(self, pclient: AsyncClient, pmx_room_id: str,
+                            pcount: int, porder_by: int) -> str:
         """Получает из базы статистику по самым говорливым юзерам."""
 
+        assert pclient is not None, \
+            "Assert: [statistic.get_statistic] " \
+            "Пропущен параметр <pclient> !"
         assert pmx_room_id is not None, \
             "Assert: [statistic.get_statistic] " \
             "Пропущен параметр <pmx_room_id> !"
@@ -278,30 +278,21 @@ class CStatistic(basis.CBasis):
         query = query.limit(pcount)
         sess = await self.database.get_session()
         async with sess() as session:
-        # async with await self.database.get_session() as session:
 
             value = await session.execute(query)
             result = value.all()
         answer = "Самые общительные:\n"
-        # rint(f"*** Statistic ** gst ** {result=} **")
-        # for number, room, stat, user in enumerate(result):
         local_name: str
         for room, stat, user in result:
 
-            # rint(f"*** Statistic ** gst ** {item=} **")
-            local_name = await self.get_display_name_in_room(room.froomid, user.fusername)
+            local_name = await self.get_display_name_in_room(pclient, room.froomid,
+                                                             user.fusername)
             answer += f"number + 1 : {local_name} : {stat.phrases}" \
                       f" фраз, {stat.words} слов, " \
                       f"{0 if stat.files is None else stat.files} файл., " \
                       f"{0 if stat.images is None else stat.images} картин., " \
                       f"{0 if stat.audios is None else stat.audios} звук. и " \
                       f"{0 if stat.videos is None else stat.videos} вид. \n"
-            # answer += f"{number + 1} : {item.username} : {item.phrases}" \
-                      # f" фраз, {item.words} слов, " \
-                      # f"{0 if item.files is None else item.files} файл., " \
-                      # f"{0 if item.images is None else item.images} картин., " \
-                      # f"{0 if item.audios is None else item.audios} звук. и " \
-                      # f"{0 if item.videos is None else item.videos} вид. \n"
         answer += f"Отсортировано по количеству {SORTED_BY[porder_by-1]}. \n"
         return answer
 
@@ -443,8 +434,8 @@ class CStatistic(basis.CBasis):
         return result
 
 
-    async def statistic(self, pmx_room_id: int, pmx_room_name: str,
-                        pmx_user_name, pmessage_text: str) -> str:
+    async def statistic(self, pclient: AsyncClient, pmx_room_id: int,
+                        pmx_room_name: str, pmx_user_name, pmessage_text: str) -> str:
         """Обработчик команд."""
 
         assert pmx_room_id is not None, \
@@ -488,13 +479,13 @@ class CStatistic(basis.CBasis):
                             order_by = 1
                     if command == TOP_10_GROUP:
 
-                        answer = await self.get_statistic(pmx_room_id, 10, order_by)
+                        answer = await self.get_statistic(pclient, pmx_room_id, 10, order_by)
                     elif command == TOP_25_GROUP:
 
-                        answer = await self.get_statistic(pmx_room_id, 25, order_by)
+                        answer = await self.get_statistic(pclient, pmx_room_id, 25, order_by)
                     elif command == TOP_50_GROUP:
 
-                        answer = await self.get_statistic(pmx_room_id, 50, order_by)
+                        answer = await self.get_statistic(pclient, pmx_room_id, 50, order_by)
                     elif command == PERSONAL_GROUP:
 
                         # rint(f"*** Statistic ** stat ** persinf ** {pmx_user_name=} ***")

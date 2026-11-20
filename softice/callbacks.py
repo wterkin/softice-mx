@@ -144,7 +144,8 @@ class Callbacks:
                 f"Bot message received for room {room.display_name} | "
                 f"{room.user_name(event.sender)}: {message}"
             )
-            local_name: str = await self.get_display_name_in_room(room.room_id, event.sender)
+            local_name: str = await self.get_display_name_in_room(  room.room_id,
+                                                                  event.sender)
             has_command_prefix = message.startswith(self.command_prefix)
             # *** Что у нас в сообщении?
             if has_command_prefix:
@@ -200,7 +201,7 @@ class Callbacks:
                 if not answer:
 
                     # *** Статистику есть что сказать?
-                    answer = await self.statistic.statistic(room.room_id, room.name,
+                    answer = await self.statistic.statistic(self.client, room.room_id, room.name,
                                                             event.sender, message)
                 if not answer:
 
@@ -325,12 +326,9 @@ class Callbacks:
         self, room: MatrixRoom, event: UnknownEvent, reacted_to_id: str
     ) -> None:
         """A reaction was sent to one of our messages. Let's send a reply acknowledging it.
-
         Args:
             room: The room the reaction was sent in.
-
             event: The reaction event.
-
             reacted_to_id: The event ID that the reaction points to.
         """
         logger.debug(f"Got reaction to {room.room_id} from {event.sender}.") # noqa

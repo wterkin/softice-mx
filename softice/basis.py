@@ -5,8 +5,12 @@
 
 import os
 from typing import Optional
-import asyncio
 from datetime import datetime as dtime
+from pathlib import Path
+import asyncio
+import json
+import aiofiles
+from nio import AsyncClient
 from softice import prototype
 
 BACKSLASH: str = "\\"
@@ -124,9 +128,12 @@ class CBasis(prototype.CPrototype):
         return ""
 
 
-    async def get_display_name_in_room(self, room_id: str, user_name: str) -> str:
+    async def get_display_name_in_room(self, client: AsyncClient, room_id: str,
+                                       user_name: str) -> str:
         """ Функция возвращает локальное имя пользователя в заданной комнате. """
 
+        assert client is not None, \
+            "Assert: [callbacks.get_display_name_in_room] No <client> parameter specified!"
         assert room_id is not None, \
             "Assert: [callbacks.get_display_name_in_room] No <room_id> parameter specified!"
         assert user_name is not None, \
@@ -136,10 +143,10 @@ class CBasis(prototype.CPrototype):
 
         try:
 
-            state_resp = await self.client.room_get_state_event(room_id, "m.room.member", user_name)
+            state_resp = await client.room_get_state_event(room_id, "m.room.member", user_name)
             if hasattr(state_resp, 'content') and isinstance(state_resp.content, dict):
 
-                # Пробуем все возможные ключи, которые использует Matrix
+                # *** Пробуем все возможные ключи, которые использует Matrix
                 local_name = (
                     state_resp.content.get("displayname") or
                     state_resp.content.get("display_name")
@@ -147,6 +154,7 @@ class CBasis(prototype.CPrototype):
                 if local_name:
 
                     return local_name
+        # pylint: disable=broad-exception-caught
         except Exception as e:
             print(f"[DEBUG] Ошибка запроса state: {e}")
 
@@ -285,10 +293,6 @@ class CBasis(prototype.CPrototype):
         assert pmessage_text is not None, \
             "Assert: [CBasis.parse_input] Пропущен параметр <pmessage_text> !"
 
-        # rint(f"+++ Bas +++ 0 +++ {pmessage_text=}")
-        # rint(f"+++ Bas +++ 1 +++ {pmessage_text[1:]=}")
-        # rint(f"+++ Bas +++ 2 +++ {pmessage_text[1:].strip()=}")
-        # rint(f"+++ Bas +++ 3 +++ {pmessage_text[1:].strip().split(' ')=}")
         return pmessage_text[1:].strip().split(" ")
 
 
@@ -296,35 +300,39 @@ class CBasis(prototype.CPrototype):
         """Вызывает перезагрузку внешних данных модуля."""
 
 
-    async def safe_read_json(filepath: str) -> Optional[dict]:
-        """Безопасное чтение JSON с обработкой ошибок."""
-        try:
-            async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
-                content = await f.read()
-                return json.loads(content)
-        except FileNotFoundError:
-            print(f"Файл {filepath} не найден")
-            return None
-        except json.JSONDecodeError as e:
-            print(f"Ошибка парсинга JSON в {filepath}: {e}")
-            return None
+async def safe_read_json(filepath: str) -> Optional[dict]:
+    """Безопасное чтение JSON с обработкой ошибок."""
+    try:
+        async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
+            content = await f.read()
+            return json.loads(content)
+    except FileNotFoundError:
+        print(f"Файл {filepath} не найден")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Ошибка парсинга JSON в {filepath}: {e}")
+        return None
 
 
-    async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
-        """Безопасная запись JSON с обработкой ошибок."""
-        try:
-            # Создаём директорию, если её нет
-            Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
+    """Безопасная запись JSON с обработкой ошибок."""
+    try:
+        # Создаём директорию, если её нет
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
-            async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
-                content = json.dumps(data, indent=indent, ensure_ascii=False)
-                await f.write(content)
-            return True
-        except Exception as e:
-            print(f"Ошибка записи в {filepath}: {e}")
-            return False
+        async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+
+            content = json.dumps(data, indent=indent, ensure_ascii=False)
+            await f.write(content)
+        return True
+    # pylint: disable=broad-exception-caught
+    except Exception as e:
+
+        print(f"Ошибка записи в {filepath}: {e}")
+        return False
 
 
+    # pylint: disable=pointless-string-statement
     """
     async def load_timestamp(self) -> None:
         ""Читает из внешнего файла сохранённый timestamp.""
