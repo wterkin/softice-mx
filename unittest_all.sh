@@ -33,7 +33,10 @@ echo %%%%%%%%%%%%%%%%%%%%%% Moderator %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_moderator.py" -vv  >> unittest.log 2>> unittest2.log
 echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Stargazer %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
+echo %%%%%%%%%%%%%%%%%%%%%% Statistic %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
+echo %%%%%%%%%%%%%%%%%%%%%% Statistic %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_stargazer.py" -vv  >> unittest.log 2>> unittest2.log
+/home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_statistic.py" -vv  >> unittest.log 2>> unittest2.log
 echo %%%%%%%%%%%%%%%%%%%%%% Theolog %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest.log
 echo %%%%%%%%%%%%%%%%%%%%%% Theolog %%%%%%%%%%%%%%%%%%%%%%%%%%%% >> unittest2.log
 /home/user/bin/env/matrix/bin/python -m unittest discover tests/ -p "test_theolog.py" -vv  >> unittest.log 2>> unittest2.log

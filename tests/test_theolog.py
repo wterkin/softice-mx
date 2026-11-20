@@ -57,7 +57,7 @@ class CTestTheolog(TestCase):
 
 
     def test_find_by_verse_number(self):
-        
+
         result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "1", 1))
         self.assertIn("небо и землю", result)
         result = asyncio.run(self.theolog.find_by_verse_number(0, "Книга Бытия", "1", "2", 1))
@@ -75,24 +75,24 @@ class CTestTheolog(TestCase):
         self.assertIn("найтинз, нз, findnew, fn",
                       self.theolog.get_commands(self.config.test_chat))
         self.assertEqual(self.theolog.get_commands("fakechat"), "")
-        self.assertEqual(self.theolog.get_commands("emptychat"), "")        
+        self.assertEqual(self.theolog.get_commands("emptychat"), "")
 
     def test_get_books(self):
-        
+
         # def get_books(self, pchat_title: str) -> str:
-        self.assertIn("Бытие", self.theolog.get_books(self.config.test_chat))
+        self.assertIn("Книга Бытия", self.theolog.get_books(self.config.test_chat))
         self.assertIn("", self.theolog.get_books("fakechat"))
-        self.assertIn("", self.theolog.get_books("emptychat"))        
+        self.assertIn("", self.theolog.get_books("emptychat"))
 
     def test_get_hint(self):
-        
+
         self.assertIn("библия, бб, bible, bb", self.theolog.get_hint(self.config.test_chat))
         self.assertIn("", self.theolog.get_hint("fakechat"))
-        self.assertIn("", self.theolog.get_hint("emptychat"))        
+        self.assertIn("", self.theolog.get_hint("emptychat"))
 
 
     def test_find_in_testament(self):
-        
+
         # async def find_in_testament(self, ptestament: str, pphrase: str,
         #                             pfull_selection: bool = False,
         #                             pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES,
@@ -101,19 +101,19 @@ class CTestTheolog(TestCase):
         result = asyncio.run(self.theolog.find_in_testament("вз", "Хорошо живёт на свете Винни-Пух!".lower(), False, 1, 0))
         self.assertEqual(result, "")
         # full selection
-        result = asyncio.run(self.theolog.find_in_testament("вз", "и назвал", True, 1, 0))     
+        result = asyncio.run(self.theolog.find_in_testament("вз", "и назвал", True, 1, 0))
         self.assertIn("сушу землею", result)
         # number_of_line
-        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 4, 0))     
+        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 4, 0))
         self.assertIn("день четвертый", result)
         # specified_line
-        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 1, 3))     
+        result = asyncio.run(self.theolog.find_in_testament("вз", "был вечер, и было утро", False, 1, 3))
         self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
 
     def test_theolog(self):
 
         # async def theolog(self, pchat_title: str, pmessage_text: str) -> str:
-        # result = asyncio.run(self.theolog.theolog()     
+        # result = asyncio.run(self.theolog.theolog()
         result = asyncio.run(self.theolog.theolog("fakechat", "!bible"))
         self.assertFalse(result)
         result = asyncio.run(self.theolog.theolog("emptychat", "!книги"))
@@ -126,11 +126,11 @@ class CTestTheolog(TestCase):
         self.assertIn("сушу землею", result)
         #result = asyncio.run(self.theolog.theolog(self.config.test_chat, ("!быт назвал -f")))
         #self.assertIn("И назвал Бог твердь небом",result)
-        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз и назвал -f "))     
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз и назвал -f "))
         self.assertIn("сушу землею", result)
-        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -n 4"))     
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -n 4"))
         self.assertIn("день четвертый", result)
-        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -l 3"))     
+        result = asyncio.run(self.theolog.theolog(self.config.test_chat, "!вз был вечер, и было утро -l 3"))
         self.assertEqual(result, "Книга Бытия глава 1 стих 13 : И был вечер, и было утро: день третий.\n")
 
 
