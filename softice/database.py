@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль функций, связанных с БД."""
-from pathlib import Path
-from typing import Union
 
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, DateTime, exc, select, delete, Boolean, text
+from sqlalchemy import Column, Integer, String, MetaData, ForeignKey, \
+                       DateTime, exc, select, delete, Boolean, text
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker # , AsyncSession
@@ -146,7 +145,7 @@ class CUser(CAncestor):
     def __str__(self):
         """Str"""
 
-        return (f"* User: {self.id} * {self.fstatus} * {self.fusername} *")
+        return f"* User: {self.id} * {self.fstatus} * {self.fusername} *"
 
     def null(self):
         """Чтоб линтер был щаслив."""
@@ -490,7 +489,8 @@ class CDataBase:
                 # Используем новое имя параметра
                 # rint(f"*** Database ** wt ** {model_class.__tablename__} **")
                 await session.execute(delete(model_class))
-                await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__} RESTART IDENTITY CASCADE"))
+                await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__}"
+                                            " RESTART IDENTITY CASCADE"))
                 # rint(f"*** Database ** wt ** commit **")
                 await session.commit()
                 # rint(f"*** Database ** wt ** done **")
