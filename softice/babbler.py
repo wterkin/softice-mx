@@ -45,35 +45,35 @@ class CBabbler(basis.CBasis):
         print("Болтун стартовал.")
 
 
-    async def babbler(self, pchat_title: str, puser_title: str, pmessage: str) -> str:
+    async def babbler(self, proom_name: str, puser_name: str, pmessage: str) -> str:
         """Обработчик команд болтуна"""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
         "Assert: [CBabbler.babbler] " \
-        "Пропущен параметр <pchat_title> !"
-        assert puser_title is not None, \
+        "Пропущен параметр <proom_name> !"
+        assert puser_name is not None, \
         "Assert: [CBabbler.babbler] " \
-        "Пропущен параметр <puser_title> !"
+        "Пропущен параметр <puser_name> !"
         assert pmessage is not None, \
         "Assert: [CBabbler.babbler] " \
         "Пропущен параметр <pmessage> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage)
-        if self.can_process(pchat_title, UNIT_ID, pmessage, COMMANDS):
+        if self.can_process(proom_name, UNIT_ID, pmessage, COMMANDS):
 
             # *** Возможно, запросили перезагрузку базы.
             if word_list[0] in COMMANDS:
 
-                if self.is_master(puser_title):
+                if self.is_master(puser_name):
 
                     await self.reload()
                     answer = "База болтуна обновлена"
                 else:
 
                     print(f"> Babbler: Запрос на перезагрузку конфига от "
-                          f"нелегитимного лица {puser_title}.")
-                    answer = f"У вас нет на это прав, {puser_title}."
+                          f"нелегитимного лица {puser_name}.")
+                    answer = f"У вас нет на это прав, {puser_name}."
         return answer
 
 
@@ -95,12 +95,12 @@ class CBabbler(basis.CBasis):
         return personal
 
 
-    async def talk(self, pchat_title: str, pmessage: str) -> str:
+    async def talk(self, proom_name: str, pmessage: str) -> str:
         """Улучшенная версия болтуна."""
 
-        assert pchat_title is not None, \
+        assert proom_name is not None, \
         "Assert: [CBabbler.talk] " \
-        "Пропущен параметр <pchat_title> !"
+        "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
         "Assert: [CBabbler.talk] " \
         "Пропущен параметр <pmessage> !"
@@ -108,7 +108,7 @@ class CBabbler(basis.CBasis):
         answer: str = ""
         file_name: str = ""
 
-        if self.is_enabled(pchat_title, UNIT_ID):
+        if self.is_enabled(proom_name, UNIT_ID):
 
             # *** Заданный период времени с последней фразы прошел?
             minutes: float = (datetime.now() - self.last_phrase_time).total_seconds() / \
@@ -215,62 +215,3 @@ class CBabbler(basis.CBasis):
 
                 break
         return answer, file_name.replace("\\", "/")
-"""
-import mimetypes
-from pathlib import Path
-
-# Путь к файлу
-image_path = Path("my_image.png")
-
-# Определи MIME-тип
-mime_type = mimetypes.guess_type(image_path)[0] or "application/octet-stream"
-
-# Прочитай файл
-with open(image_path, "rb") as f:
-    image_data = f.read()
-
-# Загрузи на сервер
-response = await client.upload(
-    data=image_data,
-    content_type=mime_type,
-    filename=image_path.name
-)
-
-if isinstance(response, UploadResponse):
-    mxc_url = response.content_uri  # что-то вроде "mxc://example.com/..."
-else:
-    print("Ошибка загрузки:", response)
-    return
-    
-    
-from nio import RoomSendResponse
-
-# Узнай размеры (опционально, но рекомендуется)
-from PIL import Image
-with Image.open(image_path) as img:
-    width, height = img.size
-
-# Отправь сообщение типа "m.image"
-content = {
-        "mimetype": mime_type,
-    "body": image_path.name,          # имя файла (подпись)
-    "msgtype": "m.image",
-    "url": mxc_url,
-    "info": {
-        "size": len(image_data),
-        "w": width,
-        "h": height,
-    }
-}
-
-resp = await client.room_send(
-    room_id=room_id,
-    message_type="m.room.message",
-    content=content
-)
-
-if isinstance(resp, RoomSendResponse):
-    print("Изображение отправлено!")
-else:
-    print("Ошибка отправки:", resp)    
-"""

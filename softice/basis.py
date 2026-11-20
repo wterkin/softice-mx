@@ -11,7 +11,7 @@ import asyncio
 import json
 import aiofiles
 from nio import AsyncClient
-from softice import prototype
+from softice import prototype, config
 
 BACKSLASH: str = "\\"
 OUT_MSG_LOG_LEN = 60
@@ -21,7 +21,7 @@ MESSAGE_NOT_FOUND: str = "Извините, по вашему запросу н�
 class CBasis(prototype.CPrototype):
     """Базовый класс для классов модулей бота.. """
 
-    def __init__(self, pconfig):
+    def __init__(self, pconfig: config.Config):
 
         assert pconfig is not None, \
         "Assert: [CBasis.__init__] " \
