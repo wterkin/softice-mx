@@ -13,10 +13,21 @@ from softice import basis
 
 # pylint: disable=too-many-nested-blocks
 # *** Команда перегрузки текстов
-COMMANDS: tuple = (("blreload", "blrl"), ("stoptalk", "молчи", "заткнись"))
+COMMANDS: tuple = (("blreload", "blrl"),
+                   ("stoptalk", "молчи"),
+                   ("babbler", "болтун"))
 
 RELOAD_GROUP: int = 0
 QUIET_GROUP: int = 1
+HINT_GROUP: int = 2
+
+DESCRIPTIONS: tuple = ("",
+                       (f"{', '.join(COMMANDS[QUIET_GROUP])} : "
+                        f"[к-во минут] Отключение болтуна на указанное "
+                         "количество минут - от 1 до 15"),
+                        ""
+                       )
+
 
 # *** Ключ для списка доступных чатов в словаре конфига
 UNIT_ID = "babbler"
@@ -71,7 +82,12 @@ class CBabbler(basis.CBasis):
             # *** Возможно, запросили перезагрузку базы.
             # rint(f"*** Babbler ** bbl ** {COMMANDS[RELOAD_GROUP]=} **")
             # rint(f"*** Babbler ** bbl ** {word_list[0]=} **")
-            if word_list[0] in COMMANDS[RELOAD_GROUP]:
+            # *** Если это запрос списка команд..
+            if word_list[0] in COMMANDS[HINT_GROUP]:
+
+                # *** Возвращаем список команд
+                answer = self.get_commands(proom_name)
+            elif word_list[0] in COMMANDS[RELOAD_GROUP]:
 
                 if self.is_master(puser_name):
 
@@ -96,6 +112,25 @@ class CBabbler(basis.CBasis):
                 self.last_phrase_time += timedelta(minutes=delay)
         return answer
 
+
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
+        """Пользователь запросил список команд."""
+
+        assert proom_name is not None, \
+            "Assert: [statistic.get_commands] " \
+            "Пропущен параметр <proom_name> !"
+
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
+
+
+    def get_hint(self, proom_name: str, punit_id: str = "", phints: str = "") -> str:
+        """Возвращает список команд, поддерживаемых модулем.  """
+
+        assert proom_name is not None, \
+            "Assert: [statistic.get_hint] " \
+            "Пропущен параметр <proom_name> !"
+
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
     def is_personal(self, pword_list: list) -> bool:
         """Определяет, есть ли во входном сообщении имя бота."""

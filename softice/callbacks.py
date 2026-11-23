@@ -268,6 +268,10 @@ class Callbacks:
 
         # *** Собираем ответы модулей на запрос помощи
         answer: str = ""
+        result: str = self.babbler.get_hint(proom_name)
+        if result:
+
+            answer += result + "\n"
         result: str = self.barman.get_hint(proom_name)
         if result:
 
