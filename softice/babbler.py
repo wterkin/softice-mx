@@ -13,7 +13,7 @@ from softice import basis
 
 # pylint: disable=too-many-nested-blocks
 # *** Команда перегрузки текстов
-COMMANDS: tuple = (("blreload", "blrl"), ("stoptalk", "замолчи", "заткнись"))
+COMMANDS: tuple = (("blreload", "blrl"), ("stoptalk", "молчи", "заткнись"))
 
 RELOAD_GROUP: int = 0
 QUIET_GROUP: int = 1
@@ -30,8 +30,8 @@ BABBLER_EMODJI: list = ["😎", "😊", "☺", "😊", "😋"]
 NICKNAMES: list = ["softicebot","softice", "софтик", "софтайсик", "ботик", "бот"]
 AT_CHAR: str = "@"
 DELIMITER: str = "//"
-QUIET_TIME: str = 7  # min
-
+QUIET_TIME: int = 7  # min
+MAX_QUIET_TIME: int = 15  # min
 class CBabbler(basis.CBasis):
     """Класс болтуна."""
 
@@ -63,13 +63,14 @@ class CBabbler(basis.CBasis):
         "Пропущен параметр <pmessage> !"
 
         answer: str = ""
+        delay: int = QUIET_TIME
         word_list: list = self.parse_input(pmessage)
-        print(f"*** Babbler ** bbl ** can_process? **")
+        # rint(f"*** Babbler ** bbl ** can_process? **")
         if self.can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS):
 
             # *** Возможно, запросили перезагрузку базы.
-            print(f"*** Babbler ** bbl ** {COMMANDS[RELOAD_GROUP]=} **")
-            print(f"*** Babbler ** bbl ** {word_list[0]=} **")
+            # rint(f"*** Babbler ** bbl ** {COMMANDS[RELOAD_GROUP]=} **")
+            # rint(f"*** Babbler ** bbl ** {word_list[0]=} **")
             if word_list[0] in COMMANDS[RELOAD_GROUP]:
 
                 if self.is_master(puser_name):
@@ -83,8 +84,16 @@ class CBabbler(basis.CBasis):
                     answer = f"У вас нет на это прав, {puser_name}."
             elif word_list[0] in COMMANDS[QUIET_GROUP]:
 
-                self.last_phrase_time += timedelta(minutes=QUIET_TIME)
+                if len(word_list) > 1:
+
+                    if word_list[1].isdigit():
+
+                        value: int = int(word_list[1])
+                        if MAX_QUIET_TIME > value > 0:
+
+                            delay = value
                 answer = "молчу, молчу..."
+                self.last_phrase_time += timedelta(minutes=delay)
         return answer
 
 

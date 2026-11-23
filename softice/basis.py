@@ -72,19 +72,19 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        print(f"+++ Bas +++ cpc +++ 1 {pmessage=}")
-        print(f"+++ Bas +++ cpc +++ 2 {pcommands=}")
+        # rint(f"+++ Bas +++ cpc +++ 1 {pmessage=}")
+        # rint(f"+++ Bas +++ cpc +++ 2 {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(proom_name, punit_id):
 
-            print(f"+++ Bas +++ cpc 3 +++ enabled")
+            # rint(f"+++ Bas +++ cpc 3 +++ enabled")
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
             for command in pcommands:
 
-                print(f"+++ Bas +++ cpc 4 +++ {command=}")
-                print(f"+++ Bas +++ cpc 5 +++ {word_list[0]=}")
+                # rint(f"+++ Bas +++ cpc 4 +++ {command=}")
+                # rint(f"+++ Bas +++ cpc 5 +++ {word_list[0]=}")
                 can_process = word_list[0] in command
                 if can_process:
 
