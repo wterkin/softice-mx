@@ -287,7 +287,7 @@ class CStatistic(basis.CBasis):
 
             local_name = await self.get_display_name_in_room(pclient, room.froomid,
                                                              user.fusername)
-            answer += f"{number + 1} : {local_name} : {stat.phrases}" \
+            answer += f"{local_name} : {stat.phrases}" \
                       f" фраз, {stat.words} слов, " \
                       f"{0 if stat.files is None else stat.files} файл., " \
                       f"{0 if stat.images is None else stat.images} картин., " \

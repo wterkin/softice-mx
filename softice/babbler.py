@@ -4,7 +4,7 @@
 
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import asyncio
 
@@ -13,7 +13,11 @@ from softice import basis
 
 # pylint: disable=too-many-nested-blocks
 # *** Команда перегрузки текстов
-COMMANDS: tuple = ("blreload", "blrl")
+COMMANDS: tuple = (("blreload", "blrl"), ("stoptalk", "замолчи", "заткнись"))
+
+RELOAD_GROUP: int = 0
+QUIET_GROUP: int = 1
+
 # *** Ключ для списка доступных чатов в словаре конфига
 UNIT_ID = "babbler"
 BABBLER_PATH: str = "babbler/"
@@ -26,7 +30,7 @@ BABBLER_EMODJI: list = ["😎", "😊", "☺", "😊", "😋"]
 NICKNAMES: list = ["softicebot","softice", "софтик", "софтайсик", "ботик", "бот"]
 AT_CHAR: str = "@"
 DELIMITER: str = "//"
-
+QUIET_TIME: str = 7  # min
 
 class CBabbler(basis.CBasis):
     """Класс болтуна."""
@@ -60,10 +64,13 @@ class CBabbler(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage)
-        if self.can_process(proom_name, UNIT_ID, pmessage, COMMANDS):
+        print(f"*** Babbler ** bbl ** can_process? **")
+        if self.can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS):
 
             # *** Возможно, запросили перезагрузку базы.
-            if word_list[0] in COMMANDS:
+            print(f"*** Babbler ** bbl ** {COMMANDS[RELOAD_GROUP]=} **")
+            print(f"*** Babbler ** bbl ** {word_list[0]=} **")
+            if word_list[0] in COMMANDS[RELOAD_GROUP]:
 
                 if self.is_master(puser_name):
 
@@ -74,6 +81,10 @@ class CBabbler(basis.CBasis):
                     print(f"> Babbler: Запрос на перезагрузку конфига от "
                           f"нелегитимного лица {puser_name}.")
                     answer = f"У вас нет на это прав, {puser_name}."
+            elif word_list[0] in COMMANDS[QUIET_GROUP]:
+
+                self.last_phrase_time += timedelta(minutes=QUIET_TIME)
+                answer = "молчу, молчу..."
         return answer
 
 

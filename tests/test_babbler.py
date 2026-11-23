@@ -11,6 +11,7 @@ import softice
 from softice.config import Config
 from softice import babbler
 import asyncio
+from datetime import datetime
 
 UNIT_CONFIG: str = "unittest_config.json"
 
@@ -28,7 +29,9 @@ class CTestBabbler(TestCase):
         self.assertEqual(result, "База болтуна обновлена")
         result = asyncio.run(self.babbler.babbler("superchat", "username", "!blreload"))
         self.assertNotEqual(result, "База болтуна обновлена")
-
+        result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!заткнись"))
+        self.assertEqual(result, "молчу, молчу...")
+        self.babbler.last_phrase_time: datetime = datetime.now()
 
     def test_reload(self):
 
@@ -49,11 +52,10 @@ class CTestBabbler(TestCase):
     def test_think(self):
 
         result = asyncio.run(self.babbler.reload())
-        result = asyncio.run(self.babbler.think("Спасибо, бот")) 
+        result = asyncio.run(self.babbler.think("Спасибо, бот"))
         self.assertEqual(result, ("Пожалуйста.", ""))
-        result = asyncio.run(self.babbler.think("Спасибо")) 
+        result = asyncio.run(self.babbler.think("Спасибо"))
         self.assertEqual(result, ("", ""))
-        result = asyncio.run(self.babbler.think("чаю")) 
+        result = asyncio.run(self.babbler.think("чаю"))
         self.assertEqual(result[0], "Обязательно!")
-        self.assertIn("test_data/babbler/reactions/images/tea.jpg", result[1])        
-                             
+        self.assertIn("test_data/babbler/reactions/images/tea.jpg", result[1])

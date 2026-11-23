@@ -47,13 +47,14 @@ class CBasis(prototype.CPrototype):
         if self.is_enabled(proom_name, punit_id):
 
             word_list: list = self.parse_input(pmessage_text)
-            # rint(f"+++ Bas +++ 2 +++ {word_list=}")
+            # rint(f"+++ Bas +++ 3 +++ {word_list=}")
+            # rint(f"+++ Bas +++ 4 +++ {pcommands=}")
             for command in pcommands:
 
-                # rint(f"+++ Bas +++ 2 +++ {word_list[0]=}")
-                # rint(f"+++ Bas +++ 2 +++ {command=}")
+                # rint(f"+++ Bas +++ 5 +++ {word_list[0]=}")
+                # rint(f"+++ Bas +++ 6 +++ {command=}")
                 found = word_list[0] == command
-                # rint(f"+++ Bas +++ 3 +++ {found=}")
+                # rint(f"+++ Bas +++ 7 +++ {found=}")
                 if found:
 
                     break
@@ -71,19 +72,19 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        # rint(f"+++ Bas +++ cpc +++ {pmessage=}")
-        # rint(f"+++ Bas +++ cpc +++ {pcommands=}")
+        print(f"+++ Bas +++ cpc +++ 1 {pmessage=}")
+        print(f"+++ Bas +++ cpc +++ 2 {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(proom_name, punit_id):
 
-            # rint(f"+++ Bas +++ cpc +++ enabled")
+            print(f"+++ Bas +++ cpc 3 +++ enabled")
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
             for command in pcommands:
 
-                # rint(f"+++ Bas +++ cpc +++ {command=}")
-                # rint(f"+++ Bas +++ cpc +++ {word_list[0]=}")
+                print(f"+++ Bas +++ cpc 4 +++ {command=}")
+                print(f"+++ Bas +++ cpc 5 +++ {word_list[0]=}")
                 can_process = word_list[0] in command
                 if can_process:
 
