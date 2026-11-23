@@ -29,7 +29,7 @@ class CTestBabbler(TestCase):
         self.assertEqual(result, "База болтуна обновлена")
         result = asyncio.run(self.babbler.babbler("superchat", "username", "!blreload"))
         self.assertNotEqual(result, "База болтуна обновлена")
-        result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!заткнись"))
+        result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!молчи"))
         self.assertEqual(result, "молчу, молчу...")
         self.babbler.last_phrase_time: datetime = datetime.now()
 
