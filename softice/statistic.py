@@ -7,6 +7,7 @@
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.sql import desc
 
 
 from nio import RoomMessageText, RoomMessageVideo, RoomMessageAudio,\
@@ -255,25 +256,25 @@ class CStatistic(basis.CBasis):
         query = query.join(db.CUser, db.CStat.userid == db.CUser.id)
         if porder_by == PHRASES_ORDER:
 
-            query = query.order_by(db.CStat.phrases)
+            query = query.order_by(desc(db.CStat.phrases))
         elif porder_by == WORDS_ORDER:
 
-            query = query.order_by(db.CStat.words)
+            query = query.order_by(desc(db.CStat.words))
         elif porder_by == IMAGES_ORDER:
 
-            query = query.order_by(db.CStat.images)
+            query = query.order_by(desc(db.CStat.images))
         elif porder_by == AUDIOS_ORDER:
 
-            query = query.order_by(db.CStat.audios)
+            query = query.order_by(desc(db.CStat.audios))
         elif porder_by == VIDEOS_ORDER:
 
-            query = query.order_by(db.CStat.videos)
+            query = query.order_by(desc(db.CStat.videos))
         elif porder_by == FILES_ORDER:
 
-            query = query.order_by(db.CStat.files)
+            query = query.order_by(desc(db.CStat.files))
         else:
 
-            query = query.order_by(db.CStat.phrases)
+            query = query.order_by(desc(db.CStat.phrases))
             # stat = query.limit(pcount)
         query = query.limit(pcount)
         sess = await self.database.get_session()
