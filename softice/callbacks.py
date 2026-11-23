@@ -48,7 +48,7 @@ HELP_MESSAGE: str = ("Все команды к боту должны начин�
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
 
-OBSOLETE_PERIOD: int = 60000 # millisec
+OBSOLETE_PERIOD: int = 30000 # millisec
 TIMESTAMP_FILE: str = "timestamp.json"
 TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
 
@@ -147,6 +147,8 @@ class Callbacks:
             local_name: str = await self.get_display_name_in_room(  room.room_id,
                                                                   event.sender)
             has_command_prefix = message.startswith(self.command_prefix)
+            await self.statistic.save_all_type_of_messages(room.room_id, room.display_name,
+                                                     event.sender, event)
             # *** Что у нас в сообщении?
             if has_command_prefix:
 
@@ -221,7 +223,7 @@ class Callbacks:
                     answer, file_name = await self.babbler.talk(room.name, message)
                     if file_name:
 
-                        self.send_jpg(room.room_id, file_name)
+                        await self.send_jpg(room.room_id, file_name)
             if answer:
 
                 if answer != self.last_message:

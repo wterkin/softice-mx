@@ -14,6 +14,7 @@ from nio import RoomMessageText, RoomMessageVideo, RoomMessageAudio,\
 from softice import basis
 from softice import database as db
 from softice.config import Config
+
 TOP_10_GROUP: int = 0
 TOP_25_GROUP: int = 1
 TOP_50_GROUP: int = 2
@@ -26,7 +27,6 @@ IMAGES_ORDER: int = 3
 AUDIOS_ORDER: int = 4
 VIDEOS_ORDER: int = 5
 FILES_ORDER: int = 6
-
 
 COMMANDS: tuple = (("первые10", "пв10", "top10"),
                    ("первые25", "пв25", "top25"),
@@ -287,7 +287,7 @@ class CStatistic(basis.CBasis):
 
             local_name = await self.get_display_name_in_room(pclient, room.froomid,
                                                              user.fusername)
-            answer += f"number + 1 : {local_name} : {stat.phrases}" \
+            answer += f"{number + 1} : {local_name} : {stat.phrases}" \
                       f" фраз, {stat.words} слов, " \
                       f"{0 if stat.files is None else stat.files} файл., " \
                       f"{0 if stat.images is None else stat.images} картин., " \
