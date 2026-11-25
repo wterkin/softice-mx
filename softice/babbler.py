@@ -52,7 +52,7 @@ class CBabbler(basis.CBasis):
         """Конструктор."""
 
         assert pconfig is not None, \
-            "Assert: [babbler.__init__] " \
+            "Assert: [CBabbler.__init__] " \
             "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
@@ -119,7 +119,7 @@ class CBabbler(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [statistic.get_commands] " \
+            "Assert: [CBabbler.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -129,7 +129,7 @@ class CBabbler(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [statistic.get_hint] " \
+            "Assert: [CBabbler.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])

@@ -129,61 +129,16 @@ DEFAULT_NUMBER_OF_LINES: int = 1
 DEFAULT_SPECIFIED_LINE: int = 0
 MAXIMUM_ANSWER_LENGTH: int = 1024
 
-"""
-async def find_by_quote(pbook_file: str, pbook_title: str, pphrase: str,
-                        pfull_selection: bool = False,
-                        pnumber_of_lines: int = DEFAULT_NUMBER_OF_LINES,
-                        pspecified_line: int = DEFAULT_SPECIFIED_LINE):
-    ""Ищет заданную строку в заданном файле.""
-
-    assert pbook_file is not None, \
-        "Assert: [theolog:find_by_quote] " \
-        "Пропущен параметр <pbook_file> !"
-    assert pbook_title is not None, \
-        "Assert: [theolog:find_by_quote] " \
-        "Пропущен параметр <pbook_title> !"
-    assert pphrase is not None, \
-        "Assert: [theolog:find_by_quote] " \
-        "Пропущен параметр <pphrase> !"
-
-    result_list: list = []
-    async with aiofiles.open(pbook_file, "r", encoding="utf-8") as book_file:
-
-        async for line in book_file:
-
-            parsed_line = re.split(r':', line, maxsplit=2)
-            joined_line: str = " ".join(parsed_line[2:]).lower()
-            # rint(f"+++ Th +++ fbq +++ prsl1 * {joined_line=}")
-            if pphrase in joined_line:
-
-                # rint(f"+++ Th +++ fbq +++ prsl2 * {parsed_line=}")
-                result_line: str = " ".join(parsed_line[2:])
-                result_list.append(f"{pbook_title} глава {parsed_line[0]} стих "
-                                   f"{parsed_line[1]}: {result_line}")
-            if len(result_list) >= MAX_SEARCH_RESULT:
-
-                break
-
-    if pfull_selection:
-
-        return "\n".join(result_list[:MAX_SEARCH_RESULT])
-    if pnumber_of_lines > DEFAULT_NUMBER_OF_LINES:
-
-        return "\n".join(result_list[:pnumber_of_lines])
-    if pspecified_line > DEFAULT_SPECIFIED_LINE:
-
-        return result_list[pspecified_line - 1]
-    if not result_list:
-
-        return ""
-    return random.choice(result_list)
-"""
 
 class CTheolog(basis.CBasis):
     """Класс теолога."""
 
     def __init__(self, pconfig: Config):
         """Конструктор."""
+
+        assert pconfig is not None, \
+            "Assert: [CTheolog.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + THEOLOG_FOLDER
@@ -195,10 +150,10 @@ class CTheolog(basis.CBasis):
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [theolog.can_process_command] " \
+            "Assert: [CTheolog.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [theolog.can_process_command] " \
+            "Assert: [CTheolog.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
@@ -208,15 +163,13 @@ class CTheolog(basis.CBasis):
         """Процедура определяет, существует ли требуемая книга."""
 
         assert pword is not None, \
-            "Assert: [theolog.can_process_book] " \
+            "Assert: [CTheolog.can_process_book] " \
             "Пропущен параметр <pword_list> !"
 
-        # rint(f"+++ Th +++ cpb +++ * 111 ")
         for book in BOOKS_LIST:
 
             if pword.lower() in book:
 
-                # rint(f"+++ Th +++ cpb +++ * 222 ")
                 return True
         return False
 
@@ -227,13 +180,13 @@ class CTheolog(basis.CBasis):
         """Ищет заданную строку в файле."""
 
         assert pbook_idx is not None, \
-            "Assert: [theolog.find_by_verse_number] No <pbook_idx> parameter specified!"
+            "Assert: [CTheolog.find_by_verse_number] No <pbook_idx> parameter specified!"
         assert pbook_name is not None, \
-            "Assert: [theolog.find_by_verse_number] No <pbook> parameter specified!"
+            "Assert: [CTheolog.find_by_verse_number] No <pbook> parameter specified!"
         assert pchapter is not None, \
-            "Assert: [theolog.find_by_verse_number] No <pchapter> parameter specified!"
+            "Assert: [CTheolog.find_by_verse_number] No <pchapter> parameter specified!"
         assert pverse is not None, \
-            "Assert: [theolog.find_by_verse_number] No <pverse> parameter specified!"
+            "Assert: [CTheolog.find_by_verse_number] No <pverse> parameter specified!"
 
         answer: str = ""
         # *** Путь к файлу
@@ -248,16 +201,12 @@ class CTheolog(basis.CBasis):
                 # *** Ищем в файле заданный идентификатор строки
                 if re.search(f"^{line_id}", line) is not None:
 
-                    # rint(f"+++ Th +++ fbvn +++ * 1")
                     # *** находим начало текста после двух двоеточий
                     text_pos: int = line.find(':', line.find(':') + 1)
-                    # rint(f"+++ Th +++ fbvn +++ * {text_pos=}")
 
                     # *** Добавляем к тексту номер главы и стиха
                     result: str = line[:text_pos] + " " + line[text_pos+1:]
-                    # rint(f"+++ Th +++ fbvn +++ * {result=}")
                     answer = f"{BOOKS_LIST[pbook_idx][2]} {result}"
-                    # rint(f"+++ Th +++ fbvn +++ * {answer=}")
                     if pnumber_of_lines == DEFAULT_NUMBER_OF_LINES:
 
                         break
@@ -277,13 +226,11 @@ class CTheolog(basis.CBasis):
         return answer
 
 
-
-
     def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [theolog.get_commands] " \
+            "Assert: [CTheolog.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -293,7 +240,7 @@ class CTheolog(basis.CBasis):
         """Возвращает список книг Библии."""
 
         assert proom_name is not None, \
-            "Assert: [theolog.get_books] " \
+            "Assert: [CTheolog.get_books] " \
             "Пропущен параметр <proom_name> !"
 
         books: str = ""
@@ -313,7 +260,7 @@ class CTheolog(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [haijin.get_hint] " \
+            "Assert: [CTheolog.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
@@ -326,14 +273,13 @@ class CTheolog(basis.CBasis):
         """Ищет заданную строку по всем книгам заданного завета"""
 
         assert ptestament is not None, \
-            "Assert: [theolog.find_in_testament] No <ptestament> parameter specified!"
+            "Assert: [CTheolog.find_in_testament] No <ptestament> parameter specified!"
         assert pphrase is not None, \
-            "Assert: [theolog.find_in_testament] No <pphrase> parameter specified!"
+            "Assert: [CTheolog.find_in_testament] No <pphrase> parameter specified!"
 
         result_list: list = []
         parsed_line: list
         answer: str = ""
-        # rint(f"+++ Th +++ fbvn +++ 0* {answer=}")
 
         # *** По умолчанию берем Ветхий Завет
         search_range = OLD_TESTAMENT_BOOKS
@@ -348,7 +294,6 @@ class CTheolog(basis.CBasis):
             book_title: str = BOOKS_LIST[book-1][2]
             # *** И название файла книги
             book_name = f"{self.data_path}{book}.txt"
-            # rint(f"+++ Th +++ fit +++ 0* {self.data_path + book_name}")
 
             if Path(book_name).exists():
 
@@ -359,8 +304,6 @@ class CTheolog(basis.CBasis):
 
                         lower_line = line.lower()
                         # *** Если искомая фраза содержится в строке...
-                        # rint(f"+++ Th +++ fit +++ 0* {lower_line=}")
-                        # rint(f"+++ Th +++ fit +++ 0* {pprase=}")
                         if pphrase in lower_line:
 
                             # *** Парсим строчку на три части
@@ -369,7 +312,6 @@ class CTheolog(basis.CBasis):
 
                             result_list.append(f"{book_title} глава {parsed_line[0]}"
                                                f" стих {parsed_line[1]} : {parsed_line[2]}")
-                            #    rint(f"+++ Th +++ fit +++ 0* {result_list=}")
                             if len(result_list) == MAX_SEARCH_RESULT:
 
                                 break
@@ -399,6 +341,10 @@ class CTheolog(basis.CBasis):
     def find_book_by_name(self, pbook: str) -> int:
         """Ищет указанную книгу в списке книг."""
 
+        assert pbook is not None, \
+            "Assert: [CTheolog.find_book_by_name] " \
+            "No <pbook> parameter specified!"
+
         book_name: str = pbook.lower()
         book_index: int = -1
         for index, book in enumerate(BOOKS_LIST):
@@ -418,25 +364,22 @@ class CTheolog(basis.CBasis):
         """Обрабатывает запросы теолога."""
 
         assert proom_name is not None, \
-            "Assert: [theolog.theolog] No <proom_name> parameter specified!"
+            "Assert: [CTheolog.theolog] No <proom_name> parameter specified!"
         assert pmessage_text is not None, \
-            "Assert: [theolog.theolog] No <pmessage_text> parameter specified!"
+            "Assert: [CTheolog.theolog] No <pmessage_text> parameter specified!"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text.replace(":", " "))
         verse: str = ""
         param_count = len(word_list)
-        #book_name: str
         chapter: str = ""
         full_selection: bool = False
         number_of_lines: int = DEFAULT_NUMBER_OF_LINES
         specified_line: int = DEFAULT_SPECIFIED_LINE
-        # rint(f"+++ Th +++ th +++ * 000 ")
         # *** Можем обработать?
         if self.can_process_command(proom_name, pmessage_text, UNIT_ID, COMMANDS) or \
             self.can_process_book(word_list[0]):
 
-            # rint(f"+++ Th +++ th +++ * 111 ")
             # *** Если есть один параметр, то запрос помощи должен быть это
             if param_count == 1:
 
@@ -447,11 +390,9 @@ class CTheolog(basis.CBasis):
                 if word_list[COMMAND_ARG] in COMMANDS[BOOKS_GROUP]:
 
                     return self.get_books(proom_name)
-            # rint(f"+++ Th +++ th +++ * 111 ")
             # *** Если есть больше одного параметра, то смотрим, что там запросили
             if param_count > 1:
 
-                # rint(f"+++ Th +++ th +++ * opt ")
                 # *** Поищем, нет ли заданных опций
                 for index, word in enumerate(word_list):
 
@@ -461,7 +402,6 @@ class CTheolog(basis.CBasis):
 
                         word_list.remove(word)
                         break
-                    # rint(f"+++ Th +++ th +++ numln * {specified_line=}")
                     # *** Возможно, есть запрос на количество строк...
                     if NUMBER_OF_LINES in word and not full_selection and specified_line == 0:
 
@@ -471,7 +411,6 @@ class CTheolog(basis.CBasis):
                             if word_list[index + 1].isdecimal():
 
                                 number_of_lines = int(word_list[index + 1])
-                                # rint(f"+++ Th +++ th +++ numln * {number_of_lines=}")
                                 number_of_lines = min(number_of_lines, MAX_SEARCH_RESULT)
                         word_list.remove(word)
                         del word_list[index]  # +1 не нужно, так как один элемент мы уже удалили
@@ -488,25 +427,20 @@ class CTheolog(basis.CBasis):
                         word_list.remove(word)
                         del word_list[index]
                         break
-                # rint(f"+++ Th +++ th +++ * {word_list[0]=}")
                 # %%%%%% Тут начинаем обрабатывать команды %%%%%%%%%%%%
                 # *** Возможно, указана книга
                 book_index = self.find_book_by_name(word_list[0])
                 if book_index >= 0:
 
                     # *** Книгу и главу
-                    # book_name = word_list[0].lower()
-                    # rint(f"+++ Th +++ th +++ fbvn * {word_list=}")
                     # *** Если есть второй параметр, то это глава
                     if (len(word_list) > 1) and word_list[1].isdecimal():
 
                         chapter = word_list[1]
-                        # rint(f"+++ Th +++ th +++ * {chapter=}")
                     # *** Если есть третий параметр, то это стих
                     if (len(word_list) > 2) and word_list[2].isdecimal():
 
                         verse = word_list[2]
-                        # rint(f"+++ Th +++ th +++ * {verse=}")
                     answer = await self.find_by_verse_number(book_index, BOOKS_LIST[book_index][1],
                                                             chapter, verse, number_of_lines)
                     if not answer:
@@ -517,12 +451,9 @@ class CTheolog(basis.CBasis):
                 if (word_list[0].lower() in COMMANDS[FIND_IN_NEW_GROUP]) or \
                 (word_list[0].lower() in COMMANDS[FIND_IN_OLD_GROUP]):
 
-                    # rint(f"+++ Th +++ th +++ * fino ")
                     # *** ..получим команду.
                     testament = word_list[0]
-                    # rint(f"+++ Th +++ th +++ * fino {testament=}")
                     phrase = " ".join(word_list[1:]).lower()
-                    # rint(f"+++ Th +++ th +++ * fino {phrase=}")
                     answer = await self.find_in_testament(testament, phrase, full_selection,
                                                         number_of_lines, specified_line)
             if len(answer) > 0:

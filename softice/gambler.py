@@ -67,10 +67,10 @@ class CGambler(basis.CBasis):
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [gambler.can_class_process] " \
+            "Assert: [CGambler.can_class_process] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [gambler.can_class_process] " \
+            "Assert: [CGambler.can_class_process] " \
             "Пропущен параметр <pmessage> !"
 
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
@@ -80,7 +80,7 @@ class CGambler(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [gambler.get_command] " \
+            "Assert: [CGambler.get_command] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -90,7 +90,7 @@ class CGambler(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [gambler.get_hint] " \
+            "Assert: [CGambler.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMANDS])
@@ -104,7 +104,7 @@ class CGambler(basis.CBasis):
         """Камень-ножницы-бумага."""
 
         assert pcommand is not None, \
-            "Assert: [gambler.rock_scissors_paper_lizard_spock] " \
+            "Assert: [CGambler.rock_scissors_paper_lizard_spock] " \
             "Пропущен параметр <pcommand> !"
 
         answer = f"Ваш выбор {EMODJIES[pcommand]} {COMMANDS[pcommand][0]}\n"
@@ -198,10 +198,10 @@ class CGambler(basis.CBasis):
         """Основной метод класса."""
 
         assert proom_name is not None, \
-            "Assert: [gambler.gambler] " \
+            "Assert: [CGambler.gambler] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage_text is not None, \
-            "Assert: [gambler.gambler] " \
+            "Assert: [CGambler.gambler] " \
             "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""

@@ -58,11 +58,11 @@ PRESSURE_COEFF: float = 1.02972973
 
 
 
-def get_wind_direction(pdegree) -> str:
+def get_wind_direction(pdegree: int) -> str:
     """Возвращает направление ветра."""
 
     assert pdegree is not None, \
-        "Assert: [meteorolog.get_wind_direction] " \
+        "Assert: [meteorolog:get_wind_direction] " \
         "Пропущен параметр <pdegree> !"
 
     result: str = ""
@@ -80,14 +80,14 @@ def get_wind_direction(pdegree) -> str:
     return result
 
 
-def parse_weather(pdata, preq_date) -> str:
+def parse_weather(pdata: dict, preq_date: dtime.datetime) -> str:
     """Парсит данные погоды и формирует строку погоды."""
 
     assert pdata is not None, \
-        "Assert: [meteorolog.parse_weather] " \
+        "Assert: [meteorolog:parse_weather] " \
         "Пропущен параметр <pdata> !"
     assert preq_date is not None, \
-        "Assert: [meteorolog.parse_weather] " \
+        "Assert: [meteorolog:parse_weather] " \
         "Пропущен параметр <preq_date> !"
 
     min_temperature: int = 100
@@ -183,9 +183,15 @@ class CMeteorolog(basis.CBasis):
     """Класс метеоролога."""
 
     def __init__(self, pconfig: Config):
+
+        assert pconfig is not None, \
+            "Assert: [CMeteorolog.__init__] " \
+            "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.cities_id: dict = {}
         print("Метеоролог стартовал.")
+
 
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
@@ -204,7 +210,7 @@ class CMeteorolog(basis.CBasis):
         """Возвращает ID города"""
 
         assert pcity_name is not None, \
-            "Assert: [meteorolog.get_city_id] " \
+            "Assert: [CMeteorolog.get_city_id] " \
             "Пропущен параметр <pcity_name> !"
 
         city_id: int = 0
@@ -213,13 +219,11 @@ class CMeteorolog(basis.CBasis):
 
             # *** .. берём его из словаря
             city_id = self.cities_id[pcity_name]
-            # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
         else:
 
             try:
 
                 api_key: str = self.config.meteorolog["api_key"]
-                # rint(f"+++ Mtrl +++ gci +++ {api_key=}")
                 async with aiohttp.ClientSession() as session:
 
                     async with session.get(
@@ -235,24 +239,17 @@ class CMeteorolog(basis.CBasis):
 
                         res.raise_for_status()
                         data = await res.json()
-                # rint(f"+++ Mtrl +++ gci +++ {data=}")
                 if data:
 
-                    # rint(f"+++ Mtrl +++ gci +++ {data=}")
                     if "list" in data:
 
                         key_list: list = data["list"]
-                        # rint(f"+++ Mtrl +++ gci +++ {key_list=}")
                         if key_list:
 
                             dictionary: dict = key_list[0]
                             if "id" in dictionary:
 
                                 city_id = key_list[0]["id"]
-                                # rint(f"+++ Mtrl +++ gci +++ {city_id=}")
-
-                        # rint(f"+++ Mtrl +++ gci +++ finish!")
-
             except asyncio.exceptions.TimeoutError as ex:
 
                 print("Exception (find):", ex)
@@ -264,7 +261,7 @@ class CMeteorolog(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [meteorolog.get_commands] " \
+            "Assert: [CMeteorolog.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -274,7 +271,7 @@ class CMeteorolog(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [meteorolog.get_hint] " \
+            "Assert: [CMeteorolog.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
@@ -284,10 +281,10 @@ class CMeteorolog(basis.CBasis):
         """Процедура разбора запроса пользователя."""
 
         assert proom_name is not None, \
-            "Assert: [meteorolog.meteorolog] " \
+            "Assert: [CMeteorolog.meteorolog] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage_text is not None, \
-            "Assert: [meteorolog.meteorolog] " \
+            "Assert: [CMeteorolog.meteorolog] " \
             "Пропущен параметр <pmessage_text> !"
 
 
@@ -296,7 +293,6 @@ class CMeteorolog(basis.CBasis):
         # *** Метеоролог может обработать эту команду?
         if self.can_process_command(proom_name, pmessage_text):
 
-            # rint(f"+++ Mtrl +++ mtrl +++ can proc")
             # *** Запросили помощь?
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -310,18 +306,14 @@ class CMeteorolog(basis.CBasis):
 
                 city_name = "Москва"
             # *** Получим ID города
-            # rint(f"+++ Mtrl +++ mtrl +++ {city_name=}")
             city_id = await self.get_city_id(city_name)
-            # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
             if city_id > 0:
 
-                # rint(f"+++ Mtrl +++ mtrl +++ {city_id=}")
                 # *** Указан существующий город, работаем.
                 now: dtime.datetime = dtime.datetime.now()
                 date_str: str = ""
                 weather_str: str = ""
                 # *** Прогноз на завтра?
-                # if word_list[0] in ["прогноз", "пр", "forecast", "fr"]:
                 if word_list[0] in COMMANDS[FORECAST_GROUP]:
 
                     # *** Да, так и есть.
@@ -351,14 +343,15 @@ class CMeteorolog(basis.CBasis):
         return answer
 
 
-    async def request_weather(self, pcity_id, prequest_date: dtime.datetime, plang: str = "ru"):
+    async def request_weather(self, pcity_id: int,
+                              prequest_date: dtime.datetime, plang: str = "ru"):
         """Запрос погоды на завтра."""
 
         assert pcity_id is not None, \
-            "Assert: [meteorolog.request_weather] " \
+            "Assert: [CMeteorolog.request_weather] " \
             "Пропущен параметр <pcity_id> !"
         assert prequest_date is not None, \
-            "Assert: [meteorolog.request_weather] " \
+            "Assert: [CMeteorolog.request_weather] " \
             "Пропущен параметр <prequest_date> !"
 
         answer: str = ""
@@ -377,10 +370,5 @@ class CMeteorolog(basis.CBasis):
 
                 res.raise_for_status()
                 data = await res.json()
-                # rint(f"+++ Mtrl +++ reqw +++ {data=}")
                 answer = parse_weather(data, prequest_date.date())
-                #temp = data["main"]["temp"]
-                #description = data["weather"][0]["description"]
-
-            #return f"Температура: {temp}°C, {description}"
         return answer

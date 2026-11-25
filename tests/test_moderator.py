@@ -1,6 +1,8 @@
+import nio
 from unittest import TestCase
 from softice import moderator
 from softice import config
+from unittest.mock import Mock
 import asyncio
 
 class CTestModerator(TestCase):
@@ -8,11 +10,12 @@ class CTestModerator(TestCase):
     def setUp(self) -> None:
 
         self.config = config.Config("test_config.yaml")
-        self.moderator: moderator.CModerator = moderator.CModerator(self.config, None)
+        self.fake_client = Mock(spec=nio.AsyncClient)
+        self.moderator: moderator.CModerator = moderator.CModerator(self.config, self.fake_client)
 
     def test_replace_bad_words(self):
 
-        self.assertEqual(moderator.replace_bad_words("чатлане","Жадный, как все чатлане"), 
+        self.assertEqual(moderator.replace_bad_words("чатлане","Жадный, как все чатлане"),
                          f"Жадный, как все *beep*")
 
 
@@ -45,13 +48,13 @@ class CTestModerator(TestCase):
         self.assertNotIn("*", self.moderator.check_bad_words_ex("enjoy"))
         self.assertNotIn("*", self.moderator.check_bad_words_ex("благодарю"))
         self.assertNotIn("*", self.moderator.check_bad_words_ex("плохо"))
-        
 
-    def test_moderator(self): 
+
+    def test_moderator(self):
 
         result = asyncio.run(self.moderator.moderator(self.config.test_chat, "абырвалг", "Хозяин", self.config.master))
         self.assertEqual(result, "")
-   
+
         result = asyncio.run(self.moderator.moderator(self.config.test_chat, "!bwrl", "Хозяин", self.config.master))
         self.assertIn("Словарь", result)
 

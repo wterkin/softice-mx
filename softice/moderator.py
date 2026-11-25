@@ -44,6 +44,13 @@ class CModerator(basis.CBasis):
 
     def __init__(self, pconfig: Config, pclient: AsyncClient):
 
+        assert pconfig is not None, \
+            "Assert: [CModerator.__init__] " \
+            "Пропущен параметр <pconfig> !"
+        assert pclient is not None, \
+            "Assert: [CModerator.__init__] " \
+            "Пропущен параметр <pclient> !"
+
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + DATA_FOLDER
         self.client = pclient
@@ -55,10 +62,10 @@ class CModerator(basis.CBasis):
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [moderator.can_process_command] " \
+            "Assert: [CModerator.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [moderator.can_process_command] " \
+            "Assert: [CModerator.can_process_command] " \
             "Пропущен параметр <pmessage> !"
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
@@ -67,7 +74,7 @@ class CModerator(basis.CBasis):
         """Проверяет сообщение на наличие мата."""
 
         assert pmessage is not None, \
-            "Assert: [moderator.check_bad_words_ex] " \
+            "Assert: [CModerator.check_bad_words_ex] " \
             "Пропущен параметр <pmessage> !"
 
         # rint(f"+++ Mod +++ CBW +++ {pmessage=}")
@@ -77,34 +84,21 @@ class CModerator(basis.CBasis):
         if pmessage:
 
             text: str = pmessage.lower()
-            # rint(f"+++ Mod +++ CBW +++ {text=}")
             for bad_word in self.bad_words:
 
                 result: bool = True
                 while result:
 
-                    # result = re.match(bad_word, text) is not None
-                    # rint(f"+++ Mod +++ CBW +++ {bad_word=}")
-
                     result: re.search = re.search(bad_word, text, re.IGNORECASE & re.VERBOSE)
-                    # rint(f"+++ Mod +++ CBW +++ {result=}")
                     if result:
 
                         detected = True
-                        # rint(f"+++ Mod +++ CBW +++ Detected!!! ")
                         count: int = result.end()-result.start()
-                        # rint(f"+++ Mod +++ CBW +++ {result.start()=}")
-                        # rint(f"+++ Mod +++ CBW +++ {result.end()=}")
-                        # rint(f"+++ Mod +++ CBW +++ {count=} ")
-                        # rint(f"+++ Mod +++ CBW +++ {text[:result.start()]=}")
-                        # rint(f"+++ Mod +++ CBW +++ {text[result.end():]=}")
                         text_answer = text[:result.start()]+ "*" * count + text[result.end():]
                         text = text_answer
-                        # rint(f"+++ Mod +++ CBW +++ {text_answer=}")
             if detected:
 
                 answer = text_answer
-        # rint(f"+++ Mod +++ CBW +++ {answer=}")
         return answer
 
 
@@ -113,10 +107,10 @@ class CModerator(basis.CBasis):
         """Следит за матершинниками."""
 
         assert proom is not None, \
-            "Assert: [moderator.control_talking] " \
+            "Assert: [CModerator.control_talking] " \
             "Пропущен параметр <proom> !"
         assert pevent is not None, \
-            "Assert: [moderator.control_talking] " \
+            "Assert: [CModerator.control_talking] " \
             "Пропущен параметр <pevent> !"
         assert plocal_name is not None, \
             "Assert: [moderator.control_talking] " \
@@ -140,20 +134,18 @@ class CModerator(basis.CBasis):
     async def delete_message(self, proom: MatrixRoom, pevent: RoomMessageText):
         """Удаляет сообщение с матом."""
 
+        assert proom is not None, \
+            "Assert: [CModerator.delete_message] " \
+            "Пропущен параметр <proom> !"
+        assert pevent is not None, \
+            "Assert: [moderator.delete_message] " \
+            "Пропущен параметр <pevent> !"
+
         response = await self.client.room_redact(proom.room_id, pevent.event_id, "(мат)")
         # *** Проверяем результат и реагируем
         if isinstance(response, RoomRedactResponse):
 
             print(f"Сообщение удалено. Ответ сервера: {response}")
-            #warning_text = (
-            #        f"⚠️ @{event.sender.split(':')[0][1:]}, пожалуйста, "
-            #        "следите за культурой общения в этом чате. Нецензурная лексика запрещена."
-            #    )
-            #    await self.client.room_send(
-            #        room_id=room.room_id,
-            #        message_type="m.room.message",
-            #        content={"msgtype": "m.text", "body": warning_text}
-            #    )
         else:
             print(f"Не удалось удалить сообщение. Ответ сервера: {response}")
 
@@ -163,16 +155,16 @@ class CModerator(basis.CBasis):
         """Процедура разбора запроса пользователя."""
 
         assert proom_name is not None, \
-            "Assert: [moderator.moderator] " \
+            "Assert: [CModerator.moderator] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [moderator.moderator] " \
+            "Assert: [CModerator.moderator] " \
             "Пропущен параметр <pmessage> !"
         assert plocal_name is not None, \
-            "Assert: [moderator.moderator] " \
+            "Assert: [CModerator.moderator] " \
             "Пропущен параметр <plocal_name> !"
         assert puser_name is not None, \
-            "Assert: [moderator.moderator] " \
+            "Assert: [CModerator.moderator] " \
             "Пропущен параметр <puser_name> !"
 
         answer: str = ""
@@ -201,7 +193,9 @@ class CModerator(basis.CBasis):
         """Загружает словарь антимата."""
 
         # *** Собираем пути
-        assert Path(self.data_path).is_dir(), f"{DATA_FOLDER} must be folder"
+        assert Path(self.data_path).is_dir(), \
+               "Assert: [CModerator.reload] " \
+               f"{DATA_FOLDER} must be folder"
         data_path = Path(self.data_path) / BAD_WORDS_FILE
         self.bad_words.clear()
         self.bad_words = await self.load_from_file_async(str(data_path))

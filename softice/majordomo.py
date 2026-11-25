@@ -52,7 +52,7 @@ class CMajordomo(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.get_commands] " \
+            "Assert: [CMajordomo.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -62,7 +62,7 @@ class CMajordomo(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [haijin.get_hint] " \
+            "Assert: [CMajordomo.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMANDS])
@@ -72,10 +72,10 @@ class CMajordomo(basis.CBasis):
         """Главная функция модуля."""
 
         assert proom_name is not None, \
-            "Assert: [majordomo.majordomo] " \
+            "Assert: [CMajordomo.majordomo] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage_text is not None, \
-            "Assert: [majordomo.majordomo] " \
+            "Assert: [CMajordomo.majordomo] " \
             "Пропущен параметр <pmessage_text   > !"
 
         answer: str = ""

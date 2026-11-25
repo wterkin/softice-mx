@@ -62,10 +62,10 @@ class CHaijin(basis.CBasis):
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.can_process_command] " \
+            "Assert: [CHaijin.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [haijin.can_process_command] " \
+            "Assert: [CHaijin.can_process_command] " \
             "Пропущен параметр <pmessage> !"
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
@@ -74,7 +74,7 @@ class CHaijin(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.get_commands] " \
+            "Assert: [CHaijin.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -84,7 +84,7 @@ class CHaijin(basis.CBasis):
         """Форматирует хокку так, как нам хочется."""
 
         assert ptext is not None, \
-            "Assert: [haijin.format_hokku] " \
+            "Assert: [CHaijin.format_hokku] " \
             "Пропущен параметр <ptext> !"
 
         # *** Вырежем номер
@@ -116,7 +116,7 @@ class CHaijin(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [haijin.get_hint] " \
+            "Assert: [CHaijin.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMANDS])
@@ -127,16 +127,16 @@ class CHaijin(basis.CBasis):
         """Процедура разбора запроса пользователя."""
 
         assert proom_name is not None, \
-            "Assert: [haijin.haijin] " \
+            "Assert: [CHaijin.haijin] " \
             "Пропущен параметр <proom_name> !"
         assert puser_name is not None, \
-            "Assert: [haijin.haijin] " \
+            "Assert: [CHaijin.haijin] " \
             "Пропущен параметр <puser_name> !"
         assert pevent_sender is not None, \
-            "Assert: [haijin.haijin] " \
+            "Assert: [CHaijin.haijin] " \
             "Пропущен параметр <pevent_sender> !"
         assert pmessage_text is not None, \
-            "Assert: [haijin.haijin] " \
+            "Assert: [CHaijin.haijin] " \
             "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""

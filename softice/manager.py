@@ -73,7 +73,7 @@ class CManager(basis.CBasis):
         # """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [manager.get_hint] " \
+            "Assert: [CManager.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])

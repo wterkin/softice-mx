@@ -114,6 +114,10 @@ class CStarGazer(basis.CBasis):
 
     def __init__(self, pconfig: Config):
 
+        assert pconfig is not None, \
+            "Assert: [CStarGazer.__init__] " \
+            "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + STARGAZER_FOLDER
         print("Звездочёт стартовал.")
@@ -123,12 +127,10 @@ class CStarGazer(basis.CBasis):
         """Возвращает дополнительные сведения об указанном дне."""
 
         assert pnow_date is not None, \
-            "Assert: [stargazer.additional_info] " \
+            "Assert: [CStargazer.additional_info] " \
             "Пропущен параметр <pnow_date> !"
 
-        # pnow_date = date(pnow_date.year, 6, 9)  # закоментить!!!
         easter_date: dtime.date = calculate_easter(pnow_date.year).date()
-        # rint(f"+++ Strg +++ ai +++ {key_list=}")
         peter_paul_date: dtime.date = dtime.date(pnow_date.year, 7, 12)
         answer: str = ""
         if easter_date > pnow_date:
@@ -176,12 +178,8 @@ class CStarGazer(basis.CBasis):
         """Возвращает разницу в годах между двумя датами."""
 
         assert pdifference is not None, \
-            "Assert: [stargazer.get_diff_in_years] " \
+            "Assert: [CStargazer.get_diff_in_years] " \
             "Пропущен параметр <pdifference> !"
-
-        print(f"+++ Strg +++ gdiy +++ Sec {pdifference.total_seconds()=}")
-        print(f"+++ Strg +++ gdiy +++ Min {pdifference.total_seconds()/60=}")
-        print(f"+++ Strg +++ gdiy +++ Hour {pdifference.total_seconds()/60=}")
 
         return int(pdifference.days / 365.2425)
 
@@ -190,13 +188,12 @@ class CStarGazer(basis.CBasis):
         """Возвращает разницу между указанной датой и текущей в заданных единицах."""
 
         assert pcommands is not None, \
-            "Assert: [stargazer.calc_difference] " \
+            "Assert: [CStargazer.calc_difference] " \
             "Пропущен параметр <pcommands> !"
 
         answer_part: str
         answer: str = ""
         difference: dtime.timedelta
-        # rint(f"+++ Strg +++ ai +++ {pcommands[1]=}")
 
         if len(pcommands) > 1:
 
@@ -206,12 +203,10 @@ class CStarGazer(basis.CBasis):
 
                 difference = target_date - now_date
                 answer_part = "До указанной даты осталось"
-                # rint(f"+++ Strg +++ ai1 +++ {difference=}")
             else:
 
                 difference = now_date - target_date
                 answer_part = "C указанной даты прошло"
-                # rint(f"+++ Strg +++ ai2 +++ {difference=}")
 
             if pcommands[0] in COMMANDS[YEARS_GROUP]:
 
@@ -253,7 +248,7 @@ class CStarGazer(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [stargazer.get_commands] " \
+            "Assert: [CStargazer.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -311,9 +306,9 @@ class CStarGazer(basis.CBasis):
         """Обработчик команд звездочёта."""
 
         assert proom_name is not None, \
-            "Assert: [stargazer.stargazer] No <proom_name> parameter specified!"
+            "Assert: [CStargazer.stargazer] No <proom_name> parameter specified!"
         assert pmessage_text is not None, \
-            "Assert: [stargazer.stargazer] No <pmessage_text> parameter specified!"
+            "Assert: [CStargazer.stargazer] No <pmessage_text> parameter specified!"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
@@ -380,8 +375,15 @@ class CStarGazer(basis.CBasis):
 
     async def search_in_calendar(self, pcalendar: str, ptoday: str):
         """Ищет заданную дату в заданном календаре."""
+
+        assert pcalendar is not None, \
+            "Assert: [CStargazer.search_in_calendar] " \
+            "No <pcalendar> parameter specified!"
+        assert ptoday is not None, \
+            "Assert: [CStargazer.search_in_calendar] " \
+            "No <ptoday> parameter specified!"
+
         calendar: list = await self.load_from_file_async(self.data_path + pcalendar)
-        # now_date: date = date.today()
         answer: str = ""
         for item in calendar:
 

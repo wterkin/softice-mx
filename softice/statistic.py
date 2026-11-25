@@ -3,7 +3,6 @@
 
 """Модуль статистики для бота."""
 
-# import asyncio
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -63,6 +62,10 @@ class CStatistic(basis.CBasis):
 
     def __init__(self, pconfig: Config, pdatabase_name: str):  # = DATABASE_NAME):
 
+        assert pconfig is not None, \
+            "Assert: [CStatistic.__init__] " \
+            "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.database: db.CDataBase = db.CDataBase(self.config, pdatabase_name)
 
@@ -83,10 +86,10 @@ class CStatistic(basis.CBasis):
         """Добавляет новую комнату в БД и возвращает его ID."""
 
         assert pmx_room_id is not None, \
-            "Assert: [statistic.add_chat_to_base] " \
+            "Assert: [CStatistic.add_chat_to_base] " \
             "Пропущен параметр <pmx_room_id> !"
         assert proom_name is not None, \
-            "Assert: [statistic.add_chat_to_base] " \
+            "Assert: [CStatistic.add_chat_to_base] " \
             "Пропущен параметр <proom_name> !"
 
         room = db.CRoom(pmx_room_id, proom_name)
@@ -98,7 +101,7 @@ class CStatistic(basis.CBasis):
         """Добавляет новую запись статистики по человеку."""
 
         assert pstat is not None, \
-            "Assert: [statistic.add_user_stat] " \
+            "Assert: [CStatistic.add_user_stat] " \
             "Пропущен параметр <pstat> !"
 
         await self.database.commit_changes(pstat)
@@ -109,7 +112,7 @@ class CStatistic(basis.CBasis):
         """"Добавляет нового пользователя в БД и возвращает его ID."""
 
         assert pmx_user_name is not None, \
-            "Assert: [statistic.add_user_to_base] " \
+            "Assert: [CStatistic.add_user_to_base] " \
             "Пропущен параметр <pmx_user_name> !"
 
         user = db.CUser(pmx_user_name)
@@ -124,10 +127,10 @@ class CStatistic(basis.CBasis):
         """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
-            "Assert: [statistic.can_process_command] " \
+            "Assert: [CStatistic.can_process_command] " \
             "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-            "Assert: [statistic.can_process_command] " \
+            "Assert: [CStatistic.can_process_command] " \
             "Пропущен параметр <pmessage> !"
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
@@ -136,7 +139,7 @@ class CStatistic(basis.CBasis):
         """Если чат уже есть в базе, возвращает его ID, если нет - None."""
 
         assert pmx_room_id is not None, \
-            "Assert: [statistic.get_room_id] " \
+            "Assert: [CStatistic.get_room_id] " \
             "Пропущен параметр <pmx_room_id> !"
 
         result: int  = ERROR_CODE
@@ -166,7 +169,7 @@ class CStatistic(basis.CBasis):
         """Пользователь запросил список команд."""
 
         assert proom_name is not None, \
-            "Assert: [statistic.get_commands] " \
+            "Assert: [CStatistic.get_commands] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
@@ -176,7 +179,7 @@ class CStatistic(basis.CBasis):
         """Возвращает список команд, поддерживаемых модулем.  """
 
         assert proom_name is not None, \
-            "Assert: [statistic.get_hint] " \
+            "Assert: [CStatistic.get_hint] " \
             "Пропущен параметр <proom_name> !"
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
@@ -186,23 +189,21 @@ class CStatistic(basis.CBasis):
         """Возвращает информацию о пользователе"""
 
         assert proom_id is not None, \
-            "Assert: [statistic.get_personal_information] " \
+            "Assert: [CStatistic.get_personal_information] " \
             "Пропущен параметр <proom_id> !"
         assert pmx_user_name is not None, \
-            "Assert: [statistic.get_personal_information] " \
+            "Assert: [CStatistic.get_personal_information] " \
             "Пропущен параметр <pmx_user_name> !"
 
         answer: str = ""
         sess = await self.database.get_session()
         # *** Получим данные юзера
-        #rint(f"*** Statistic ** gpi ** start ** {pmx_user_name}**")
         sel = self.database.query_data(db.CUser)
         sel = sel.where(db.CUser.fusername==pmx_user_name)
         async with sess() as session:
 
             user_result = await session.execute(sel)
             user = user_result.scalar_one_or_none()
-            # rint(f"*** Statistic ** gpi ** {user=} **")
             if user is not None:
 
                 # *** Получим ID чата в базе
@@ -210,7 +211,6 @@ class CStatistic(basis.CBasis):
                 sel = sel.where(db.CRoom.froomid==proom_id)
                 room_result = await session.execute(sel)
                 room = room_result.scalar_one_or_none()
-                # rint(f"*** Statistic ** gpi ** {room=} **")
                 if room is not None:
 
                     # *** Получим статистику юзера в чате
@@ -219,7 +219,6 @@ class CStatistic(basis.CBasis):
                     sel = sel.where(db.CStat.roomid == room.id)
                     stat_result = await session.execute(sel)
                     stat = stat_result.scalar_one_or_none()
-                    # rint(f"*** Statistic ** gpi ** {stat=} **")
 
                     if stat is not None:
 
@@ -237,16 +236,16 @@ class CStatistic(basis.CBasis):
         """Получает из базы статистику по самым говорливым юзерам."""
 
         assert pclient is not None, \
-            "Assert: [statistic.get_statistic] " \
+            "Assert: [CStatistic.get_statistic] " \
             "Пропущен параметр <pclient> !"
         assert pmx_room_id is not None, \
-            "Assert: [statistic.get_statistic] " \
+            "Assert: [CStatistic.get_statistic] " \
             "Пропущен параметр <pmx_room_id> !"
         assert pcount is not None, \
-            "Assert: [statistic.get_statistic] " \
+            "Assert: [CStatistic.get_statistic] " \
             "Пропущен параметр <pcount> !"
         assert porder_by is not None, \
-            "Assert: [statistic.get_statistic] " \
+            "Assert: [CStatistic.get_statistic] " \
             "Пропущен параметр <porder_by> !"
 
         room_id = await self.get_room_id(pmx_room_id)
@@ -275,7 +274,6 @@ class CStatistic(basis.CBasis):
         else:
 
             query = query.order_by(desc(db.CStat.phrases))
-            # stat = query.limit(pcount)
         query = query.limit(pcount)
         sess = await self.database.get_session()
         async with sess() as session:
@@ -302,7 +300,7 @@ class CStatistic(basis.CBasis):
         """Если пользователь уже есть в базе, возвращает его ID, если нет - ERROR_CODE."""
 
         assert pmx_user_name is not None, \
-            "Assert: [statistic.get_user_id] " \
+            "Assert: [CStatistic.get_user_id] " \
             "Пропущен параметр <pmx_user_name> !"
 
         # rint(f"*** Statistic ** gui ** {pmx_user_name=}**")
@@ -317,7 +315,6 @@ class CStatistic(basis.CBasis):
             if user is not None:
 
                 result = user.id
-        # rint(f"*** Statistic ** gui ** {result=}**")
         return result
 
 
@@ -325,22 +322,18 @@ class CStatistic(basis.CBasis):
         """Получает из базы статистику пользователя и возвращает её."""
 
         assert pmx_room_id is not None, \
-            "Assert: [statistic.get_user_stat] " \
+            "Assert: [CStatistic.get_user_stat] " \
             "Пропущен параметр <pmx_room_id> !"
         assert pmx_user_name is not None, \
-            "Assert: [statistic.get_user_stat] " \
+            "Assert: [CStatistic.get_user_stat] " \
             "Пропущен параметр <pmx_user_name> !"
 
         result: tuple = None
-        # rint(f"*** Statistic ** gus ** {pmx_user_name=} **")
         user_id = await self.get_user_id(pmx_user_name)
         if user_id != ERROR_CODE:
 
-            # rint(f"*** Statistic ** gus ** {user_id=} **")
             room_id = await self.get_room_id(pmx_room_id)
             if room_id != ERROR_CODE:
-
-                # rint(f"*** Statistic ** gus ** {room_id=} **")
 
                 sel = self.database.query_data(db.CStat)
                 sel = sel.where(db.CStat.userid==user_id)
@@ -348,10 +341,8 @@ class CStatistic(basis.CBasis):
                 sess = await self.database.get_session()
                 async with sess() as session:
 
-                    # rint(f"*** Statistic ** gus ** before exec **")
                     res = await session.execute(sel)
                     result = res.scalar_one_or_none()
-        # rint(f"*** Statistic ** gus ** {result=} **")
         return result
 
 
@@ -361,41 +352,33 @@ class CStatistic(basis.CBasis):
         """Учитывает стикеры, видео, аудиосообщения."""
 
         assert pmx_room_id is not None, \
-            "Assert: [statistic.save_all_type_of_messages] " \
+            "Assert: [CStatistic.save_all_type_of_messages] " \
             "Пропущен параметр <pmx_room_id> !"
         assert pmx_room_name is not None, \
-            "Assert: [statistic.save_all_type_of_messages] " \
+            "Assert: [CStatistic.save_all_type_of_messages] " \
             "Пропущен параметр <pmx_room_name> !"
         assert pmx_user_name is not None, \
-            "Assert: [statistic.save_all_type_of_messages] " \
+            "Assert: [CStatistic.save_all_type_of_messages] " \
             "Пропущен параметр <pmx_user_name> !"
 
         result: bool = False
-        # rint(f"*** Statistic ** sat ** begin {pmx_user_name=}**")
         # *** Это не бот написал? Чужой бот, не наш?
         if pmx_user_name not in self.config.alien_bots:
 
-            # rint(f"*** Statistic ** sat ** not bot **")
             # Проверить, нет ли уже этого чата в таблице чатов
             room_id = await self.get_room_id(pmx_room_id)
-            # rint(f"*** Statistic ** sat ** [1] {pmx_room_name=} ** {room_id=} **")
             if room_id == ERROR_CODE:
 
                 # *** Нету еще, новый чат - добавить, и получить id
                 room_id = await self.add_room_to_base(pmx_room_id, pmx_room_name)
-                # rint(f"*** Statistic ** sat ** [2] {pmx_room_name=} ** {room_id=}**")
-            # rint(f"*** Statistic ** sat ** {room_id=} **")
             # *** Проверить, нет ли юзера в таблице тг юзеров
-            # rint(f"*** Statistic ** sat ** {pmx_user_name=}**")
             user_id = await self.get_user_id(pmx_user_name)
             if user_id == ERROR_CODE:
 
                 # *** Нету, новый пользователь
                 user_id = await self.add_user_to_base(pmx_user_name)
-                # rint(f"*** Statistic ** sat ** {user_id=} **")
 
             # *** Имеется ли в БД статистика по этому пользователю?
-            # rint(f"*** Statistic ** sat ** before stat **")
             user_stat = await self.get_user_stat(pmx_room_id, pmx_user_name)
             if user_stat is None:
 
@@ -408,7 +391,6 @@ class CStatistic(basis.CBasis):
                 user_stat.images = 0
                 user_stat.files = 0
             # *** Изменяем статистику юзера в зависимости от типа сообщения
-            # rint(f"*** Statistic ** sat ** {user_stat=} **")
             if isinstance(pevent, RoomMessageText):
 
                 text: str = pevent.body.strip()
@@ -429,7 +411,6 @@ class CStatistic(basis.CBasis):
             elif isinstance(pevent, RoomMessageFile):
 
                 user_stat.files += 1
-            # rint(f"*** Statistic ** sat ** finish {user_stat=} **")
             await self.database.commit_changes(user_stat)
             result = True
         return result
@@ -440,16 +421,16 @@ class CStatistic(basis.CBasis):
         """Обработчик команд."""
 
         assert pmx_room_id is not None, \
-            "Assert: [statistic.statistic] " \
+            "Assert: [CStatistic.statistic] " \
             "Пропущен параметр <pmx_room_id> !"
         assert pmx_room_name is not None, \
-            "Assert: [statistic.statistic] " \
+            "Assert: [CStatistic.statistic] " \
             "Пропущен параметр <pmx_room_name> !"
         assert pmx_user_name is not None, \
-            "Assert: [statistic.statistic] " \
+            "Assert: [CStatistic.statistic] " \
             "Пропущен параметр <pmx_user_name> !"
         assert pmessage_text is not None, \
-            "Assert: [statistic.statistic] " \
+            "Assert: [CStatistic.statistic] " \
             "Пропущен параметр <pmessage_text> !"
 
         command: int
@@ -489,7 +470,6 @@ class CStatistic(basis.CBasis):
                         answer = await self.get_statistic(pclient, pmx_room_id, 50, order_by)
                     elif command == PERSONAL_GROUP:
 
-                        # rint(f"*** Statistic ** stat ** persinf ** {pmx_user_name=} ***")
                         answer = await self.get_personal_information(pmx_room_id, pmx_user_name)
         return answer
 

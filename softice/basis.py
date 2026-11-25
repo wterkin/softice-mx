@@ -131,13 +131,13 @@ class CBasis(prototype.CPrototype):
         """ Функция возвращает локальное имя пользователя в заданной комнате. """
 
         assert client is not None, \
-            "Assert: [callbacks.get_display_name_in_room] " \
+            "Assert: [CBasis.get_display_name_in_room] " \
             "No <client> parameter specified!"
         assert room_id is not None, \
-            "Assert: [callbacks.get_display_name_in_room] " \
+            "Assert: [CBasis.get_display_name_in_room] " \
             "No <room_id> parameter specified!"
         assert user_name is not None, \
-            "Assert: [callbacks.get_display_name_in_room] " \
+            "Assert: [CBasis.get_display_name_in_room] " \
             "No <user_name> parameter specified!"
 
         fallback_name = user_name.split(":")[0][1:]

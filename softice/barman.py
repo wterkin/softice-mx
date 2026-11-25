@@ -172,7 +172,7 @@ class CBarman(basis.CBasis):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-            "Assert: [CBasis.__init__] " \
+            "Assert: [CBarman.__init__] " \
             "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
