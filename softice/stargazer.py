@@ -16,17 +16,19 @@ NEW_STYLE_OFFSET: int = 13
 EASTER_GROUP: int = 0
 DATE_GROUP: int = 1
 DAY_GROUP: int = 2
-NEW_YEAR_GROUP: int = 3
-YEARS_GROUP: int = 4
-DAYS_GROUP: int = 5
-HOURS_GROUP: int = 6
-MINUTES_GROUP: int = 7
-SECONDS_GROUP: int = 8
-HINT_GROUP: int = 9
+NOW_GROUP: int = 3
+NEW_YEAR_GROUP: int = 4
+YEARS_GROUP: int = 5
+DAYS_GROUP: int = 6
+HOURS_GROUP: int = 7
+MINUTES_GROUP: int = 8
+SECONDS_GROUP: int = 9
+HINT_GROUP: int = 10
 
 COMMANDS: tuple = (("пасха", "easter"),
                    ("дата", "date"),
                    ("день", "day"),
+                   ("сейчас", "сч"),
                    ("новыйгод", "newyear", "нг", "ny"),
                    ("лет", "years", "лт", "yr"),
                    ("дней", "days", "дн", "dy"),
@@ -34,6 +36,7 @@ COMMANDS: tuple = (("пасха", "easter"),
                    ("минут", "minutes", "мин", "min"),
                    ("секунд", "seconds", "сек", "sec"),
                    ("календарь", "calendar", "кл", "cl")
+
                   )
 
 DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[EASTER_GROUP])} [год] - "
@@ -42,6 +45,8 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[EASTER_GROUP])} [год] - "
                          " получить гражданские праздники на текущую дату"),
                        (f"{', '.join(COMMANDS[DAY_GROUP])} -"
                          " получить церковные праздники на текущую дату"),
+                       (f"{', '.join(COMMANDS[NOW_GROUP])} -"
+                         " получить информацию о текущем моменте"),
                        (f"{', '.join(COMMANDS[NEW_YEAR_GROUP])} -"
                          " получить количество оставшихся дней до Нового года"),
                        (f"{', '.join(COMMANDS[YEARS_GROUP])} -"
@@ -60,6 +65,8 @@ DESCRIPTIONS: tuple = ((f"{', '.join(COMMANDS[EASTER_GROUP])} [год] - "
 # HINTS: tuple = ("календарь", "кл", "calendar", "cl")
 UNIT_ID = "stargazer"
 RUSSIAN_DATE_FORMAT = "%d.%m.%Y"
+#RUSSIAN_DATETIME_SPECIAL_FORMAT = "Сегодня %d.%m.%Y года, %H:%M:%S по Москве. "
+RUSSIAN_DATETIME_FORMAT = "%d.%m.%Y, %H:%M:%S"
 STARGAZER_FOLDER: str = "stargazer/"
 LOW_MARGIN: int = 1899
 HIGH_MARGIN: int = 2100
@@ -106,6 +113,23 @@ def calculate_easter(pyear):
             month += 1
             day = day - 31
     return dtime.datetime(pyear, month, day)
+
+
+def calculate_year_from_bc(d: dt.date) -> int:
+    """Вычисляет год от сотворения мира (византийская эра, новолетие 1 сентября).
+
+    Правило:
+      январь - август:  AM = год + 5508
+      сентябрь - декабрь: AM = год + 5509
+    """
+    offset = 5509 if d.month >= 9 else 5508
+    return d.year + offset
+
+
+def calculate_julian_date(gregorian_date: dt.date) -> dt.date:
+    """Для дат после 1918 года разница 13 дней"""
+
+    return gregorian_date - dtime.timedelta(days=13)
 
 
 class CStarGazer(basis.CBasis):
@@ -356,17 +380,27 @@ class CStarGazer(basis.CBasis):
                          " г., по старому стилю " + jul_now_date.strftime("%d %B %Y") + " г. "
                 answer += await self.search_in_calendar(CHURCH_CALENDAR, today)
                 answer += " " + self.additional_info(now_date)
+            elif word_list[0] in COMMANDS[NOW_GROUP]:
+
+                gregorian_date: dtime.date = dtime.datetime.now()
+                julian_date: dtime.datetime = calculate_julian_date(gregorian_date.date())
+                year_from_bc: int = calculate_year_from_bc(gregorian_date)
+                answer = (f"Сегодня {gregorian_date.strftime(RUSSIAN_DATETIME_FORMAT)} по Москве"
+                          "По Юлианскому календарю сегодня "
+                          f"{julian_date.strftime(RUSSIAN_DATE_FORMAT)}"
+                          f"По летоисчислению от сотворения мира сейчас {year_from_bc} год")
+
             elif word_list[0] in COMMANDS[NEW_YEAR_GROUP]:
 
                 today: dtime.date = dtime.date.today()
                 newyear: dtime.date = dtime.date(today.year, 12, 31)
                 delta: dtime.timedelta = newyear - today
-                print(delta.days + 1)
+                # print(delta.days + 1)
                 answer = f"До Нового года осталось {delta.days+1} дней."
             else:
 
                 answer = self.calc_difference(word_list)
-                print("***********************", answer)
+                # print("***********************", answer)
         if answer:
 
             print(f"Stargazer answers: {answer[:basis.OUT_MSG_LOG_LEN]}")
