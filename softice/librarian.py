@@ -41,10 +41,10 @@ def find_in_book(pbook: list, pword_list: list) -> str:
     """Ищет цитату в книге по заданной строке"""
 
     assert pbook is not None, \
-        "Assert: [librarian.find_in_book] " \
+        "Assert: [librarian:find_in_book] " \
         "Пропущен параметр <pbook> parameter !"
     assert pword_list is not None, \
-        "Assert: [librarian.find_in_book] " \
+        "Assert: [librarian:find_in_book] " \
         "Пропущен параметр <pword_list> !"
 
     answer: str = ""
@@ -72,7 +72,7 @@ def get_command(pword: str) -> int:
     """Распознает команду и возвращает её код, в случае неудачи - None. """
 
     assert pword is not None, \
-        "Assert: [librarian.get_command] " \
+        "Assert: [librarian:get_command] " \
         "Пропущен параметр <pword> !"
 
     result: int = -1
@@ -89,10 +89,10 @@ def quote(pbook: list, pword_list: list) -> str:
     """ Возвращает хокку или цитату с заданным номером, если номер не задан, то случайную."""
 
     assert pbook is not None, \
-        "Assert: [librarian.quote] " \
+        "Assert: [librarian:quote] " \
         "Пропущен параметр <pbook> !"
     assert pword_list is not None, \
-        "Assert: [librarian.quote] " \
+        "Assert: [librarian:quote] " \
         "Пропущен параметр <pword_list> !"
 
     answer: str = ""
@@ -130,8 +130,8 @@ class CLibrarian(basis.CBasis):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-        "Assert: [CLibrarian.__init__] " \
-        "Пропущен параметр <pconfig> !"
+            "Assert: [CLibrarian.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + LIBRARIAN_FOLDER

@@ -47,6 +47,10 @@ class CHaijin(basis.CBasis):
 
     def __init__(self, pconfig: Config):
 
+        assert pconfig is not None, \
+            "Assert: [CHaijin.__init__] " \
+            "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + HAIJIN_FOLDER
         self.hokku: list = []

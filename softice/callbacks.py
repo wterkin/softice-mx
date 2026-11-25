@@ -32,7 +32,7 @@ from softice.gambler import CGambler
 from softice.haijin import CHaijin
 from softice.librarian import CLibrarian
 from softice.majordomo import CMajordomo
-from softice.manager import CManager
+from softice.manager import CManager, OBSOLETE_PERIOD
 from softice.meteorolog import CMeteorolog
 from softice.moderator import CModerator
 from softice.stargazer import CStarGazer
@@ -48,7 +48,7 @@ HELP_MESSAGE: str = ("Все команды к боту должны начин�
                      "Команда должна следовать сразу за восклицательным знаком, без пробела. "
                      "В настоящий момент я понимаю только следующие группы команд: \n")
 
-OBSOLETE_PERIOD: int = 30000 # millisec
+# OBSOLETE_PERIOD: int = 15000 # millisec
 TIMESTAMP_FILE: str = "timestamp.json"
 TIMESTAMP_SAVE_PERIOD: int = 60000 # millisec
 

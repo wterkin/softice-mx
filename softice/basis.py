@@ -25,8 +25,8 @@ class CBasis(prototype.CPrototype):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-        "Assert: [CBasis.__init__] " \
-        "Пропущен параметр <pconfig> !"
+            "Assert: [CBasis.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         self.config = pconfig
 
@@ -35,11 +35,14 @@ class CBasis(prototype.CPrototype):
                     pmessage_text: str, pcommands: list) -> bool:
         """Возвращает True, если модуль может обработать команду."""
         assert proom_name is not None, \
-            "Assert: [CBasis.can_process] Пропущен параметр <proom_name> !"
+            "Assert: [CBasis.can_process] " \
+            "Пропущен параметр <proom_name> !"
         assert punit_id is not None, \
-            "Assert: [CBasis.can_process] Пропущен параметр <punit_id> !"
+            "Assert: [CBasis.can_process] " \
+            "Пропущен параметр <punit_id> !"
         assert pmessage_text is not None, \
-            "Assert: [CBasis.can_process] Пропущен параметр <pmessage_text> !"
+            "Assert: [CBasis.can_process] " \
+            "Пропущен параметр <pmessage_text> !"
 
         found: bool = False
         # rint(f"+++ Bas +++ 1 +++ {proom_name=}")
@@ -72,19 +75,14 @@ class CBasis(prototype.CPrototype):
             "Assert: [CBasis.can_process_command] " \
             "Пропущен параметр <pmessage> !"
 
-        # rint(f"+++ Bas +++ cpc +++ 1 {pmessage=}")
-        # rint(f"+++ Bas +++ cpc +++ 2 {pcommands=}")
         can_process: bool = False
         # *** Мы можем обрабатывать команды из этой комнаты?
         if self.is_enabled(proom_name, punit_id):
 
-            # rint(f"+++ Bas +++ cpc 3 +++ enabled")
             # *** Парсим сообщение
             word_list: list = self.parse_input(pmessage)
             for command in pcommands:
 
-                # rint(f"+++ Bas +++ cpc 4 +++ {command=}")
-                # rint(f"+++ Bas +++ cpc 5 +++ {word_list[0]=}")
                 can_process = word_list[0] in command
                 if can_process:
 
@@ -103,10 +101,8 @@ class CBasis(prototype.CPrototype):
 
         if self.is_enabled(proom_name, punit_id):
 
-            # rint(f"+++ Bas +++ 1 +++")
 
             commands = "\n".join(pdescriptions)
-        # rint(f"+++ Bas +++ 1 +++ {commands=}")
         return commands
 
 
@@ -135,11 +131,14 @@ class CBasis(prototype.CPrototype):
         """ Функция возвращает локальное имя пользователя в заданной комнате. """
 
         assert client is not None, \
-            "Assert: [callbacks.get_display_name_in_room] No <client> parameter specified!"
+            "Assert: [callbacks.get_display_name_in_room] " \
+            "No <client> parameter specified!"
         assert room_id is not None, \
-            "Assert: [callbacks.get_display_name_in_room] No <room_id> parameter specified!"
+            "Assert: [callbacks.get_display_name_in_room] " \
+            "No <room_id> parameter specified!"
         assert user_name is not None, \
-            "Assert: [callbacks.get_display_name_in_room] No <user_name> parameter specified!"
+            "Assert: [callbacks.get_display_name_in_room] " \
+            "No <user_name> parameter specified!"
 
         fallback_name = user_name.split(":")[0][1:]
 
@@ -188,9 +187,11 @@ class CBasis(prototype.CPrototype):
         """Возвращает True, если в этом чате даный модуль разрешен."""
 
         assert proom_name is not None, \
-            "Assert: [CBasis.is_enabled] Пропущен параметр <proom_name> !"
+            "Assert: [CBasis.is_enabled] "\
+            "Пропущен параметр <proom_name> !"
         assert punit_id is not None, \
-            "Assert: [CBasis.is_enabled] Пропущен параметр <punit_id> !"
+            "Assert: [CBasis.is_enabled] " \
+            "Пропущен параметр <punit_id> !"
 
         if proom_name in self.config.chats:
 
@@ -202,10 +203,8 @@ class CBasis(prototype.CPrototype):
         """Проверяет, хозяин ли отдал команду."""
 
         assert puser_name is not None, \
-            "Assert: [CBasis.is_master] Пропущен параметр <puser_name> !"
-        # rint(f"+++ Bas:ismast +++ {puser_name,}")
-        # rint(f"+++ Bas:ismast +++ {self.config.master=}")
-
+            "Assert: [CBasis.is_master] " \
+            "Пропущен параметр <puser_name> !"
         return puser_name == self.config.master
 
 
@@ -213,7 +212,8 @@ class CBasis(prototype.CPrototype):
         """Асинхронная обёртка через потоки."""
 
         assert pfile_name is not None, \
-            "Assert: [CBasis.load_from_file_async] Пропущен параметр <file_name> !"
+            "Assert: [CBasis.load_from_file_async] " \
+            "Пропущен параметр <file_name> !"
 
         # *** Патч для питона 3.8.2
         loop = asyncio.get_event_loop()
@@ -224,7 +224,8 @@ class CBasis(prototype.CPrototype):
         """Загружает текстовый файл в список строк."""
 
         assert pfile_name is not None, \
-            "Assert: [CBasis.load_from_file] Пропущен параметр <pfile_name> !"
+            "Assert: [CBasis.load_from_file] " \
+            "Пропущен параметр <pfile_name> !"
 
         content: list = []
         # *** откроем файл
@@ -248,7 +249,8 @@ class CBasis(prototype.CPrototype):
         """Вытаскивает из полного адреса имя пользователя и капитализирует его."""
 
         assert pnick is not None, \
-            "Assert: [CBasis.parse_nick] Пропущен параметр <pnick> !"
+            "Assert: [CBasis.parse_nick] " \
+            "Пропущен параметр <pnick> !"
 
         nick: str = pnick.split(":")[0]
         if nick[0] == "@":
@@ -261,9 +263,11 @@ class CBasis(prototype.CPrototype):
         """Асинхронное сохранение списка в файл."""
 
         assert plist is not None, \
-            "Assert: [CBasis.save_to_file_async] Пропущен параметр <plist> !"
+            "Assert: [CBasis.save_to_file_async] " \
+            "Пропущен параметр <plist> !"
         assert pfile_name is not None, \
-            "Assert: [CBasis.save_to_file_async] Пропущен параметр <file_name> !"
+            "Assert: [CBasis.save_to_file_async] " \
+            "Пропущен параметр <file_name> !"
 
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.save_to_file, plist, pfile_name)
@@ -274,9 +278,11 @@ class CBasis(prototype.CPrototype):
         """ - переименовывает его."""
 
         assert plist is not None, \
-            "Assert: [CBasis.save_to_file] Пропущен параметр <plist> !"
+            "Assert: [CBasis.save_to_file] " \
+            "Пропущен параметр <plist> !"
         assert pfile_name is not None, \
-            "Assert: [CBasis.save_to_file] Пропущен параметр <pfile_name> !"
+            "Assert: [CBasis.save_to_file] " \
+            "Пропущен параметр <pfile_name> !"
 
         new_file_name: str = f"{pfile_name}_{dtime.now().strftime('%Y%m%d-%H%M%S')}"
         if os.path.exists(pfile_name):
@@ -293,7 +299,8 @@ class CBasis(prototype.CPrototype):
         """Разбивает введённую строку на отдельные слова."""
 
         assert pmessage_text is not None, \
-            "Assert: [CBasis.parse_input] Пропущен параметр <pmessage_text> !"
+            "Assert: [CBasis.parse_input] " \
+            "Пропущен параметр <pmessage_text> !"
 
         return pmessage_text[1:].strip().split(" ")
 
@@ -302,35 +309,51 @@ class CBasis(prototype.CPrototype):
         """Вызывает перезагрузку внешних данных модуля."""
 
 
-async def safe_read_json(filepath: str) -> Optional[dict]:
+async def safe_read_json(pfilepath: str) -> Optional[dict]:
     """Безопасное чтение JSON с обработкой ошибок."""
+
+    assert pfilepath is not None, \
+        "Assert: [basis:safe_read_json] " \
+        "Пропущен параметр <pfilepath> !"
+
     try:
-        async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
+
+        async with aiofiles.open(pfilepath, mode='r', encoding='utf-8') as f:
+
             content = await f.read()
             return json.loads(content)
     except FileNotFoundError:
-        print(f"Файл {filepath} не найден")
+
+        print(f"Файл {pfilepath} не найден")
         return None
     except json.JSONDecodeError as e:
-        print(f"Ошибка парсинга JSON в {filepath}: {e}")
+        print(f"Ошибка парсинга JSON в {pfilepath}: {e}")
         return None
 
 
-async def safe_write_json(filepath: str, data: dict, indent: int = 2) -> bool:
+async def safe_write_json(pfilepath: str, pdata: dict, pindent: int = 2) -> bool:
     """Безопасная запись JSON с обработкой ошибок."""
+
+    assert pfilepath is not None, \
+        "Assert: [basis:safe_write_json] " \
+        "Пропущен параметр <pfilepath> !"
+    assert pdata is not None, \
+        "Assert: [basis:safe_write_json] " \
+        "Пропущен параметр <pdata> !"
+
     try:
         # Создаём директорию, если её нет
-        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        Path(pfilepath).parent.mkdir(parents=True, exist_ok=True)
 
-        async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+        async with aiofiles.open(pfilepath, mode='w', encoding='utf-8') as f:
 
-            content = json.dumps(data, indent=indent, ensure_ascii=False)
+            content = json.dumps(pdata, indent=pindent, ensure_ascii=False)
             await f.write(content)
         return True
     # pylint: disable=broad-exception-caught
     except Exception as e:
 
-        print(f"Ошибка записи в {filepath}: {e}")
+        print(f"Ошибка записи в {pfilepath}: {e}")
         return False
 
 

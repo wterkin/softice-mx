@@ -23,8 +23,8 @@ class CCollector(basis.CBasis):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-        "Assert: [CCollector.__init__] " \
-        "Пропущен параметр <pconfig> !"
+            "Assert: [CCollector.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
         print("Коллектор стартовал.")
@@ -34,8 +34,8 @@ class CCollector(basis.CBasis):
         """Функция будет в определенные часы просить пожертвований."""
 
         assert panswer is not None, \
-        "Assert: [CCollector.__init__] " \
-        "Пропущен параметр <panswer> !"
+            "Assert: [CCollector.__init__] " \
+            "Пропущен параметр <panswer> !"
 
         # *** Время рабочее?
         just_now = datetime.now()

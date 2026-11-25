@@ -386,20 +386,29 @@ class CDataBase:
 
     def __init__(self, pconfig: Config, pdatabase_name: str):
         """Конструктор класса."""
+
+        assert pconfig is not None, \
+            "Assert: [CDataBase.__init__] " \
+            "Пропущен параметр <pconfig> !"
+        assert pdatabase_name is not None, \
+            "Assert: [CDataBase.__init__] " \
+            "Пропущен параметр <pdatabase_name> !"
+
         self.config: Config = pconfig
         self.AsyncSessionLocal = None
         self.engine = None
         self.busy: bool = False
         self.database_name: str = pdatabase_name
-        # rint(f"*** Database ** in ** {self.database_name} **")
         self.connected: bool = False
 
 
     async def commit_changes(self, obj) -> bool:
         """Сохраняет изменения в БД."""
 
+        assert obj is not None, \
+            "Assert: [CDataBase.commit_changes] " \
+            "Пропущен параметр <obj> !"
         # *** Сохраняем данные
-        # rint(f"*** Database ** cc ** Start! **")
         try:
 
             async with self.AsyncSessionLocal() as session:
@@ -435,10 +444,6 @@ class CDataBase:
                 if self.AsyncSessionLocal:
 
                     self.connected = True
-                # else:
-                #    print(f"*** Database ** cn ** self.AsyncSessionLocal is None! **")
-
-
             except exc.SQLAlchemyError:
 
                 print("Database error! * database.connect")
@@ -489,13 +494,10 @@ class CDataBase:
             async with self.AsyncSessionLocal() as session:
 
                 # Используем новое имя параметра
-                # rint(f"*** Database ** wt ** {model_class.__tablename__} **")
                 await session.execute(delete(model_class))
                 await session.execute(text(f"TRUNCATE TABLE {model_class.__tablename__}"
                                             " RESTART IDENTITY CASCADE"))
-                # rint(f"*** Database ** wt ** commit **")
                 await session.commit()
-                # rint(f"*** Database ** wt ** done **")
 
             return True
         except exc.SQLAlchemyError as ex:
@@ -506,6 +508,5 @@ class CDataBase:
     async def destroy(self):
         """Закрывает соединение с базой."""
 
-        # await self.AsyncSessionLocal.close()
         await self.engine.dispose()
         self.connected = False

@@ -54,6 +54,10 @@ class CGambler(basis.CBasis):
 
     def __init__(self, pconfig: Config):
 
+        assert pconfig is not None, \
+            "Assert: [CGambler.__init__] " \
+            "Пропущен параметр <pconfig> !"
+
         super().__init__(pconfig)
         print("Игрун стартовал.")
 

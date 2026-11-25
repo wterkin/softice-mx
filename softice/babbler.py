@@ -52,8 +52,8 @@ class CBabbler(basis.CBasis):
         """Конструктор."""
 
         assert pconfig is not None, \
-        "Assert: [babbler.__init__] " \
-        "Пропущен параметр <pconfig> !"
+            "Assert: [babbler.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + BABBLER_PATH
@@ -66,24 +66,20 @@ class CBabbler(basis.CBasis):
         """Обработчик команд болтуна"""
 
         assert proom_name is not None, \
-        "Assert: [CBabbler.babbler] " \
-        "Пропущен параметр <proom_name> !"
+            "Assert: [CBabbler.babbler] " \
+            "Пропущен параметр <proom_name> !"
         assert puser_name is not None, \
-        "Assert: [CBabbler.babbler] " \
-        "Пропущен параметр <puser_name> !"
+            "Assert: [CBabbler.babbler] " \
+            "Пропущен параметр <puser_name> !"
         assert pmessage is not None, \
-        "Assert: [CBabbler.babbler] " \
-        "Пропущен параметр <pmessage> !"
+            "Assert: [CBabbler.babbler] " \
+            "Пропущен параметр <pmessage> !"
 
         answer: str = ""
         delay: int = QUIET_TIME
         word_list: list = self.parse_input(pmessage)
-        # rint(f"*** Babbler ** bbl ** can_process? **")
         if self.can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS):
 
-            # *** Возможно, запросили перезагрузку базы.
-            # rint(f"*** Babbler ** bbl ** {COMMANDS[RELOAD_GROUP]=} **")
-            # rint(f"*** Babbler ** bbl ** {word_list[0]=} **")
             # *** Если это запрос списка команд..
             if word_list[0] in COMMANDS[HINT_GROUP]:
 
@@ -138,12 +134,13 @@ class CBabbler(basis.CBasis):
 
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
+
     def is_personal(self, pword_list: list) -> bool:
         """Определяет, есть ли во входном сообщении имя бота."""
 
         assert pword_list is not None, \
-        "Assert: [CBabbler.is_personal] " \
-        "Пропущен параметр <pword_list> !"
+            "Assert: [CBabbler.is_personal] " \
+            "Пропущен параметр <pword_list> !"
 
         personal: bool = False
         for nick in NICKNAMES:
@@ -160,11 +157,11 @@ class CBabbler(basis.CBasis):
         """Улучшенная версия болтуна."""
 
         assert proom_name is not None, \
-        "Assert: [CBabbler.talk] " \
-        "Пропущен параметр <proom_name> !"
+            "Assert: [CBabbler.talk] " \
+            "Пропущен параметр <proom_name> !"
         assert pmessage is not None, \
-        "Assert: [CBabbler.talk] " \
-        "Пропущен параметр <pmessage> !"
+            "Assert: [CBabbler.talk] " \
+            "Пропущен параметр <pmessage> !"
 
         answer: str = ""
         file_name: str = ""
@@ -221,8 +218,8 @@ class CBabbler(basis.CBasis):
         """Процесс принятия решений =)"""
 
         assert pmessage is not None, \
-        "Assert: [CBabbler.think] " \
-        "Пропущен параметр <pmessage> !"
+            "Assert: [CBabbler.think] " \
+            "Пропущен параметр <pmessage> !"
 
         reactions_path: Path = Path(self.data_path) / REACTIONS_FOLDER
         word_list: list = pmessage.split(" ")

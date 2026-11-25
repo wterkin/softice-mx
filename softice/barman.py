@@ -172,8 +172,8 @@ class CBarman(basis.CBasis):
     def __init__(self, pconfig: Config):
 
         assert pconfig is not None, \
-        "Assert: [CBasis.__init__] " \
-        "Пропущен параметр <pconfig> !"
+            "Assert: [CBasis.__init__] " \
+            "Пропущен параметр <pconfig> !"
 
         super().__init__(pconfig)
         self.data_path: str = self.config.data_folder + BARMAN_FOLDER
@@ -185,11 +185,14 @@ class CBarman(basis.CBasis):
         """Процедура разбора запроса пользователя."""
 
         assert proom_name is not None, \
-            "Assert: [CBarman.barman] Пропущен параметр <proom_name> !"
+            "Assert: [CBarman.barman] "\
+            "Пропущен параметр <proom_name> !"
         assert puser_name is not None, \
-            "Assert: [CBarman.barman] Пропущен параметр <puser_name> !"
+            "Assert: [CBarman.barman] " \
+            "Пропущен параметр <puser_name> !"
         assert pmessage_text is not None, \
-            "Assert: [CBarman.barman] Пропущен параметр <pmessage_text> !"
+            "Assert: [CBarman.barman] " \
+            "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
@@ -287,9 +290,11 @@ class CBarman(basis.CBasis):
         """Обслуживает клиентов."""
 
         assert puser_name is not None, \
-            "Assert: [CBarman.serve_client] Пропущен параметр <puser_name> !"
+            "Assert: [CBarman.serve_client] " \
+            "Пропущен параметр <puser_name> !"
         assert pcommand is not None, \
-            "Assert: [CBarman.serve_client] Пропущен параметр <pcommand> !"
+            "Assert: [CBarman.serve_client] " \
+            "Пропущен параметр <pcommand> !"
 
         answer: str = ""
         for item in ASSORTMENT:
