@@ -137,34 +137,25 @@ class CHaijin(basis.CBasis):
 
         answer: str = ""
         unformatted_answer: str = ""
-        # rint(f"+++ Hjn +++ 0 +++ {pmessage_text=}")
         word_list: list = self.parse_input(pmessage_text)
         # *** Мы можем обработать эту команду?
-        # rint(f"+++ Hjn +++ 1 +++ {word_list[0]=}")
-        # rint(f"+++ Hjn +++ 2 +++ {COMMANDS[RELOAD_COMMANDS]=}")
         if self.can_process_command(proom_name, pmessage_text, UNIT_ID, COMMANDS):
 
-            # rint(f"+++ Hjn +++ 3 +++ Process!")
             command: int = self.identify_command(word_list[0], COMMANDS)
-            # rint(f"+++ Hjn +++ 3 +++ {command=}")
 
             # *** Возможно, запросили перезагрузку.
             if command == RELOAD_COMMANDS:
 
-                # rint(f"+++ Hjn +++ 5 +++ Reload")
                 # *** Пользователь хочет перезагрузить книгу хокку
                 if self.is_master(pevent_sender):
 
-                    # rint(f"+++ Hjn +++ 6 +++ Master!")
                     await self.reload()
                     answer = "Книга загружена"
             elif command == SAVE_COMMANDS:
 
                 # *** Пользователь хочет сохранить книгу хокку
-                # rint(f"+++ Hjn +++ 7 +++ {puser_name}!")
                 if self.is_master(pevent_sender):
 
-                    # rint(f"+++ Hjn +++ 6 +++ Master!")
                     await self.save_to_file_async(self.hokku, self.data_path + HAIJIN_FILE_NAME)
                     answer = "Книга сохранена"
             elif command == HINT_COMMANDS:
@@ -172,7 +163,6 @@ class CHaijin(basis.CBasis):
                 # *** Пользователь хочет список команд
                 answer = self.get_commands(proom_name)
 
-            # answer, unformatted_answer = await self.process_command(word_list, puser_name)
             # *** Хокку запрашивали?
             elif command == ASK_COMMANDS:
 
@@ -219,6 +209,7 @@ class CHaijin(basis.CBasis):
 
                     print("> Haijin отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
         return answer
+
 
     async def reload(self):
         """Перезагружает библиотеку."""

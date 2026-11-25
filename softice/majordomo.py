@@ -68,7 +68,7 @@ class CMajordomo(basis.CBasis):
         return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_COMMANDS])
 
 
-    async def majordomo(self, proom_name, pmessage_text) -> str:
+    async def majordomo(self, proom_name: str, pmessage_text: str) -> str:
         """Главная функция модуля."""
 
         assert proom_name is not None, \
@@ -80,29 +80,21 @@ class CMajordomo(basis.CBasis):
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # rint(f"+++ MjDm +++ 1 +++ {word_list=}")
         # *** Эта команда входит в список основных команд модуля?
-        # rint(f"+++ MjDm +++ 1 +++ {word_list[0]=}")
-        # rint(f"+++ MjDm +++ 2 +++ {COMMANDS[HINT_COMMANDS]=}")
         if self.can_process_command(proom_name, pmessage_text):
 
             # *** Не запросили ли список команд?
             if word_list[0] in COMMANDS[HINT_COMMANDS]:
 
                 # *** Отправляем полный список команд
-                # rint(f"+++ MjDm +++ 2 +++ {DESCRIPTIONS=}")
                 answer = self.get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
-                # rint(f"+++ MjDm +++ 2 +++ {answer=}")
             else:
 
-                # rint("+++ MjDm +++ 3 +++ process")
                 # *** Ок. Указано, кого приветствовать?
                 if len(word_list) > 1:
 
                     # *** Приветствуем.
                     answer = random.choice(self.greetings) % word_list[1]
-                    # rint(f"+++ MjDm +++ 4 +++ {answer=}")
-
         return answer
 
 

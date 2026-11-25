@@ -31,7 +31,10 @@ class CTestBabbler(TestCase):
         self.assertNotEqual(result, "База болтуна обновлена")
         result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!молчи"))
         self.assertEqual(result, "молчу, молчу...")
-        self.babbler.last_phrase_time: datetime = datetime.now()
+        result = asyncio.run(self.babbler.babbler(self.config.test_chat, self.config.master, "!болтай"))
+        self.assertEqual(result, "что, уже можно?")
+        # self.babbler.last_phrase_time: datetime = datetime.now()
+
 
     def test_reload(self):
 

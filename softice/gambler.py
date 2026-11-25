@@ -60,6 +60,7 @@ class CGambler(basis.CBasis):
 
     def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
                     pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
         assert proom_name is not None, \
             "Assert: [gambler.can_class_process] " \
@@ -68,7 +69,6 @@ class CGambler(basis.CBasis):
             "Assert: [gambler.can_class_process] " \
             "Пропущен параметр <pmessage> !"
 
-        # rint(f"+++ Gmb +++ cpc +++ {COMMANDS=}")
         return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
@@ -79,7 +79,6 @@ class CGambler(basis.CBasis):
             "Assert: [gambler.get_command] " \
             "Пропущен параметр <proom_name> !"
 
-        # rint(f"+++ Gmb +++ gc +++")
         return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
@@ -100,12 +99,15 @@ class CGambler(basis.CBasis):
     def rock_scissors_paper_lizard_spock(self, pcommand: int):
         """Камень-ножницы-бумага."""
 
+        assert pcommand is not None, \
+            "Assert: [gambler.rock_scissors_paper_lizard_spock] " \
+            "Пропущен параметр <pcommand> !"
+
         answer = f"Ваш выбор {EMODJIES[pcommand]} {COMMANDS[pcommand][0]}\n"
         turn = random.randint(0,4)
         if pcommand == turn:
 
             answer += (f"Я выбрал также {EMODJIES[turn]}"
-                       #f"{ROCKSCIPAPLIZSPOCK_COMMANDS[turn]}. Ничья. 🤝")
                        f"{COMMANDS[turn][0]}. Ничья. 🤝")
         else:
 
@@ -188,21 +190,24 @@ class CGambler(basis.CBasis):
         return answer
 
 
-    def gambler(self, proom_name, pmessage_text: str):
+    def gambler(self, proom_name: str, pmessage_text: str):
         """Основной метод класса."""
+
+        assert proom_name is not None, \
+            "Assert: [gambler.gambler] " \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage_text is not None, \
+            "Assert: [gambler.gambler] " \
+            "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""
         word_list: list = self.parse_input(pmessage_text)
-        # if self.can_class_process(proom_name, pmessage_text):
-        # rint("+++ Gmb +++ gmbl +++ ")
-
         if self.can_process_command(proom_name, pmessage_text):
 
             # *** Получим код команды
             command: int = self.identify_command(word_list[0], COMMANDS)
             if ROCK_COMMANDS <= command <= SPOCK_COMMANDS:
 
-                #answer = self.rock_scissors_paper_lizard_spock(COMMANDS.index(word_list[0]))
                 answer = self.rock_scissors_paper_lizard_spock(command)
             elif command == COIN_COMMANDS:
 
@@ -216,11 +221,12 @@ class CGambler(basis.CBasis):
             if answer:
 
                 print("> Gambler отвечает: ", answer[:basis.OUT_MSG_LOG_LEN])
-
         return answer
+
 
     def throw_coin(self):
         """Орёл или решка."""
+
         answer: str = ""
         turn: int = random.randint(0,99)
         if turn % 2 == 0:

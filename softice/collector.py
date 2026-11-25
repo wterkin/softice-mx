@@ -9,7 +9,7 @@ from softice import basis
 from softice.config import Config
 
 UNIT_ID = "collector"
-WORK_HOURS: tuple = (12, 13, 14, 15, 16, 17, 18)
+WORK_HOURS: tuple = range(12, 19)
 PROBABILITY: int = 16
 CHANCE_VALUE: int = 8
 DONATE_MESSAGE: str = ("\n\nНравится SoftIce? Поддержи проект! Пожертвуй 56 рублей,"

@@ -14,12 +14,14 @@ from softice import basis
 # pylint: disable=too-many-nested-blocks
 # *** Команда перегрузки текстов
 COMMANDS: tuple = (("blreload", "blrl"),
-                   ("stoptalk", "молчи"),
+                   ("stoptalk", "st", "молчи", "мч"),
+                   ("letstalk", "lt", "болтай", "бт"),
                    ("babbler", "болтун"))
 
 RELOAD_GROUP: int = 0
 QUIET_GROUP: int = 1
-HINT_GROUP: int = 2
+TALK_GROUP: int = 2
+HINT_GROUP: int = 3
 
 DESCRIPTIONS: tuple = ("",
                        (f"{', '.join(COMMANDS[QUIET_GROUP])} : "
@@ -110,6 +112,10 @@ class CBabbler(basis.CBasis):
                             delay = value
                 answer = "молчу, молчу..."
                 self.last_phrase_time += timedelta(minutes=delay)
+            elif word_list[0] in COMMANDS[TALK_GROUP]:
+
+                answer = "что, уже можно?"
+                self.last_phrase_time=datetime.now()
         return answer
 
 
