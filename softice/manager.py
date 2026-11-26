@@ -109,7 +109,7 @@ class CManager(basis.CBasis):
             else:
 
                 # *** Получим код команды
-                if word_list[0] in COMMANDS[RESTART_GROUP]:
+                if word_list[0] in COMMANDS[QUIT_GROUP]:
 
                     # rint(f"+++ Mgr +++ 3 +++ Quit")
                     if self.is_master(puser_name):
@@ -134,7 +134,7 @@ class CManager(basis.CBasis):
 
                             self.last_report = True
                             await send_text_to_room(self.client, proom_id, "Щасвирнус.")
-                        asyncio.sleep(OBSOLETE_PERIOD // 1000)
+                        await asyncio.sleep(OBSOLETE_PERIOD // 1000)
                         await self.suicide()
                     else:
 

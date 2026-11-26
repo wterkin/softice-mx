@@ -95,4 +95,6 @@ class CTestStarGazer(TestCase):
         self.assertEqual(self.stargazer.calc_difference(["yr",sample_date_str]),
                          f"C указанной даты прошло {self.stargazer.get_diff_in_years(difference): } лет")
         self.assertEqual(self.stargazer.calc_difference(["yr"]), "А дата где?")
+        result = asyncio.run(self.stargazer.stargazer(self.config.test_chat, "!сейчас"))
+        self.assertIn("от сотворения мира", result)
 

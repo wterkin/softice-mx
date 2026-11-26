@@ -385,10 +385,10 @@ class CStarGazer(basis.CBasis):
                 gregorian_date: dtime.date = dtime.datetime.now()
                 julian_date: dtime.datetime = calculate_julian_date(gregorian_date.date())
                 year_from_bc: int = calculate_year_from_bc(gregorian_date)
-                answer = (f"Сегодня {gregorian_date.strftime(RUSSIAN_DATETIME_FORMAT)} по Москве"
+                answer = (f"Сегодня {gregorian_date.strftime(RUSSIAN_DATETIME_FORMAT)} по Москве. "
                           "По Юлианскому календарю сегодня "
                           f"{julian_date.strftime(RUSSIAN_DATE_FORMAT)}"
-                          f"По летоисчислению от сотворения мира сейчас {year_from_bc} год")
+                          f". По летоисчислению от сотворения мира сейчас {year_from_bc} год.")
 
             elif word_list[0] in COMMANDS[NEW_YEAR_GROUP]:
 
