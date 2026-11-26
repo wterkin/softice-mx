@@ -2,143 +2,142 @@
 # @author: Andrey Pakhomenkov pakhomenkov dog mail.ru
 """Модуль звонаря."""
 
-import functions as func
-import prototype
+import datetime as dtime
+from datetime import datetime as dt
 
-COMMANDS: list = ["звонить", "звон", "зв", "ring", "игрок+", "игр+", "игрок-", "игр-"]
-BELLRINGER_HINT: list = ["звонарь", "ringer"]
-BELLRINGER_FOLDER: str = "bellringer/"
+from softice import basis
+from softice import database as db
+from softice import statistic
+
+COMMANDS: tuple = (("звонить", "звон", "ring", "rg"),
+                   ("тихо", "тх", "quiet", "qt"),
+                   ("звонарь", "ringer"))
+RING_GROUP: int = 0
+QUIET_GROUP: int = 1
+HINT_GROUP: int = 2
+DESCRIPTIONS: tuple = ( (f"{', '.join(COMMANDS[RING_GROUP])} :"
+                         f" Вызвать для игры активных пользователей чата"),
+                       (f"{', '.join(COMMANDS[QUIET_GROUP])} :"
+                        f" Исключить себя из списка активных пользователей чата"
+                         " - при первом слове, сказанном вами, статус сбрасывается"),
+                        "")
+
+
 UNIT_ID: str = "bellringer"
-MAFIA_CHANNELS: list = ["Асы мафии", "TestPlace"]
-RING_CMDS_OFFSET: int = 0
-ADD_PLAYER_CMDS_OFFSET: int = 4
-DEL_PLAYER_CMDS_OFFSET: int = 6
+# MAFIA_CHANNELS: list = ["Асы мафии", "TestPlace"]
 
-class CBellRinger(prototype.CPrototype):
+class CBellRinger(basis.CBasis):
     """Класс звонаря."""
 
-    def __init__(self, pconfig, pdata_path):
+    def __init__(self, pconfig, pstatistic: statistic.CStatistic):
 
-        super().__init__()
-        self.config = pconfig
-        self.data_path = pdata_path + BELLRINGER_FOLDER
+        assert pconfig is not None, \
+            "Assert: [CBellRinger.__init__] " \
+            "Пропущен параметр <pconfig> !"
+        super().__init__(pconfig)
+        self.statistic: statistic.CStatistic = pstatistic
+        # self.data_path = pdata_path + BELLRINGER_FOLDER
 
 
-    def bellringer(self, pchat_title: str, puser_name: str, pmessage_text: str):
+    async def bellringer(self, proom_name: str, proom_id: str,
+                   puser_name: str, pmessage_text: str):
         """Основная функция модуля."""
+
+        assert proom_name is not None, \
+            "Assert: [CBellRinger.bellringer] "\
+            "Пропущен параметр <proom_name> !"
+        assert puser_name is not None, \
+            "Assert: [CBellRinger.bellringer] " \
+            "Пропущен параметр <puser_name> !"
+        assert pmessage_text is not None, \
+            "Assert: [CBellRinger.bellringer] " \
+            "Пропущен параметр <pmessage_text> !"
 
         answer: str = ""
         player_list: list
-        word_list: list = func.parse_input(pmessage_text)
-        if self.can_process(pchat_title, pmessage_text):
+        word_list: list = self.parse_input(pmessage_text)
+        if self.can_process_command(proom_name, pmessage_text):
 
-            if word_list[0] in BELLRINGER_HINT:
+            if word_list[0] in COMMANDS[HINT_GROUP]:
 
-                answer = self.get_help(pchat_title)
-            else:
+                answer = self.get_commands(proom_name)
 
-                if word_list[0] in COMMANDS:
+            elif word_list[0] in COMMANDS[RING_GROUP]:
 
-                    if word_list[0] in COMMANDS[ADD_PLAYER_CMDS_OFFSET:ADD_PLAYER_CMDS_OFFSET+2]:
+                """if pchat_title in MAFIA_CHANNELS:
 
-                        # *** Пользователь хочет добавить игрока
-                        if self.is_master(puser_name):
+                    #user_list = func.load_from_file(self.data_path+"/"+pchat_title+".txt")
+                    #answer = "Эй, " + ", ".join(user_list) + \
+                    #         "! Пошли, поохотимся на дона! или на мителей...
+                """
+                player_list = await self.get_active_user_list(proom_id)
+                answer = ", ".join(player_list) + " Подъём, банда! "
+            elif word_list[0] in COMMANDS[QUIET_GROUP]:
 
-                            file_name:str = self.data_path+pchat_title+".txt"
-                            player_list = func.load_from_file(file_name)
-                            player_name: str = word_list[1]
-                            if player_name not in player_list:
-
-                                player_list.append(player_name)
-                                func.save_list(player_list, file_name)
-                                answer = f"Игрок {player_name} добавлен."
-                            else:
-
-                                answer = f"Игрок {player_name} уже есть в списке."
-                    elif word_list[0] in COMMANDS[DEL_PLAYER_CMDS_OFFSET:DEL_PLAYER_CMDS_OFFSET+2]:
-
-                        # *** Пользователь хочет удалить игрока
-                        if self.is_master(puser_name):
-
-                            player_name: str = word_list[1]
-                            file_name: str = self.data_path+"/"+pchat_title+".txt"
-                            player_list = func.load_from_file(file_name)
-                            if player_name in player_list:
-
-                                try:
-                                    player_idx = player_list.index(player_name)
-                                except ValueError:
-                                    player_idx = -1
-                                if player_idx >= 0:
-
-                                    del player_list[player_idx]
-                                    func.save_list(player_list, file_name)
-                                    answer = f"Игрок {player_name} удален"
-                            else:
-
-                                answer = f"Игрок {player_name} отсутствует в списке"
-                    elif word_list[0] in COMMANDS[RING_CMDS_OFFSET:RING_CMDS_OFFSET+4]:
-
-                        if pchat_title in MAFIA_CHANNELS:
-
-                            user_list = func.load_from_file(self.data_path+"/"+pchat_title+".txt")
-                            answer = "Эй, " + ", ".join(user_list) + \
-                                     "! Пошли, поохотимся на дона! или на мителей..."
+                # *** Отключаем товарищу звон
+                pass
         if answer:
 
-            print(f"BellRinger отвечает: {answer[:func.OUT_MSG_LOG_LEN]}")
+            print(f"BellRinger отвечает: {answer[self.OUT_MSG_LOG_LEN]}")
         return answer
 
 
-    def can_process(self, pchat_title: str, pmessage_text: str) -> bool:
-        """Возвращает True, если модуль может обработать команду."""
+    def can_process_command(self, proom_name: str, pmessage: str,  punit_id: str = "",
+                    pcommands: list = None) -> bool:
+        """Процедура определяет, сможет ли данный модуль обработать данную команду."""
 
-        found: bool = False
-        if self.is_enabled(pchat_title):
+        assert proom_name is not None, \
+            "Assert: [CBarman.can_process_command] " \
+            "Пропущен параметр <proom_name> !"
+        assert pmessage is not None, \
+            "Assert: [CBarman.can_process_command] " \
+            "Пропущен параметр <pmessage> !"
 
-            word_list: list = func.parse_input(pmessage_text)
-            for command in COMMANDS:
-
-                found = word_list[0] in command
-                if found:
-
-                    break
-            if not found:
-
-                found = word_list[0] in BELLRINGER_HINT
-        return found
+        return super().can_process_command(proom_name, pmessage, UNIT_ID, COMMANDS)
 
 
-    def get_help(self, pchat_title: str) -> str:
-        """Возвращает список команд модуля, доступных пользователю."""
+    def get_commands(self, proom_name: str, punit_id: str="", pdescriptions: list=None) -> str:
+        """Пользователь запросил список команд."""
 
-        return ", ".join(COMMANDS) + "\n"
+        assert proom_name is not None, \
+            "Assert: [CBarman.get_commands] " \
+            "Пропущен параметр <proom_name> !"
 
-
-    def get_hint(self, pchat_title: str) -> str:
-        """Возвращает команду верхнего уровня, в ответ на которую
-           модуль возвращает полный список команд, доступных пользователю."""
-
-        if self.is_enabled(pchat_title):
-
-            return ", ".join(BELLRINGER_HINT)
-        return ""
+        return super().get_commands(proom_name, UNIT_ID, DESCRIPTIONS)
 
 
-    def is_enabled(self, pchat_title: str) -> bool:
-        """Возвращает True, если на этом канале этот модуль разрешен."""
+    def get_hint(self, proom_name: str, punit_id: str = "",
+                 phints: str = "") -> str:
+        """Возвращает команду, которая возвращает полныйй список команд, поддерживаемых модулем."""
 
-        if pchat_title in self.config["chats"]:
+        assert proom_name is not None, \
+            "Assert: [CBarman.get_hint] " \
+            "Пропущен параметр <room_name> !"
 
-            return UNIT_ID in self.config["chats"][pchat_title]
-        return False
-
-
-    def is_master(self, puser_name: str) -> bool:
-        """Проверяет, хозяин ли отдал команду."""
-
-        return puser_name == self.config["master"]
+        return super().get_hint(proom_name, UNIT_ID, COMMANDS[HINT_GROUP])
 
 
-    def reload(self):
+    async def get_active_user_list(self, pmx_room_id: str) -> list:
+        """Выбирает из БД список пользователей, которые были
+           активны в течении последней недели"""
+        result: list = []
+        base = self.statistic.database
+        week_date = dt.now - dtime.timedelta(days=7)
+        room_id = await self.statistic.get_room_id(pmx_room_id)
+        if room_id != self.statistic.ERROR_CODE:
+
+            sel = base.query_data(db.CStat.userid)
+            sel = sel.where(db.CStat.roomid==room_id)
+            sel = sel.where(db.CStat.fupdated>=week_date)
+            sel = sel.where(db.CStat.silence is False)
+            sess = await base.get_session()
+            async with sess() as session:
+
+                res = await session.execute(sel)
+                result = res.all()
+                print(result)
+        return result
+
+
+    async def reload(self):
         """Вызывает перезагрузку внешних данных модуля."""
