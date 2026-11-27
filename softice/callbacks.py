@@ -27,6 +27,7 @@ from softice.config import Config
 from softice.storage import Storage
 from softice.babbler import CBabbler
 from softice.barman import CBarman
+from softice.bellringer import CBellRinger
 from softice.collector import CCollector
 from softice.gambler import CGambler
 from softice.haijin import CHaijin
@@ -81,6 +82,8 @@ class Callbacks:
         self.stargazer: CStarGazer = CStarGazer(self.config)
         self.statistic: CStatistic = CStatistic(self.config, "softice_mx")
         self.theolog: CTheolog = CTheolog(self.config)
+        self.bellringer: CBellRinger = CBellRinger(self.config, self.statistic)
+
         self.first_run: bool = True
         self.last_message: str = ""
         self.manager.delete_restart_flag()
@@ -167,6 +170,10 @@ class Callbacks:
                     answer = await self.barman.barman(room.name, local_name, message)
                 if not answer:
 
+                    # *** Звонарю есть что сказать?
+                    answer = await self.bellringer.bellringer(room.name, room.room_id,
+                                                              event.sender, message)
+                if not answer:
                     # *** Игруну есть что сказать?
                     answer = self.gambler.gambler(room.name, message)
                 if not answer:
@@ -273,6 +280,10 @@ class Callbacks:
 
             answer += result + "\n"
         result: str = self.barman.get_hint(proom_name)
+        if result:
+
+            answer += result + "\n"
+        result: str = self.bellringer.get_hint(proom_name)
         if result:
 
             answer += result + "\n"

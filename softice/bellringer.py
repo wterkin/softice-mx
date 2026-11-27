@@ -39,8 +39,8 @@ class CBellRinger(basis.CBasis):
         # self.data_path = pdata_path + BELLRINGER_FOLDER
 
 
-    async def bellringer(self, proom_name: str, proom_id: str,
-                   puser_name: str, pmessage_text: str):
+    async def bellringer(self, proom_name: str, proom_id: str, puser_name: str,
+                         pmessage_text: str):
         """Основная функция модуля."""
 
         assert proom_name is not None, \
@@ -64,12 +64,6 @@ class CBellRinger(basis.CBasis):
 
             elif word_list[0] in COMMANDS[RING_GROUP]:
 
-                """if pchat_title in MAFIA_CHANNELS:
-
-                    #user_list = func.load_from_file(self.data_path+"/"+pchat_title+".txt")
-                    #answer = "Эй, " + ", ".join(user_list) + \
-                    #         "! Пошли, поохотимся на дона! или на мителей...
-                """
                 player_list = await self.get_active_user_list(proom_id)
                 answer = ", ".join(player_list) + " Подъём, банда! "
             elif word_list[0] in COMMANDS[QUIET_GROUP]:
